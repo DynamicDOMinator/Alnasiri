@@ -106,13 +106,13 @@ export default function Example() {
       <header className="bg-white shadow fixed top-0 w-full z-50">
         <nav
           aria-label="Global"
-          className="flex items-center justify-between p-6 lg:px-16 "
+          className="flex items-center justify-between p-6 lg:px-16"
         >
-          <div className="lg:flex lg:flex-1 hidden ">
+          <div className="flex flex-1">
             <div>
               <button
                 onClick={() => setAuthModalOpen(true)}
-                className="bg-primary border-primary bg-[#FF6624] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center "
+                className="bg-primary border-primary bg-[#FF6624] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center"
               >
                 تسجيل دخول
                 <span>
@@ -132,7 +132,8 @@ export default function Example() {
               </button>
             </div>
           </div>
-          <div className="flex lg:hidden">
+
+          <div className="flex lg:hidden order-2">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
@@ -286,30 +287,43 @@ export default function Example() {
           className="lg:hidden"
         >
           <div className="fixed inset-0 z-10" />
-          <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-green-50 px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+          <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
-              <a href="#" className="-m-1.5 p-1.5">
-                <span className="sr-only">Your Company</span>
-                <img
-                  alt="Logo"
-                  src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                  className="h-8"
-                />
-              </a>
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="bg-primary border-primary bg-[#FF6624] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center"
+              >
+                تسجيل دخول
+                <span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-4"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </span>
+              </button>
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="-m-2.5 inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700"
+                className="-m-2.5 rounded-md p-2.5 text-gray-700"
               >
                 <span className="sr-only">Close menu</span>
-                <XMarkIcon aria-hidden="true" className="h-5 w-5" />
+                <XMarkIcon aria-hidden="true" className="h-6 w-6" />
               </button>
             </div>
             <div className="mt-6 flow-root">
-              <ul className="-my-6">
-                <li>
+              <div className="-my-6 divide-y divide-gray-500/10">
+                <div className="space-y-2 py-6">
+                  {/* محامين حسب الموقع */}
                   <Disclosure as="div" className="flex flex-col py-2">
-                    <DisclosureButton className="flex items-center justify-between w-full text-sm font-semibold text-gray-900">
-                      Product
+                    <DisclosureButton className="flex items-center justify-between w-full text-lg font-semibold text-gray-900">
+                      محامين حسب الموقع
                       <ChevronDownIcon
                         aria-hidden="true"
                         className="h-5 w-5 flex-shrink-0"
@@ -317,21 +331,36 @@ export default function Example() {
                     </DisclosureButton>
                     <DisclosurePanel className="mt-2 space-y-2">
                       {products.map((item) => (
-                        <Link
+                        <div
                           key={item.name}
-                          href={item.href}
-                          className="-mx-2 block rounded-lg py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-100"
+                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
                         >
-                          {item.name}
-                        </Link>
+                          <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
+                            <item.icon
+                              aria-hidden="true"
+                              className="size-6 text-gray-600 group-hover:text-indigo-600"
+                            />
+                          </div>
+                          <div className="flex-auto">
+                            <Link
+                              href={item.href}
+                              className="block font-semibold text-gray-900"
+                            >
+                              {item.name}
+                            </Link>
+                            <p className="mt-1 text-gray-600">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
                       ))}
                     </DisclosurePanel>
                   </Disclosure>
-                </li>
-                <li>
+
+                  {/* محامين حسب مجال الممارسة */}
                   <Disclosure as="div" className="flex flex-col py-2">
-                    <DisclosureButton className="flex items-center justify-between w-full text-sm font-semibold text-gray-900">
-                      Items
+                    <DisclosureButton className="flex items-center justify-between w-full text-lg font-semibold text-gray-900">
+                      محامين حسب مجال الممارسة
                       <ChevronDownIcon
                         aria-hidden="true"
                         className="h-5 w-5 flex-shrink-0"
@@ -339,18 +368,70 @@ export default function Example() {
                     </DisclosureButton>
                     <DisclosurePanel className="mt-2 space-y-2">
                       {items.map((item) => (
-                        <Link
+                        <div
                           key={item.name}
-                          href={item.href}
-                          className="-mx-2 block rounded-lg py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-100"
+                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
                         >
-                          {item.name}
-                        </Link>
+                          <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
+                            <item.icon
+                              aria-hidden="true"
+                              className="size-6 text-gray-600 group-hover:text-indigo-600"
+                            />
+                          </div>
+                          <div className="flex-auto">
+                            <Link
+                              href={item.href}
+                              className="block font-semibold text-gray-900"
+                            >
+                              {item.name}
+                            </Link>
+                            <p className="mt-1 text-gray-600">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
                       ))}
                     </DisclosurePanel>
                   </Disclosure>
-                </li>
-              </ul>
+
+                  {/* المواضيع القانونية اسألة وجواب */}
+                  <Disclosure as="div" className="flex flex-col py-2">
+                    <DisclosureButton className="flex items-center justify-between w-full text-lg font-semibold text-gray-900">
+                      المواضيع القانونية اسألة وجواب
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="h-5 w-5 flex-shrink-0"
+                      />
+                    </DisclosureButton>
+                    <DisclosurePanel className="mt-2 space-y-2">
+                      {items.map((item) => (
+                        <div
+                          key={item.name}
+                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                        >
+                          <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
+                            <item.icon
+                              aria-hidden="true"
+                              className="size-6 text-gray-600 group-hover:text-indigo-600"
+                            />
+                          </div>
+                          <div className="flex-auto">
+                            <Link
+                              href={item.href}
+                              className="block font-semibold text-gray-900"
+                            >
+                              {item.name}
+                            </Link>
+                            <p className="mt-1 text-gray-600">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </DisclosurePanel>
+                  </Disclosure>
+                </div>
+              </div>
             </div>
           </DialogPanel>
         </Dialog>
