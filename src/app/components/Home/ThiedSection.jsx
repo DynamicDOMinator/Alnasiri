@@ -23,7 +23,7 @@ function ThiedSection() {
           </div>
 
           <Image
-            className="md:mx-auto "
+            className="md:mx-auto h-auto"
             src="/images/ask.png"
             alt="أسال محامي"
             width={500}

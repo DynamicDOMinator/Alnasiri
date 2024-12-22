@@ -251,7 +251,7 @@ const HeroSection = () => {
         style={{ backgroundImage: `url("/images/bg-heroSection.png")` }}
       >
         <Image
-          className="mx-auto md:h-[600px]"
+          className="mx-auto md:h-[600px] w-auto"
           src="/images/Lawyer-hero.png"
           alt="Lawyer"
           width={500}
