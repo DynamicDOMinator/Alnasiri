@@ -4,29 +4,49 @@ import Link from "next/link";
 import React, { useState } from "react";
 import Image from "next/image";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+
+const legalSpecialties = [
+  "القانون التجاري",
+  "قانون العمل",
+  "القانون الجنائي",
+  "قانون الأحوال الشخصية",
+  "القانون العقاري",
+  "قانون الشركات",
+  "الملكية الفكرية",
+  "القانون البنكي",
+  "قانون التأمين",
+  "قضايا الأسرة",
+  "القانون الإداري",
+  "قانون المنافسة",
+  "التحكيم التجاري",
+  "قضايا الإفلاس",
+  "حقوق الإنسان",
+];
+
+const citiesInKSA = [
+  "الرياض",
+  "جدة",
+  "مكة المكرمة",
+  "المدينة المنورة",
+  "الدمام",
+  "الخبر",
+  "الظهران",
+  "تبوك",
+  "أبها",
+  "الطائف",
+  "بريدة",
+  "نجران",
+  "جازان",
+  "حائل",
+  "الجبيل",
+  "الأحساء",
+  "القطيف",
+  "خميس مشيط",
+];
+
 const HeroSection = () => {
   const [step, setStep] = useState(1); //following the steps
   const [selectedCity, setSelectedCity] = useState(""); //choose the city
-
-  const citiesInKSA = [
-    "الرياض",
-    "جدة",
-    "مكة",
-    "المدينة المنورة",
-    "الدمام",
-    "الخبر",
-    "تبوك",
-    "أبها",
-    "خميس مشيط",
-    "بريدة",
-    "حائل",
-    "جيزان",
-    "نجران",
-    "القصيم",
-    "الخفجي",
-    "ينبع",
-    "حفر الباطن",
-  ];
 
   const renderContent = () => {
     switch (step) {
@@ -69,7 +89,7 @@ const HeroSection = () => {
             <div className="flex flex-col gap-6 ">
               <button
                 className=" flex items-center flex-row-reverse gap-1 text-blue-500 font-semibold text-right border-2 border-blue-500 hover:underline px-6 py-3 rounded shadow"
-                onClick={() => setStep(4)}
+                onClick={() => setStep(7)}
               >
                 من ذوي الخبرة في مسألة قانونية
                 <ChevronDownIcon
@@ -115,7 +135,7 @@ const HeroSection = () => {
         return (
           <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
             <p className="text-2xl  mb-6 text-black text-right">
-              أريد ان اجد محامي ذو خبرة في مكافحة الاحتكار
+              أريد ان اجد محامي ذو خبرة في
             </p>
 
             <label
@@ -140,7 +160,7 @@ const HeroSection = () => {
             <div className="flex justify-between items-center lg:pt-20 pt-10">
               <button
                 className=" flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
-                onClick={() => setStep(1)}
+                onClick={() => setStep(2)}
               >
                 العودة
                 <ChevronDownIcon
@@ -163,6 +183,7 @@ const HeroSection = () => {
             </div>
           </div>
         );
+
       case 6:
         return (
           <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
@@ -222,7 +243,7 @@ const HeroSection = () => {
             <div className="flex justify-between items-center lg:pt-20 pt-10">
               <button
                 className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
-                onClick={() => setStep(1)}
+                onClick={() => setStep(2)}
               >
                 العودة
                 <ChevronDownIcon
@@ -233,6 +254,58 @@ const HeroSection = () => {
               <button
                 className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
                 onClick={() => alert("تم البحث عن المحامي")}
+              >
+                ابحث عن محامي
+              </button>
+            </div>
+          </div>
+        );
+      case 7:
+        return (
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
+            <p className="text-2xl  mb-6 text-black text-right">
+              أريد ان اجد محامي ذو خبرة في
+            </p>
+
+            <label
+              htmlFor="citySelect"
+              className="block text-black text-lg text-right mb-2"
+            >
+              التخصص القانوني
+            </label>
+            <select
+              id="citySelect"
+              className="border-2 border-[#16498C]  rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="">اختر التخصص</option>
+              {legalSpecialties.map((specialty, index) => (
+                <option key={index} value={specialty}>
+                  {specialty}
+                </option>
+              ))}
+            </select>
+            <div className="flex justify-between items-center lg:pt-20 pt-10">
+              <button
+                className=" flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
+                onClick={() => setStep(2)}
+              >
+                العودة
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-3 flex-none text-blue-500 rotate-90"
+                />
+              </button>
+              <button
+                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                onClick={() =>
+                  alert(
+                    `تم اختيار المدينة: ${
+                      selectedCity || "لم يتم اختيار مدينة"
+                    }`
+                  )
+                }
               >
                 ابحث عن محامي
               </button>
@@ -251,7 +324,7 @@ const HeroSection = () => {
         style={{ backgroundImage: `url("/images/bg-heroSection.png")` }}
       >
         <Image
-          className="mx-auto md:h-[600px] w-auto"
+          className="mx-auto md:h-[600px] h-[350px] w-auto"
           src="/images/Lawyer.png"
           alt="Lawyer"
           width={500}

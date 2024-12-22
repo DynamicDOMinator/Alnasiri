@@ -321,47 +321,50 @@ export default function ClientForm() {
                   </label>
                 </div>
 
-                {/* Communication Method - Moved here */}
-                <div className="pt-5">
-                  <p className="pb-4">
-                    نستخدم هذا السؤال للحصول على المساعدة من المحامين بشكل أسرع.
-                  </p>
-                  <label className="block font-medium mb-1">
-                    طريقة التواصل
-                  </label>
-                  <div className="space-x-4 flex flex-col gap-2">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="contactMethod"
-                        value="call"
-                        onChange={() => setContactMethod("call")}
-                        className="form-radio ml-2"
-                      />
-                      <span>مكالمة</span>
+                {/* Communication Method - Now conditional on hireTime having a value */}
+                {hireTime && (
+                  <div className="pt-5">
+                    <p className="pb-4">
+                      نستخدم هذا السؤال للحصول على المساعدة من المحامين بشكل
+                      أسرع.
+                    </p>
+                    <label className="block font-medium mb-1">
+                      طريقة التواصل
                     </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="contactMethod"
-                        value="message"
-                        onChange={() => setContactMethod("message")}
-                        className="form-radio ml-2"
-                      />
-                      <span>رسالة</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="contactMethod"
-                        value="none"
-                        onChange={() => setContactMethod("none")}
-                        className="form-radio ml-2"
-                      />
-                      <span>لا افضل التواصل</span>
-                    </label>
+                    <div className="space-x-4 flex flex-col gap-2">
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="contactMethod"
+                          value="call"
+                          onChange={() => setContactMethod("call")}
+                          className="form-radio ml-2"
+                        />
+                        <span>مكالمة</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="contactMethod"
+                          value="message"
+                          onChange={() => setContactMethod("message")}
+                          className="form-radio ml-2"
+                        />
+                        <span>رسالة</span>
+                      </label>
+                      <label className="inline-flex items-center">
+                        <input
+                          type="radio"
+                          name="contactMethod"
+                          value="none"
+                          onChange={() => setContactMethod("none")}
+                          className="form-radio ml-2"
+                        />
+                        <span>لا افضل التواصل</span>
+                      </label>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
