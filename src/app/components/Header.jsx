@@ -145,10 +145,10 @@ export default function Example() {
           </div>
 
           <div className="flex items-center gap-10">
-            <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse  ">
+            <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse">
               {/* Product Menu */}
               <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900">
+                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900 mt-2">
                   <ChevronDownIcon
                     aria-hidden="true"
                     className="size-5 flex-none text-gray-400"
@@ -164,7 +164,7 @@ export default function Example() {
                     {products.map((item) => (
                       <div
                         key={item.name}
-                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
                       >
                         <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                           <item.icon
@@ -172,7 +172,7 @@ export default function Example() {
                             className="size-6 text-gray-600 group-hover:text-indigo-600"
                           />
                         </div>
-                        <div className="flex-auto">
+                        <div className="flex-auto text-right">
                           <Link
                             href={item.href}
                             className="block font-semibold text-gray-900"
@@ -192,7 +192,7 @@ export default function Example() {
 
               {/* Items Menu */}
               <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900">
+                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900 mt-2">
                   <ChevronDownIcon
                     aria-hidden="true"
                     className="size-5 flex-none text-gray-400"
@@ -208,7 +208,7 @@ export default function Example() {
                     {items.map((item) => (
                       <div
                         key={item.name}
-                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
                       >
                         <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                           <item.icon
@@ -216,7 +216,7 @@ export default function Example() {
                             className="size-6 text-gray-600 group-hover:text-indigo-600"
                           />
                         </div>
-                        <div className="flex-auto">
+                        <div className="flex-auto text-right">
                           <Link
                             href={item.href}
                             className="block font-semibold text-gray-900"
@@ -235,7 +235,7 @@ export default function Example() {
               </Popover>
 
               <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900">
+                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900 mt-2">
                   <ChevronDownIcon
                     aria-hidden="true"
                     className="size-5 flex-none text-gray-400"
@@ -251,7 +251,7 @@ export default function Example() {
                     {items.map((item) => (
                       <div
                         key={item.name}
-                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
                       >
                         <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                           <item.icon
@@ -259,7 +259,7 @@ export default function Example() {
                             className="size-6 text-gray-600 group-hover:text-indigo-600"
                           />
                         </div>
-                        <div className="flex-auto">
+                        <div className="flex-auto text-right">
                           <Link
                             href={item.href}
                             className="block font-semibold text-gray-900"
@@ -321,8 +321,8 @@ export default function Example() {
               <div className="-my-6 divide-y divide-gray-500/10">
                 <div className="space-y-2 py-6">
                   {/* محامين حسب الموقع */}
-                  <Disclosure as="div" className="flex flex-col py-2">
-                    <DisclosureButton className="flex items-center justify-between w-full text-lg font-semibold text-gray-900">
+                  <Disclosure as="div" className="flex flex-col py-2 pt-8">
+                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-lg font-semibold text-gray-900 text-right">
                       محامين حسب الموقع
                       <ChevronDownIcon
                         aria-hidden="true"
@@ -333,7 +333,7 @@ export default function Example() {
                       {products.map((item) => (
                         <div
                           key={item.name}
-                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                          className="group relative flex items-center  gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
                         >
                           <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                             <item.icon
@@ -341,7 +341,7 @@ export default function Example() {
                               className="size-6 text-gray-600 group-hover:text-indigo-600"
                             />
                           </div>
-                          <div className="flex-auto">
+                          <div className="flex-auto text-right">
                             <Link
                               href={item.href}
                               className="block font-semibold text-gray-900"
@@ -359,7 +359,7 @@ export default function Example() {
 
                   {/* محامين حسب مجال الممارسة */}
                   <Disclosure as="div" className="flex flex-col py-2">
-                    <DisclosureButton className="flex items-center justify-between w-full text-lg font-semibold text-gray-900">
+                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-lg font-semibold text-gray-900 text-right">
                       محامين حسب مجال الممارسة
                       <ChevronDownIcon
                         aria-hidden="true"
@@ -370,7 +370,7 @@ export default function Example() {
                       {items.map((item) => (
                         <div
                           key={item.name}
-                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
                         >
                           <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                             <item.icon
@@ -378,7 +378,7 @@ export default function Example() {
                               className="size-6 text-gray-600 group-hover:text-indigo-600"
                             />
                           </div>
-                          <div className="flex-auto">
+                          <div className="flex-auto text-right">
                             <Link
                               href={item.href}
                               className="block font-semibold text-gray-900"
@@ -396,7 +396,7 @@ export default function Example() {
 
                   {/* المواضيع القانونية اسألة وجواب */}
                   <Disclosure as="div" className="flex flex-col py-2">
-                    <DisclosureButton className="flex items-center justify-between w-full text-lg font-semibold text-gray-900">
+                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-lg font-semibold text-gray-900 text-right">
                       المواضيع القانونية اسألة وجواب
                       <ChevronDownIcon
                         aria-hidden="true"
@@ -407,7 +407,7 @@ export default function Example() {
                       {items.map((item) => (
                         <div
                           key={item.name}
-                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
                         >
                           <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                             <item.icon
@@ -415,7 +415,7 @@ export default function Example() {
                               className="size-6 text-gray-600 group-hover:text-indigo-600"
                             />
                           </div>
-                          <div className="flex-auto">
+                          <div className="flex-auto text-right">
                             <Link
                               href={item.href}
                               className="block font-semibold text-gray-900"

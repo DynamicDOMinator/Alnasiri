@@ -252,7 +252,7 @@ const HeroSection = () => {
       >
         <Image
           className="mx-auto md:h-[600px] w-auto"
-          src="/images/Lawyer-hero.png"
+          src="/images/Lawyer.png"
           alt="Lawyer"
           width={500}
           height={500}

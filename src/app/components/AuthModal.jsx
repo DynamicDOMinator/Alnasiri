@@ -147,7 +147,7 @@ export default function AuthModal({ isOpen, onClose }) {
           </button>
 
           {currentStep === steps.SELECTION && (
-            <div className="space-y-4 text-right">
+            <div className="space-y-4 text-right  w-[200px] md:w-auto">
               <h2 className="text-xl text-[#FF883EE0] font-bold">
                 اختر نوع الحساب
               </h2>
