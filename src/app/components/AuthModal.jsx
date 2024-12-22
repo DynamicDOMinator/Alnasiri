@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import axios from "axios";
 
@@ -27,6 +27,25 @@ export default function AuthModal({ isOpen, onClose }) {
   const [error, setError] = useState("");
   const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
   const [isExistingUser, setIsExistingUser] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setUserType(null);
+      setCurrentStep(steps.SELECTION);
+      setLoginMethod("email");
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        password: "",
+        acceptTerms: false,
+      });
+      setOtp("");
+      setError("");
+      setOtpValues(["", "", "", "", "", ""]);
+      setIsExistingUser(false);
+    }
+  }, [isOpen]);
 
   const checkEmailExists = async (email) => {
     try {
