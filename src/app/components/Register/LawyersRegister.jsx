@@ -942,7 +942,7 @@ function LawyersRegister() {
   };
 
   return (
-    <div className="max-w-3xl px-4 mx-auto my-8 p-4 sm:p-8 bg-white rounded-lg shadow-md mt-20 sm:mt-36">
+    <div className="max-w-3xl px-4 mx-auto my-8 p-4 sm:p-8 bg-white rounded-lg shadow-md md:mt-20 mt-32">
       <div className="flex flex-col sm:flex-row-reverse justify-between mb-8 bg-white shadow-md">
         {[
           {
