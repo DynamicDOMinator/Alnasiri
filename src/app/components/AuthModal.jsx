@@ -5,7 +5,6 @@ import { Dialog } from "@headlessui/react";
 import axios from "axios";
 
 const steps = {
-  SELECTION: 0,
   INITIAL: 1,
   LOGIN: 2,
   REGISTER: 3,
@@ -13,8 +12,7 @@ const steps = {
 };
 
 export default function AuthModal({ isOpen, onClose }) {
-  const [userType, setUserType] = useState(null);
-  const [currentStep, setCurrentStep] = useState(steps.SELECTION);
+  const [currentStep, setCurrentStep] = useState(steps.INITIAL);
   const [loginMethod, setLoginMethod] = useState("email");
   const [formData, setFormData] = useState({
     name: "",
@@ -30,8 +28,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
   useEffect(() => {
     if (!isOpen) {
-      setUserType(null);
-      setCurrentStep(steps.SELECTION);
+      setCurrentStep(steps.INITIAL);
       setLoginMethod("email");
       setFormData({
         name: "",
@@ -129,15 +126,6 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  const handleUserTypeSelection = (type) => {
-    setUserType(type);
-    if (type === "lawyer") {
-      setCurrentStep(steps.LOGIN);
-    } else {
-      setCurrentStep(steps.INITIAL);
-    }
-  };
-
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -165,57 +153,7 @@ export default function AuthModal({ isOpen, onClose }) {
             </svg>
           </button>
 
-          {currentStep === steps.SELECTION && (
-            <div className="space-y-4 text-right  w-[200px] md:w-auto">
-              <h2 className="text-xl text-[#FF883EE0] font-bold">
-                اختر نوع الحساب
-              </h2>
-
-              <button
-                onClick={() => handleUserTypeSelection("client")}
-                className="w-full bg-[#3069B4] text-white rounded-lg py-3 flex items-center justify-center flex-row-reverse gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-                  />
-                </svg>
-                تسجيل دخول عميل
-              </button>
-
-              <button
-                onClick={() => handleUserTypeSelection("lawyer")}
-                className="w-full bg-[#FF6624] text-white rounded-lg py-3 flex items-center justify-center flex-row-reverse gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z"
-                  />
-                </svg>
-                تسجيل دخول محامي
-              </button>
-            </div>
-          )}
-
-          {currentStep === steps.INITIAL && userType === "client" && (
+          {currentStep === steps.INITIAL && (
             <div className="space-y-4 text-right">
               <h2 className="text-xl text-[#FF883EE0] font-bold">
                 تسجيل الدخول أو انشاء حساب
@@ -243,10 +181,10 @@ export default function AuthModal({ isOpen, onClose }) {
             </div>
           )}
 
-          {currentStep === steps.LOGIN && userType === "lawyer" && (
+          {currentStep === steps.LOGIN && (
             <form onSubmit={handleSubmit} className="space-y-4 text-right">
               <h2 className="text-xl font-bold text-[#FF883EE0]">
-                تسجيل الدخول كمحامي
+                تسجيل الدخول
               </h2>
 
               <input
@@ -280,12 +218,17 @@ export default function AuthModal({ isOpen, onClose }) {
                 تسجيل الدخول
               </button>
 
-              <p className="text-center text-sm">
-                ليس لديك حساب؟{" "}
-                <a href="/lawyer-registration" className="text-[#FF883EE0]">
-                  انشاء حساب محامي
-                </a>
-              </p>
+              <div className="text-center space-y-2">
+                <p className="text-sm">
+                  هل أنت محامي؟{" "}
+                  <a
+                    href="/lawyer-registration"
+                    className="text-[#FF883EE0] hover:underline"
+                  >
+                    سجل من هنا
+                  </a>
+                </p>
+              </div>
             </form>
           )}
 
@@ -354,6 +297,18 @@ export default function AuthModal({ isOpen, onClose }) {
               >
                 التالي
               </button>
+
+              <div className="text-center space-y-2">
+                <p className="text-sm">
+                  هل أنت محامي؟{" "}
+                  <a
+                    href="/lawyer-registration"
+                    className="text-[#FF883EE0] hover:underline"
+                  >
+                    سجل من هنا
+                  </a>
+                </p>
+              </div>
             </form>
           )}
 

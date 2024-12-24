@@ -1,5 +1,6 @@
 import React from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import { FaUserTie } from "react-icons/fa";
 import {
   FaFacebookF,
@@ -83,10 +84,12 @@ function Footer() {
               </li>
               <li className="hover:text-gray-300 cursor-pointer">للمحامين</li>
             </ul>
-            <button className="bg-[#FF6624] hover:bg-[#e55a20] text-white gap-2 rounded-md flex mt-8 items-center justify-center flex-row-reverse py-2.5 px-4 text-center w-full md:w-2/3 lg:w-auto mx-auto lg:mx-0 text-sm md:text-base">
+            <Link href="/Register-Lawyer">
+              <button className="bg-[#FF6624] hover:bg-[#e55a20] text-white gap-2 rounded-md flex mt-8 items-center justify-center flex-row-reverse py-2.5 px-4 text-center w-full md:w-2/3 lg:w-auto mx-auto lg:mx-0 text-sm md:text-base">
               تسجيل كمحامي
-              <FaUserTie />
-            </button>
+                <FaUserTie />
+              </button>
+            </Link>
           </div>
         </div>
 

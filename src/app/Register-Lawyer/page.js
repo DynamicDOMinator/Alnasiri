@@ -1,8 +1,8 @@
 import React from "react";
-import Lawyer from "../components/Register/Lawyer";
+import LawyersRegister from "../components/Register/LawyersRegister";
 
 function page() {
-  return <Lawyer />;
+  return <LawyersRegister />;
 }
 
 export default page;
