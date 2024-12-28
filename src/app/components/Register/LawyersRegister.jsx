@@ -4,6 +4,7 @@ import { FaUser, FaBriefcase, FaCheckCircle } from "react-icons/fa";
 import moment from "moment-hijri";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 // Constants (should ideally be moved to a separate file)
 const saudiCities = [
@@ -35,7 +36,7 @@ const specialtyCategories = {
   "قانون الأسرة": ["زواج", "طلاق", "حضانة", "نفقة"],
   "القانون الجنائي": ["دفاع جنائي", "جرائم مالية"],
   "قانون العمل": ["عقود عمل", "نزاعات عمالية", "تأمينات"],
-  "القانون الإداري": ["عقو�� إدارية", "قرارات إدارية"],
+  "القانون الإداري": ["عقود إدارية", "قرارات إدارية"],
   "الملكية الفكرية": ["علامات تجارية", "براءات اختراع", "حقوق مؤلف"],
   التحكيم: ["تحكيم تجاري", "تحكيم دولي"],
   "القانون البنكي": ["عمليات بنكية", "تمويل"],
@@ -44,7 +45,7 @@ const specialtyCategories = {
 
 // Add these validation helper functions at the top of the file
 const isArabicText = (text) => /^[\u0600-\u06FF\s]+$/.test(text);
-const isValidSaudiPhone = (phone) => /^(05)[0-9]{8}$/.test(phone);
+const isValidSaudiPhone = (phone) => /^5\d{8}$/.test(phone);
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 function LawyersRegister() {
@@ -64,10 +65,10 @@ function LawyersRegister() {
     whatsapp: "",
     phone: "",
     email: "",
-    specializations: [],
-    speaksEnglish: false,
     password: "",
     confirmPassword: "",
+    specializations: [],
+    speaksEnglish: false,
   };
 
   // Group related state together
@@ -101,6 +102,24 @@ function LawyersRegister() {
   // Move constants to a separate file (e.g., constants.js)
   // specialtyCategories, saudiCities should be moved
 
+  // Add this state for categories
+  const [categories, setCategories] = useState([]);
+
+  // Add useEffect to fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/main-categories');
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('حدث خطأ في تحميل التخصصات');
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   // Simplified form validation without debugging
   const validateStep = (step) => {
     let isValid = true;
@@ -113,7 +132,11 @@ function LawyersRegister() {
         { name: "middleName", label: "الاسم الأوسط" },
         { name: "lastName", label: "اسم العائلة" },
         { name: "city", label: "المدينة" },
-        { name: "licenseNumber", label: "ر��م رخصة المحاماة" },
+        { name: "personalId", label: "الرقم الشخصي" },
+        { name: "licenseNumber", label: "رقم رخصة المحاماة" },
+        { name: "email", label: "البريد الإلكتروني" },
+        { name: "password", label: "كلمة المرور" },
+        { name: "confirmPassword", label: "تأكيد كلمة المرور" },
       ];
 
       requiredFields.forEach(({ name, label }) => {
@@ -137,6 +160,12 @@ function LawyersRegister() {
 
       if (!formData.acceptTerms) {
         newErrors.acceptTerms = "يجب الموافقة على الشروط والأحكام";
+        isValid = false;
+      }
+
+      // Additional validation for password confirmation
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "كلمة المرور غير متطابقة";
         isValid = false;
       }
     } else if (step === 1) {
@@ -168,19 +197,19 @@ function LawyersRegister() {
 
       // Validate phone numbers format
       if (formData.phone && !isValidSaudiPhone(formData.phone)) {
-        newErrors.phone = "يجب أن يبدأ رقم الهاتف بـ 05 ويتكون من 10 أرقام";
+        newErrors.phone = "يجب أن يبدأ رقم الهاتف بـ +966 ويتكون من 13 رقمًا";
         isValid = false;
       }
 
       if (formData.whatsapp && !isValidSaudiPhone(formData.whatsapp)) {
         newErrors.whatsapp =
-          "يجب أن يبدأ رقم الواتساب بـ 05 ويتكون من 10 أرقام";
+          "يجب أن يبدأ رقم الواتساب بـ +966 ويتكون من 13 رقمًا";
         isValid = false;
       }
 
       // Validate password
       if (formData.password && formData.password.length < 8) {
-        newErrors.password = "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل";
+        newErrors.password = "يجب أن يتكون كلمة المرور من 8 أحرف على الأقل";
         isValid = false;
       }
 
@@ -202,9 +231,18 @@ function LawyersRegister() {
     return isValid;
   };
 
-  // Simplified handlers
+  // Update handleNext to skip OTP and go directly to step 1
   const handleNext = () => {
-    if (validateStep(activeStep)) {
+    if (activeStep === 0) {
+      if (validateStep(activeStep)) {
+        // Remove OTP check and directly move to next step
+        setActiveStep((prev) => prev + 1);
+      } else {
+        toast.error("يرجى تصحيح الأخطاء قبل المتابعة."); // "Please correct the errors before proceeding."
+      }
+    } else if (activeStep === 1) {
+      handleSubmit(); // Call handleSubmit if on step 1
+    } else if (validateStep(activeStep)) {
       setActiveStep((prev) => prev + 1);
     }
   };
@@ -222,8 +260,11 @@ function LawyersRegister() {
       if (experience < 0) {
         experience += 100;
       }
-
-      return experience.toString(); // Convert to string for display
+      if (experience == 0) {
+        experience = 1;
+      }
+      console.log("Experience Years:", experience); // Log the experience years
+      return experience; // Convert to string for display
     }
     return "";
   };
@@ -251,7 +292,7 @@ function LawyersRegister() {
 
       case "phone":
       case "whatsapp":
-        if (value === "" || /^[0-9]{0,10}$/.test(value)) {
+        if (value === "" || /^[+\d]{0,13}$/.test(value)) {
           setFormData((prev) => ({ ...prev, [name]: value }));
         }
         break;
@@ -264,6 +305,30 @@ function LawyersRegister() {
             licenseNumber: value,
             experienceYears: experienceYears,
           }));
+          console.log("License Number:", value); // Log the license number
+        }
+        break;
+
+      case "personalId":
+        // Allow any input but validate on blur or when the input is complete
+        setFormData((prev) => ({ ...prev, personalId: value }));
+
+        // Log the personalId value
+        console.log("Personal ID:", value); // Log the value of personalId
+
+        // Validate only if the input is complete (9 digits)
+        if (value.length === 9) {
+          if (/^5\d{8}$/.test(value)) {
+            setErrors((prev) => ({ ...prev, personalId: "" })); // Clear error if valid
+          } else {
+            setErrors((prev) => ({
+              ...prev,
+              personalId: "رقم الهوية يجب أن يتكون من 9 أرقام ويبدأ بـ 5",
+            })); // Set error if invalid
+          }
+        } else {
+          // Clear error if the input is not yet complete
+          setErrors((prev) => ({ ...prev, personalId: "" }));
         }
         break;
 
@@ -272,81 +337,90 @@ function LawyersRegister() {
     }
   };
 
+  // Update handleSpecialtyChange function
   const handleSpecialtyChange = (id, value) => {
-    setSpecialtySelections((prev) =>
-      prev.map((selection) =>
-        selection.id === id ? { ...selection, value } : selection
-      )
+    // First, create the updated selections array
+    const updatedSelections = specialtySelections.map((selection) =>
+      selection.id === id ? { ...selection, value } : selection
     );
+    
+    // Update specialtySelections state
+    setSpecialtySelections(updatedSelections);
 
-    // Update specializations in formData
-    const updatedSpecializations = specialtySelections
+    // Immediately calculate the new specializations array using the updated selections
+    const updatedSpecializations = updatedSelections
       .map((selection) => selection.value)
-      .filter(Boolean);
+      .filter(Boolean); // This removes any empty values
 
+    // Update formData with the new specializations
     setFormData((prev) => ({
       ...prev,
       specializations: updatedSpecializations,
     }));
+
+    // Log the updated specializations immediately
+    console.log('Selected Specializations:', updatedSpecializations);
   };
 
   // Move the loading state to the top level with other state declarations
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
+  // Update handleSubmit to remove OTP-related logic
   const handleSubmit = async () => {
     try {
-      // Remove the useState declaration and just use setIsLoading
       setIsLoading(true);
+      
+      // Log both phone numbers before sending
+      console.log('Contact Number being sent:', `+966${formData.personalId}`);
+      console.log('WhatsApp Number being sent:', `+966${formData.whatsapp}`);
+      console.log('Specializations being sent:', formData.specializations);
 
-      // 2. تنظيف وتجهيز البيانات
-      const specializations = specialtySelections
-        .filter((selection) => selection.value)
-        .map((selection) => selection.value);
+      const response = await axios.post(
+        "https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/users/register",
+        {
+          firstName: formData.firstName,
+          middleName: formData.middleName,
+          lastName: formData.lastName,
+          email: formData.email,
+          personalNumber: `+966${formData.personalId}`, // Contact number
+          whatsappNumber: `+966${formData.whatsapp}`, // WhatsApp number
+          password: formData.password,
+          role: "lawyer",
+          licenseNumber: formData.licenseNumber,
+          experienceYears: formData.experienceYears,
+          city: formData.city,
+          mainCategories: formData.specializations,
+        }
+      );
 
-      // 3. حذف البيانات غير الضرورية
-      const { confirmPassword, acceptTerms, ...cleanedFormData } = formData;
-
-      // 4. تنسيق البيانات النهائية
-      const finalFormData = {
-        ...cleanedFormData,
-        specializations,
-        // 5. إضافة بيانات إضافية مفيدة
-        registrationDate: new Date().toISOString(),
-        fullName:
-          `${formData.firstName} ${formData.middleName} ${formData.lastName}`.trim(),
-        // 6. تنظيف أرقام الهواتف
-        phone: formData.phone.replace(/\s/g, ""),
-        whatsapp: formData.whatsapp.replace(/\s/g, ""),
-      };
-
-      // 7. التحقق النهائي من البيانات
-      if (!validateFinalData(finalFormData)) {
-        throw new Error("البيانات غير صالحة");
-      }
-
-      // 8. إرسال البيانات
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(finalFormData),
+      // Log the entire request payload for verification
+      console.log('Full request payload:', {
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        lastName: formData.lastName,
+        email: formData.email,
+        personalNumber: `+966${formData.personalId}`,
+        whatsappNumber: `+966${formData.whatsapp}`,
+        password: formData.password,
+        role: "lawyer",
+        licenseNumber: formData.licenseNumber,
+        experienceYears: formData.experienceYears,
+        city: formData.city,
+        mainCategories: formData.specializations,
       });
 
-      if (!response.ok) {
+      if (response.status === 201) {
+        console.log("Success");
+        toast.success("تم التسجيل بنجاح!");
+        router.push('/login');
+      } else {
         throw new Error("فشل في عملية التسجيل");
       }
-
-      // 9. معالجة الاستجابة بنجاح
-      const result = await response.json();
-      toast.success("تم التسجيل بنجاح!");
-
-      // 10. التوجيه للصفحة التالية
-      router.push("/dashboard");
     } catch (error) {
-      // 11. معالجة الأخطاء
-      toast.error(error.message || "حدث خطأ أثناء التسجيل");
-      console.error("خطأ في التسجيل:", error);
+      const errorMessage = error.response?.data?.message || "حدث خطأ أثناء التسجيل";
+      setSubmitError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -354,7 +428,7 @@ function LawyersRegister() {
 
   // دالة للتحقق النهائي من البيانات
   const validateFinalData = (data) => {
-    // التحقق من صحة البريد الإلك��روني
+    // التحقق من صحة البريد الإلكتروني
     if (!isValidEmail(data.email)) {
       toast.error("البريد الإلكتروني غير صالح");
       return false;
@@ -368,7 +442,7 @@ function LawyersRegister() {
 
     // التحقق من وجود تخصص واحد على الأقل
     if (data.specializations.length === 0) {
-      toast.error("ي��ب اختيار تخصص واحد على الأقل");
+      toast.error("يجب اختيار تخصص واحد على الأقل");
       return false;
     }
 
@@ -376,6 +450,12 @@ function LawyersRegister() {
   };
 
   const addSpecialtySelection = () => {
+    // Check if we've reached the maximum number of specialties (7)
+    if (specialtySelections.length >= 7) {
+      toast.error("لا يمكن إضافة أكثر من 7 تخصصات"); // "Cannot add more than 7 specialties"
+      return;
+    }
+    
     setSpecialtySelections((prev) => [
       ...prev,
       { id: prev.length + 1, value: "", isRequired: false },
@@ -391,13 +471,13 @@ function LawyersRegister() {
               أدخل معلومات ترخيص نقابة المحاماة الخاصة بك
             </p>
             <p className="text-right">
-              بعد أن تؤكد منصة نصيي حالة ترخيصك، سيتم تضمين ملفك الشخصي في
-              دليلنا ونتائج البحث
+              بعد أن تؤكد منصة نصيي حالة ترخيصك، ستم تضمين ملفك الشخصي في دليلنا
+              ونتائج البحث
             </p>
             <p className="text-right">
-              <span className="text-red-500">ملاحظه:</span>إذا كان تسجيل ترخيصك
-              باسم مختلف عن الاسم الذي تستخدمه حاليًا (مثل اسم العائلة قبل
-              الزواج)، قم بإدخال ذلك الاسم في هذا النموذج{" "}
+              <span className="text-red-500"> لاحظه:</span>إذا كان تسجيل ترخيصك
+              باسم مختلف عن الاسم الذي تستخدمه حا يًا (مثل اسم العائلة قبل
+              الزواج)، ق بإدخال ذلك الاسم في هذا النموذج{" "}
             </p>
             <h2 className="text-2xl py-2 font-semibold text-right">
               المعلومات الشخصية
@@ -449,7 +529,6 @@ function LawyersRegister() {
                 )}
               </div>
 
-              {/* Second Row */}
               {/* Last Name - Right */}
               <div className="order-3 relative">
                 <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
@@ -468,6 +547,28 @@ function LawyersRegister() {
                 {errors.lastName && (
                   <p className="text-red-500 text-sm mt-1 text-right">
                     {errors.lastName}
+                  </p>
+                )}
+              </div>
+
+              {/* Email - Moved to be after First, Middle, and Last Name */}
+              <div className="relative">
+                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
+                  البريد الإلكتروني <span className="text-red-500">*مطلوب</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  dir="rtl"
+                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
+                    ${errors.email ? "border-red-500" : "border-gray-300"}`}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1 text-right">
+                    {errors.email}
                   </p>
                 )}
               </div>
@@ -539,112 +640,32 @@ function LawyersRegister() {
                   placeholder="سيتم الحساب تلقائياً"
                 />
               </div>
-            </div>
 
-            <div className="flex items-center justify-end gap-2 mt-6">
-              <label className="text-right">
-                أوافق على جميع الشروط والأحكام
-              </label>
-              <input
-                type="checkbox"
-                name="acceptTerms"
-                checked={formData.acceptTerms}
-                onChange={handleInputChange}
-                className="h-4 w-4"
-              />
-            </div>
-          </div>
-        );
-      case 1:
-        return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-right">الملف الشخ��ي</h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Office Name */}
-              <div className="relative">
+              {/* Personal ID */}
+              <div className="order-7 relative flex flex-col">
                 <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
-                  مكتب المحاماة <span className="text-red-500">*مطلوب</span>
+                  رقم شخصي <span className="text-red-500">*مطلوب</span>
                 </label>
+                <span className="absolute left-3 top-4  bg-white px-1 text-sm text-gray-600 pointer-events-none">
+                  966+
+                </span>
                 <input
                   type="text"
-                  name="officeName"
-                  value={formData.officeName}
+                  name="personalId"
+                  value={formData.personalId}
                   onChange={handleInputChange}
                   required
                   dir="rtl"
-                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
-                    ${errors.officeName ? "border-red-500" : "border-gray-300"}`}
+                  maxLength="9" // Limit to 9 digits
+                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4 pl-12
+                    ${errors.personalId ? "border-red-500" : "border-gray-300"}`}
+                  placeholder="5XXXXXXXX" // Indicate that only digits should be entered
+                  style={{ paddingLeft: "2.5rem" }} // Adjust padding to ensure text is not hidden behind the span
+                  autoComplete="off" // Prevent browser autocomplete
                 />
-                {errors.officeName && (
+                {errors.personalId && (
                   <p className="text-red-500 text-sm mt-1 text-right">
-                    {errors.officeName}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="relative">
-                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
-                  البريد الإلكتروني <span className="text-red-500">*مطلوب</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  dir="rtl"
-                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
-                    ${errors.email ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1 text-right">
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* Phone Number */}
-              <div className="relative">
-                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
-                  رقم الاتصال <span className="text-red-500">*مطلوب</span>
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
-                  dir="rtl"
-                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
-                    ${errors.phone ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1 text-right">
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-
-              {/* WhatsApp */}
-              <div className="relative">
-                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
-                  رقم الواتساب <span className="text-red-500">*مطلوب</span>
-                </label>
-                <input
-                  type="tel"
-                  name="whatsapp"
-                  value={formData.whatsapp}
-                  onChange={handleInputChange}
-                  required
-                  dir="rtl"
-                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
-                    ${errors.whatsapp ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.whatsapp && (
-                  <p className="text-red-500 text-sm mt-1 text-right">
-                    {errors.whatsapp}
+                    {errors.personalId}
                   </p>
                 )}
               </div>
@@ -694,6 +715,92 @@ function LawyersRegister() {
               </div>
             </div>
 
+            <div className="flex items-center justify-end gap-2 mt-6">
+              <label className="text-right">
+                أوافق على جميع الشروط والأحكام
+              </label>
+              <input
+                type="checkbox"
+                name="acceptTerms"
+                checked={formData.acceptTerms}
+                onChange={handleInputChange}
+                className="h-4 w-4"
+              />
+            </div>
+          </div>
+        );
+      case 1:
+        return (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-right">الملف الشخصي</h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-4">
+              {/* Office Name */}
+              <div className="relative">
+                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
+                  مكتب المحاماة
+                </label>
+                <input
+                  type="text"
+                  name="officeName"
+                  value={formData.officeName}
+                  onChange={handleInputChange}
+                  dir="rtl"
+                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
+                    ${errors.officeName ? "border-red-500" : "border-gray-300"}`}
+                />
+                {errors.officeName && (
+                  <p className="text-red-500 text-sm mt-1 text-right">
+                    {errors.officeName}
+                  </p>
+                )}
+              </div>
+
+              {/* Phone Number */}
+              <div className="relative">
+                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
+                  رقم الاتصال
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  maxLength={9}
+                  onChange={handleInputChange}
+                  dir="rtl"
+                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
+                    ${errors.phone ? "border-red-500" : "border-gray-300"}`}
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1 text-right">
+                    {errors.phone}
+                  </p>
+                )}
+              </div>
+
+              {/* WhatsApp */}
+              <div className="relative">
+                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
+                  رقم الواتساب
+                </label>
+                <input
+                  type="tel"
+                  name="whatsapp"
+                  maxLength={9}
+                  value={formData.whatsapp}
+                  onChange={handleInputChange}
+                  dir="rtl"
+                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
+                    ${errors.whatsapp ? "border-red-500" : "border-gray-300"}`}
+                />
+                {errors.whatsapp && (
+                  <p className="text-red-500 text-sm mt-1 text-right">
+                    {errors.whatsapp}
+                  </p>
+                )}
+              </div>
+            </div>
+
             {/* Specializations error message */}
             {errors.specializations && (
               <p className="text-red-500 text-sm mt-1 text-right">
@@ -704,7 +811,7 @@ function LawyersRegister() {
             {/* Specializations Section */}
             <div dir="rtl" className="space-y-4">
               <label className="block text-right mb-2 text-lg">
-                التخصصات حسب الاولوية:
+                التخصصات حسب الأولوية:
               </label>
 
               <div className="grid grid-cols-2 gap-4">
@@ -714,18 +821,7 @@ function LawyersRegister() {
                   const order = row * 2 + (isRight ? 0 : 1);
 
                   const toArabicNumerals = (num) => {
-                    const arabicNumerals = [
-                      "٠",
-                      "١",
-                      "٢",
-                      "٣",
-                      "٤",
-                      "٥",
-                      "٦",
-                      "٧",
-                      "٨",
-                      "٩",
-                    ];
+                    const arabicNumerals = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
                     return (num + 1)
                       .toString()
                       .split("")
@@ -744,27 +840,23 @@ function LawyersRegister() {
                       </p>
                       <select
                         value={selection.value}
-                        onChange={(e) =>
-                          handleSpecialtyChange(selection.id, e.target.value)
-                        }
+                        onChange={(e) => handleSpecialtyChange(selection.id, e.target.value)}
                         dir="rtl"
                         className={`w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         required={selection.isRequired}
                       >
                         <option value="">
-                          {selection.isRequired
-                            ? "اختر التخصص الرئيسي"
-                            : "اختر التخصص"}
+                          {selection.isRequired ? "اختر التخصص الرئيسي" : "اختر التخصص"}
                         </option>
-                        {Object.keys(specialtyCategories).map((category) => (
+                        {categories.map((category) => (
                           <option
-                            key={category}
-                            value={category}
+                            key={category._id}
+                            value={category._id}
                             disabled={specialtySelections.some(
-                              (s) => s.value === category
+                              (s) => s.value === category._id
                             )}
                           >
-                            {category}
+                            {category.name}
                           </option>
                         ))}
                       </select>
@@ -776,9 +868,14 @@ function LawyersRegister() {
               <button
                 type="button"
                 onClick={addSpecialtySelection}
-                className="w-full p-3 border border-dashed border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 text-right"
+                className={`w-full p-3 border border-dashed border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 text-right ${
+                  specialtySelections.length >= 7 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                }`}
+                disabled={specialtySelections.length >= 7}
               >
-                + إضافة تخصص آخر
+                {specialtySelections.length >= 7 
+                  ? "تم الوصول إلى الحد الأقصى للتخصصات" 
+                  : "+ إضافة تخصص آخر"}
               </button>
             </div>
 
@@ -824,118 +921,7 @@ function LawyersRegister() {
             </div>
           </div>
         );
-      case 2:
-        return (
-          <div className="space-y-6" dir="rtl">
-            <h2 className="text-2xl font-semibold text-right mb-6">
-              <FaCheckCircle className="inline ml-2 text-green-500" />
-              مراجعة وتأكيد المعلومات
-            </h2>
 
-            {/* Personal Information Section */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="h-px flex-grow bg-gray-200"></div>
-                <h3 className="text-xl font-medium px-4 flex items-center">
-                  <FaUser className="ml-2 text-[#E57733]" />
-                  المعلومات الشخصية
-                </h3>
-                <div className="h-px flex-grow bg-gray-200"></div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">الاسم الكامل:</p>
-                  <p className="font-medium">{`${formData.firstName} ${formData.middleName} ${formData.lastName}`}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">المدينة:</p>
-                  <p className="font-medium">{formData.city}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">رقم رخصة المحاماة:</p>
-                  <p className="font-medium">{formData.licenseNumber}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">سنوات الخبرة:</p>
-                  <p className="font-medium">{formData.experienceYears}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Professional Information Section */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="h-px flex-grow bg-gray-200"></div>
-                <h3 className="text-xl font-medium px-4 flex items-center">
-                  <FaBriefcase className="ml-2 text-[#E57733]" />
-                  معلومات المكتب والتواصل
-                </h3>
-                <div className="h-px flex-grow bg-gray-200"></div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-600">اسم المكتب:</p>
-                  <p className="font-medium">{formData.officeName}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">البريد الإلكتروني:</p>
-                  <p className="font-medium">{formData.email}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">رقم الهاتف:</p>
-                  <p className="font-medium">{formData.phone}</p>
-                </div>
-                <div>
-                  <p className="text-gray-600">رقم الواتساب:</p>
-                  <p className="font-medium">{formData.whatsapp}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Specializations Section */}
-            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <div className="h-px flex-grow bg-gray-200"></div>
-                <h3 className="text-xl font-medium px-4 flex items-center">
-                  <FaCheckCircle className="ml-2 text-[#E57733]" />
-                  التخصصات والمهارات
-                </h3>
-                <div className="h-px flex-grow bg-gray-200"></div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-gray-600 mb-2">التخصصات:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.specializations.map((spec, index) => (
-                      <span
-                        key={index}
-                        className="bg-[#FF883E17] text-[#E57733] px-3 py-1 rounded-full text-sm"
-                      >
-                        {spec}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-gray-600">يتحدث الإنجليزية:</p>
-                  <p className="font-medium">
-                    {formData.speaksEnglish ? "نعم" : "لا"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-blue-600">
-                <span className="font-bold">ملاحظة:</span> يرجى التأكد من صحة
-                جميع المعلومات قبل التأكيد النهائي
-              </p>
-            </div>
-          </div>
-        );
       default:
         return null;
     }
@@ -993,9 +979,7 @@ function LawyersRegister() {
           </div>
         ))}
       </div>
-
       {renderStepContent(activeStep)}
-
       <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 mt-8">
         <button
           disabled={activeStep === 0}
@@ -1009,12 +993,15 @@ function LawyersRegister() {
           السابق
         </button>
         <button
-          onClick={activeStep === 2 ? handleSubmit : handleNext}
+          onClick={activeStep === 1 ? handleSubmit : handleNext}
           className="px-6 py-3 bg-[#E57733E0] text-white rounded-md hover:bg-orange-500 w-full sm:w-auto"
         >
-          {activeStep === 2 ? "تأكيد" : "التالي"}
+          {activeStep === 1 ? "التأكيد" : activeStep === 2 ? "تأكيد" : "التالي"}
         </button>
       </div>
+      {submitError && (
+        <p className="text-red-500 text-sm mt-2 text-center">{submitError}</p>
+      )}
     </div>
   );
 }

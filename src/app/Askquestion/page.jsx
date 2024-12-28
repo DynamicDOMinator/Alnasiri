@@ -34,7 +34,7 @@ export default function ClientForm() {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.question.trim()) {
-      newErrors.question = "الرجاء إد��ال سؤالك";
+      newErrors.question = "الرجاء إدخال سؤالك";
     } else if (formData.question.length < 10) {
       newErrors.question = "يجب أن يكون السؤال أكثر من 10 أحرف";
     }
@@ -114,7 +114,7 @@ export default function ClientForm() {
       {isClient ? (
         <div dir="rtl" className="p-5 max-w-6xl mx-auto ">
           <h1 className="text-2xl font-bold text-center mb-5">
-            ��سال محامي مجاناً..!
+            اسال محامي مجاناً..!
           </h1>
           {/* How it works */}
           <div className="mb-5">

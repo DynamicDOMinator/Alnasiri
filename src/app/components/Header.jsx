@@ -110,34 +110,28 @@ export default function Example() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
     // Check if user is logged in
     if (typeof window !== "undefined") {
-      // Check if in browser
       const authToken = localStorage.getItem("auth");
       if (authToken) {
         setIsLoggedIn(true);
+        setUsername(localStorage.getItem("user"));
+        setRole(localStorage.getItem("role"));
       }
     }
+    setLoading(false);
   }, []);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      if (typeof window !== "undefined") {
-        // Check if in browser
-        setUsername(localStorage.getItem("username"));
-      }
-    }
-  }, [isLoggedIn]);
 
   const handleLogout = () => {
     setLoading(true);
     if (typeof window !== "undefined") {
       // Check if in browser
       localStorage.removeItem("auth");
-      localStorage.removeItem("username");
+      localStorage.removeItem("user");
       localStorage.removeItem("role");
     }
     setIsLoggedIn(false);
@@ -147,6 +141,7 @@ export default function Example() {
   };
 
   const handleLogin = (userData) => {
+    console.log("User data on login:", userData); // Log user data
     setIsLoggedIn(true);
     setUser(userData);
     setAuthModalOpen(false); // Close the auth modal after login
@@ -154,20 +149,6 @@ export default function Example() {
 
   // Replace the login button with this new component
   const AuthSection = () => {
-    // Retrieve username from local storage
-    let username = null; // Initialize username
-    if (typeof window !== "undefined") {
-      // Check if in browser
-      username = localStorage.getItem("username"); // Get username from local storage
-    }
-
-    // Update the username state when the user logs in
-    useEffect(() => {
-      if (isLoggedIn) {
-        setUsername(username); // Set the username state
-      }
-    }, [username]);
-
     if (!isLoggedIn) {
       return (
         <button
@@ -194,36 +175,48 @@ export default function Example() {
     }
 
     // Check if the user's role is "lawyer"
-    if (user?.role === "lawyer") {
+    if (role === "lawyer") {
       return (
         <Popover className="relative">
-          <PopoverButton className="flex items-center gap-2 text-gray-700 hover:text-gray-900">
+          <PopoverButton  className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
             <span className="text-sm font-medium">
               {username || "المستخدم"}
             </span>
             <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
           </PopoverButton>
-          <PopoverPanel className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+          <PopoverPanel className="absolute left-10 z-10 mt-6 w-48 bg-white pb-2 py-1 shadow-lg">
             <div className="py-1">
               <Link
                 href="/dashboard"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
               >
                 لوحه التحكم
+                <ChevronDownIcon
+                className="h-5 w-5 rotate-90"
+                aria-hidden="true"
+              />
               </Link>
               <Link
                 href="/profile"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
               >
                 الملف الشخصي
+                <ChevronDownIcon
+                className="h-5 w-5 rotate-90"
+                aria-hidden="true"
+              />
               </Link>
-              <button
+              <div className="px-2">
+
+                 <button
                 onClick={handleLogout}
-                className="block w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100"
+                 className="block w-full px-4 py-2 mt-3  border-2 text-sm text-center text-gray-700 hover:bg-gray-100"
                 disabled={loading}
               >
                 {loading ? <Spinner /> : "تسجيل خروج"}
               </button>
+              </div>
+             
             </div>
           </PopoverPanel>
         </Popover>
@@ -233,11 +226,11 @@ export default function Example() {
     // Default dropdown for other roles
     return (
       <Popover className="relative">
-        <PopoverButton className="flex items-center gap-2 text-gray-700 hover:text-gray-900 focus:outline-none">
+        <PopoverButton className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
           <span className="text-lg font-medium">{username || "المستخدم"}</span>
           <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
         </PopoverButton>
-        <PopoverPanel className="absolute left-10  z-10 mt-6 w-48   bg-white py-1 shadow-lg ">
+        <PopoverPanel className="absolute left-10 z-10 mt-6 w-48 bg-white py-1 shadow-lg">
           <div className="py-1">
             <Link
               href="/profile"
@@ -253,7 +246,7 @@ export default function Example() {
               href="/settings"
               className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
             >
-              الإشعارات
+             الاشعارات
               <ChevronDownIcon
                 className="h-5 w-5 rotate-90"
                 aria-hidden="true"
@@ -293,6 +286,19 @@ export default function Example() {
       </Popover>
     );
   };
+
+  if (loading) {
+    return (
+      <header className="bg-white shadow fixed top-0 w-full z-50">
+        <nav
+          aria-label="Global"
+          className="flex items-center justify-between p-6 lg:px-16"
+        >
+          {/* عرض باقي مكونات الهيدر هنا بدون زر تسجيل الدخول */}
+        </nav>
+      </header>
+    );
+  }
 
   return (
     <>
