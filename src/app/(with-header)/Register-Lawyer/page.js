@@ -1,5 +1,5 @@
 import React from "react";
-import LawyersRegister from "../components/Register/LawyersRegister";
+import LawyersRegister from "../../components/Register/LawyersRegister";
 
 function page() {
   return <LawyersRegister />;

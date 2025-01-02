@@ -354,7 +354,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
 
                 <div className="text-center space-y-2">
                   <p className="text-sm">
-                    هل أنت محامي؟ 
+                    هل أنت محامي؟
                     <Link
                       href="/Register-Lawyer"
                       className="text-[#FF883EE0] hover:underline"

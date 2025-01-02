@@ -109,11 +109,13 @@ function LawyersRegister() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/main-categories');
+        const response = await axios.get(
+          "https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/main-categories"
+        );
         setCategories(response.data);
       } catch (error) {
-        console.error('Error fetching categories:', error);
-        toast.error('حدث خطأ في تحميل التخصصات');
+        console.error("Error fetching categories:", error);
+        toast.error("حدث خطأ في تحميل التخصصات");
       }
     };
 
@@ -246,7 +248,7 @@ function LawyersRegister() {
       setActiveStep((prev) => prev + 1);
     }
   };
-
+  // fassffsdfsffs
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
   // Update the calculateExperienceYears function to be more robust
@@ -343,7 +345,7 @@ function LawyersRegister() {
     const updatedSelections = specialtySelections.map((selection) =>
       selection.id === id ? { ...selection, value } : selection
     );
-    
+
     // Update specialtySelections state
     setSpecialtySelections(updatedSelections);
 
@@ -359,7 +361,7 @@ function LawyersRegister() {
     }));
 
     // Log the updated specializations immediately
-    console.log('Selected Specializations:', updatedSpecializations);
+    console.log("Selected Specializations:", updatedSpecializations);
   };
 
   // Move the loading state to the top level with other state declarations
@@ -370,11 +372,13 @@ function LawyersRegister() {
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      
+
       // Log both phone numbers before sending
-      console.log('Contact Number being sent:', `+966${formData.personalId}`);
-      console.log('WhatsApp Number being sent:', `+966${formData.whatsapp}`);
-      console.log('Specializations being sent:', formData.specializations);
+      console.log("Contact Number being sent:", `+966${formData.personalId}`);
+      console.log("WhatsApp Number being sent:", `+966${formData.whatsapp}`);
+      console.log("phone Number being sent:", `+966${formData.phone}`);
+
+      console.log("Specializations being sent:", formData.specializations);
 
       const response = await axios.post(
         "https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/users/register",
@@ -383,8 +387,9 @@ function LawyersRegister() {
           middleName: formData.middleName,
           lastName: formData.lastName,
           email: formData.email,
-          personalNumber: `+966${formData.personalId}`, // Contact number
+          phoneNumber: `+966${formData.personalId}`, // Contact number
           whatsappNumber: `+966${formData.whatsapp}`, // WhatsApp number
+          personalNumber: `+966${formData.phone}`, // WhatsApp number
           password: formData.password,
           role: "lawyer",
           licenseNumber: formData.licenseNumber,
@@ -394,31 +399,15 @@ function LawyersRegister() {
         }
       );
 
-      // Log the entire request payload for verification
-      console.log('Full request payload:', {
-        firstName: formData.firstName,
-        middleName: formData.middleName,
-        lastName: formData.lastName,
-        email: formData.email,
-        personalNumber: `+966${formData.personalId}`,
-        whatsappNumber: `+966${formData.whatsapp}`,
-        password: formData.password,
-        role: "lawyer",
-        licenseNumber: formData.licenseNumber,
-        experienceYears: formData.experienceYears,
-        city: formData.city,
-        mainCategories: formData.specializations,
-      });
-
       if (response.status === 201) {
         console.log("Success");
         toast.success("تم التسجيل بنجاح!");
-        router.push('/login');
       } else {
         throw new Error("فشل في عملية التسجيل");
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "حدث خطأ أثناء التسجيل";
+      const errorMessage =
+        error.response?.data?.message || "حدث خطأ أثناء التسجيل";
       setSubmitError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -455,7 +444,7 @@ function LawyersRegister() {
       toast.error("لا يمكن إضافة أكثر من 7 تخصصات"); // "Cannot add more than 7 specialties"
       return;
     }
-    
+
     setSpecialtySelections((prev) => [
       ...prev,
       { id: prev.length + 1, value: "", isRequired: false },
@@ -821,7 +810,18 @@ function LawyersRegister() {
                   const order = row * 2 + (isRight ? 0 : 1);
 
                   const toArabicNumerals = (num) => {
-                    const arabicNumerals = ["", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+                    const arabicNumerals = [
+                      "",
+                      "١",
+                      "٢",
+                      "٣",
+                      "٤",
+                      "٥",
+                      "٦",
+                      "٧",
+                      "٨",
+                      "٩",
+                    ];
                     return (num + 1)
                       .toString()
                       .split("")
@@ -840,13 +840,17 @@ function LawyersRegister() {
                       </p>
                       <select
                         value={selection.value}
-                        onChange={(e) => handleSpecialtyChange(selection.id, e.target.value)}
+                        onChange={(e) =>
+                          handleSpecialtyChange(selection.id, e.target.value)
+                        }
                         dir="rtl"
                         className={`w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         required={selection.isRequired}
                       >
                         <option value="">
-                          {selection.isRequired ? "اختر التخصص الرئيسي" : "اختر التخصص"}
+                          {selection.isRequired
+                            ? "اختر التخصص الرئيسي"
+                            : "اختر التخصص"}
                         </option>
                         {categories.map((category) => (
                           <option
@@ -869,12 +873,14 @@ function LawyersRegister() {
                 type="button"
                 onClick={addSpecialtySelection}
                 className={`w-full p-3 border border-dashed border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 text-right ${
-                  specialtySelections.length >= 7 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                  specialtySelections.length >= 7
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-gray-50"
                 }`}
                 disabled={specialtySelections.length >= 7}
               >
-                {specialtySelections.length >= 7 
-                  ? "تم الوصول إلى الحد الأقصى للتخصصات" 
+                {specialtySelections.length >= 7
+                  ? "تم الوصول إلى الحد الأقصى للتخصصات"
                   : "+ إضافة تخصص آخر"}
               </button>
             </div>
