@@ -5,7 +5,7 @@ import { BsWallet2 } from "react-icons/bs";
 export default function Foras() {
   return (
     <div>
-      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-20 text-3xl font-semibold">
+      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-20 text-xl  md:text-3xl font-semibold">
         فرص
       </p>
       <div className="flex items-center justify-end pt-10 px-5 lg:px-0 gap-2">

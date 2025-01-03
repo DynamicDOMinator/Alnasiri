@@ -118,8 +118,8 @@ export default function Sidebar() {
       </div>
 
       {/* Mobile and medium screen navigation */}
-      <div className="lg:hidden fixed bottom-0 right-0 left-0 bg-white border-t-2 p-4">
-        <div className="flex flex-row-reverse justify-around items-center">
+      <div className="lg:hidden fixed bottom-0 right-0 left-0 bg-white border-t-2 py-4 px-4">
+        <div className="flex flex-row-reverse justify-between items-center">
           <Link
             className={`flex flex-col items-center gap-1 ${
               pathname === "/Lawyer-dashboard" ? "text-primary" : ""

@@ -6,10 +6,10 @@ import { FaLongArrowAltLeft } from "react-icons/fa";
 export default function FreeQuestions() {
   return (
     <div>
-      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-20 text-3xl font-semibold">
+      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-20 text-xl  md:text-3xl font-semibold">
       الاسالة المجانية
       </p>
-      <div className="flex items-center justify-end pt-10 gap-2">
+      <div className="flex items-center justify-end pr-5 lg:pr-0 pt-10 gap-2">
         <button className="text-xl font-semibold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full">
           فلتر{" "}
           <span>
@@ -23,7 +23,7 @@ export default function FreeQuestions() {
         </p>{" "}
       </div>
       {/* all leads display  */}
-      <div className="flex flex-col gap-2 justify-center items-center px-4 md:px-0 mt-5">
+      <div className="flex flex-col gap-2 justify-center items-center px-4 lg:px-0 mt-5">
         <div className="border-2 border-gray-300 rounded-lg lg:w-[80%] w-full md:px-10 px-3 py-6">
           <div className=" flex justify-between items-center ">
             <p className="flex items-center">
