@@ -11,7 +11,7 @@ export default function MyForas() {
 
   return (
     <div>
-      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-2 text-xl  md:text-3xl font-semibold">
+      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-20 text-xl  md:text-3xl font-semibold">
         فرصي
       </p>
 

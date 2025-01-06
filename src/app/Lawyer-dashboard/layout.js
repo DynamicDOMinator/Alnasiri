@@ -10,8 +10,8 @@ export default function LawyerDashboardLayout({ children }) {
     <html lang="ar">
       <body>
         <div className="lg:flex justify-between">
-          <div className="lg:basis-3/4">{children}</div>
-          <div className="lg:basis-1/4">
+          <div className="lg:basis-4/5">{children}</div>
+          <div className="lg:basis-1/5 ">
             <Sidebar />
           </div>
         </div>

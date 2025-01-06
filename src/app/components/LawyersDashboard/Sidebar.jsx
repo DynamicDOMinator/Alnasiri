@@ -10,7 +10,7 @@ export default function Sidebar() {
   return (
     <div>
       {/* desktop screen */}
-      <div className="hidden lg:block gap-4 relative border-l-2 w-fit ml-auto h-screen">
+      <div className="   lg:fixed hidden lg:block gap-4 right-0 z-50 border-l-2 w-fit ml-auto h-screen">
         <div className="flex flex-col items-end gap-1 border-b-2  pr-6 pb-10  pt-20 text-xl ">
           <Link
             className={`flex gap-2 items-center p-2 pl-10 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
