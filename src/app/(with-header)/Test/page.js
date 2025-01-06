@@ -1,17 +1,24 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 const Test = () => {
-  const users = [
-    {
-      mapUrl:
-        "https://www.google.com/maps/@30.0557871,31.233309,19.25z?entry=ttu&g_ep=EgoyMDI0MTIxMS4wIKXMDSoJLDEwMjExMjMzSAFQAw%3D%3D",
-    },
-    {
-      mapUrl:
-        "https://www.google.com/maps/place/Pyramids+of+Giza/@29.9764804,31.1313023,15z/data=!4m6!3m5!1s0x14584587f0c24a97:0x9a1cbfc31578c7c2!8m2!3d29.9764804!4d31.1313023!16zL20vMGYxcnE?entry=ttu&g_ep=EgoyMDI0MTIxMS4wIKXMDSoJLDEwMjExMjMzSAFQAw%3D%3D",
-    },
-  ];
+  const users = useMemo(
+    () => [
+      {
+        mapUrl:
+          "https://www.google.com/maps/@30.0557871,31.233309,19.25z?entry=ttu&g_ep=EgoyMDI0MTIxMS4wIKXMDSoJLDEwMjExMjMzSAFQAw%3D%3D",
+      },
+      {
+        mapUrl:
+          "https://www.google.com/maps/place/Pyramids+of+Giza/@29.9764804,31.1313023,15z/data=!4m6!3m5!1s0x14584587f0c24a97:0x9a1cbfc31578c7c2!8m2!3d29.9764804!4d31.1313023!16zL20vMGYxcnE?entry=ttu&g_ep=EgoyMDI0MTIxMS4wIKXMDSoJLDEwMjExMjMzSAFQAw%3D%3D",
+      },
+      {
+        mapUrl:
+          "https://maps.app.goo.gl/6i1aFqbkoGkk6Spk6?g_st=com.google.maps.preview.copy",
+      },
+    ],
+    []
+  );
 
   const [mapUrls, setMapUrls] = useState([]);
 
@@ -63,7 +70,7 @@ const Test = () => {
     };
 
     fetchUrls();
-  });
+  }, [users]);
 
   return (
     <div className="py-32">

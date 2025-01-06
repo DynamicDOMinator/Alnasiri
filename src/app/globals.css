@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.cairo-font {
+  font-family: 'Cairo', sans-serif;
+}

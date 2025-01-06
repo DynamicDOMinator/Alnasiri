@@ -11,38 +11,45 @@ export default function Sidebar() {
     <div>
       {/* desktop screen */}
       <div className="   lg:fixed hidden lg:block gap-4 right-0 z-50 border-l-2 w-fit ml-auto h-screen">
-        <div className="flex flex-col items-end gap-1 border-b-2  pr-6 pb-10  pt-20 text-xl ">
+        <div className="flex flex-col items-end gap-1 border-b-2  px-6 pb-10   pt-20   ">
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center w-full  p-2 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
               pathname === "/Lawyer-dashboard"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
             href="/Lawyer-dashboard "
           >
-            فرص
+            <p className="w-full text-right">
+              فرص
+            </p>
+            
             <Image src="/images/icon1.png" alt=" فرص" width={15} height={15} />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
               pathname === "/Lawyer-dashboard/MyForas"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
             href="/Lawyer-dashboard/MyForas"
           >
-            فرصي
+            <p className="w-full text-right">
+              فرصي
+            </p>
             <Image src="/images/icon2.png" alt="فرصي" width={15} height={15} />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
               pathname === "/Lawyer-dashboard/FreeQuestions"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
             href="/Lawyer-dashboard/FreeQuestions"
           >
-            الاسئلة المجانية
+            <p className="w-full text-right">
+              الاسئلة المجانية
+            </p>
             <Image
               src="/images/icon3.png"
               alt="الاسئلة المجانية"
@@ -51,14 +58,16 @@ export default function Sidebar() {
             />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
               pathname === "/Lawyer-dashboard/MyAnswers"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
             href="/Lawyer-dashboard/MyAnswers"
           >
-            أجوبتي
+            <p className="w-full text-right">
+              أجوبتي
+            </p>
             <Image
               src="/images/icon4.png"
               alt="أجوبتي"
@@ -67,14 +76,16 @@ export default function Sidebar() {
             />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
               pathname === "/Lawyer-dashboard/Profile"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
             href="/Lawyer-dashboard/Profile"
           >
-            صفحتي الشخصية
+            <p className="w-full text-right">
+              صفحتي الشخصية
+            </p>
             <Image
               src="/images/icon5.png"
               alt="profile"
@@ -83,14 +94,16 @@ export default function Sidebar() {
             />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
               pathname === "/Lawyer-dashboard/Balance"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
             href="/Lawyer-dashboard/Balance"
           >
-            رصيدي
+            <p className="w-full text-right">
+              رصيدي
+            </p>
             <Image
               src="/images/icon6.png"
               alt="balance"
@@ -100,14 +113,14 @@ export default function Sidebar() {
           </Link>
         </div>
         {/* Modified settings section */}
-        <div className="absolute flex items-center gap-4 w-full justify-center bottom-5">
+        <div className="absolute flex items-center gap-4 w-full justify-end pr-5 bottom-5">
           <div>
-            <p className="text-lg font-semibold">أحمد السيد</p>
+            <p className="text-sm font-semibold">أحمد السيد</p>
             <p className="text-sm text-right">الاعدادات</p>
           </div>
           <div>
             <Image
-              className="w-14"
+              className="w-12"
               src="/images/imgse.png"
               alt="settings"
               width={100}

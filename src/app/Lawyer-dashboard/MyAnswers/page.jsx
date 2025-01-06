@@ -11,36 +11,70 @@ export default function MyAnswers() {
       title: "بحث عن قضية جنائة",
       description: "البحث عن محامي ذو خبرة في انواع هذة القضاية",
     },
-    // ... more answers
+    {
+      id: 2,
+      date: "15",
+      month: "ديسمبر",
+      name: "محمد علي",
+      title: "استشارة قانونية في قضية تجارية",
+      description: "احتاج مساعدة في عقد شراكة تجارية وتأسيس شركة",
+    },
+    {
+      id: 3,
+      date: "14",
+      month: "ديسمبر",
+      name: "فاطمة محمود",
+      title: "قضية أحوال شخصية",
+      description: "استشارة قانونية في موضوع الطلاق والنفقة",
+    },
+    {
+      id: 4,
+      date: "12",
+      month: "ديسمبر",
+      name: "عمر حسن",
+      title: "نزاع عقاري",
+      description: "مشكلة في عقد إيجار تجاري وتعويضات",
+    },
+    {
+      id: 5,
+      date: "10",
+      month: "ديسمبر",
+      name: "سارة أحمد",
+      title: "قضية عمالية",
+      description: "مشكلة مع صاحب العمل بخصوص التعويضات ونهاية الخدمة",
+    },
   ];
 
   return (
-    <div>
-      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-20 text-xl  md:text-3xl font-semibold">
-        اجوبتي
-      </p>
-
-      <div className="w-[80%] lg:mx-auto mt-10 lg:mt-0">
-        <p className="flex items-center gap-1 w-fit px-4 rounded-lg">
-          فرص <span>5</span>
-        </p>{" "}
+    <div className="w-full pb-24 lg:pb-0 max-w-3xl mx-auto relative">
+      {/* Sticky header */}
+      <div className="sticky top-0 w-full max-w-3xl bg-white z-10">
+        <p className="lg:text-right text-center py-5 lg:bg-transparent lg:shadow-none shadow-md lg:pt-20 text-xl md:text-3xl font-bold">
+          اجوبتي
+        </p>
+        <div className=" pb-5">
+          <p className="flex items-center gap-1 w-fit px-4 rounded-lg">
+            فرص <span>5</span>
+          </p>
+        </div>
       </div>
-      {/* all leads display  */}
-      <div className="flex flex-col gap-2 justify-center items-center px-4 lg:px-0 mt-5">
+
+      {/* Scrollable content */}
+      <div className="flex flex-col gap-5 justify-center items-center px-4 pb-10  lg:px-0 ">
         {answers.map((answer) => (
           <div
             key={answer.id}
-            className="border-2 border-gray-300 rounded-lg lg:w-[80%] w-full md:px-10 px-3 py-6"
+            className="border-2 border-gray-300 rounded-lg  w-full md:px-10 px-3 py-6"
           >
             <div className=" flex justify-between items-center ">
               <p className="flex items-center">
                 {" "}
                 ديسمبر <span>17</span>{" "}
               </p>
-              <p className="text-lg">أحمد السيد</p>
+              <p className="font-semibold">أحمد السيد</p>
             </div>
-            <p className="text-right text-xl">بحث عن قضية جنائة</p>
-            <p className="text-right text-lg text-gray-500">
+            <p className="text-right font-semibold">بحث عن قضية جنائة</p>
+            <p className="text-right text-gray-500">
               البحث عن محامي ذو خبرة في انواع هذة القضاية
             </p>
 
@@ -55,7 +89,6 @@ export default function MyAnswers() {
           </div>
         ))}
       </div>
-      {/* end of the diplaying leads  */}
     </div>
   );
 }

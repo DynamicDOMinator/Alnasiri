@@ -77,7 +77,6 @@ export default function Foras() {
       tags: ["إداري", "تخصص إداري"],
       contactCount: 6,
     },
-  
   ];
 
   const handleLeadClick = (leadId) => {
@@ -85,33 +84,39 @@ export default function Foras() {
   };
 
   return (
-    <div className="max-w-6xl  pb-24 lg:pb-0  ">
-      <p className="lg:text-right text-center py-5 bg-white lg:bg-none lg:shadow-none shadow-md lg:pt-20 text-xl  md:text-3xl font-semibold">
-        فرص
-      </p>
-      <div className="flex items-center justify-end pt-10 px-5 lg:px-0 gap-2">
-        <button className="text-xl font-semibold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full">
-          فلتر{" "}
-          <span>
-            <Image src="/images/filter.png" height={20} width={20} alt="فلتر" />
-          </span>
-        </button>
-      </div>{" "}
-      <div className="w-[80%] lg:mx-auto">
-        <p className="flex items-center gap-1 w-fit px-4 rounded-lg">
-          فرص <span>{leadsData.length}</span>
-        </p>{" "}
+    <div className="w-full pb-24 lg:pb-0 max-w-3xl mx-auto relative cairo-font">
+      <div className="sticky top-0 w-full max-w-3xl bg-white z-10">
+        <p className="lg:text-right text-center py-5 lg:bg-transparent lg:shadow-none shadow-md lg:pt-20 text-xl md:text-3xl font-bold">
+          فرص
+        </p>
+        <div className="flex items-center justify-between pt-10 flex-row-reverse bg-white pb-5">
+          <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
+            <button className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full">
+              فلتر{" "}
+              <span>
+                <Image
+                  src="/images/filter.png"
+                  height={15}
+                  width={15}
+                  alt="فلتر"
+                />
+              </span>
+            </button>
+          </div>
+          <p className="flex items-center gap-1 w-fit px-4 rounded-lg">
+            فرص <span>{leadsData.length}</span>
+          </p>
+        </div>
       </div>
-      {/* all leads display  */}
-      <div className="flex flex-col gap-5 pb-10 justify-center items-center px-4 md:px-5 lg:px-0 mt-5">
+      <div className="flex flex-col gap-5 pb-10 justify-center items-center px-4 md:px-5 lg:px-0 pt-4">
         {leadsData.map((lead) => (
           <div
             key={lead.id}
             onClick={() => handleLeadClick(lead.id)}
-            className="relative border-2 border-gray-300 rounded-lg lg:w-[80%] w-full md:px-10 px-3 py-6 cursor-pointer hover:border-blue-500 transition-colors"
+            className="relative border-2 border-gray-300  max-w-3xl rounded-lg w-full md:px-10 px-3 py-6 cursor-pointer hover:border-blue-500 transition-colors [direction:ltr]"
           >
             {seenLeads.includes(lead.id) && (
-              <span className="absolute top-3 left-8 bg-gray-500 text-white text-xs px-2 py-1 rounded-full">
+              <span className="absolute top-3 md:left-8 left-2 bg-gray-500 text-white text-xs px-2 py-1 rounded-full">
                 تم المشاهدة
               </span>
             )}
@@ -119,10 +124,10 @@ export default function Foras() {
               <p className="flex items-center">
                 {lead.month} <span>{lead.date}</span>
               </p>
-              <p className="text-lg">{lead.name}</p>
+              <p className="font-semibold ">{lead.name}</p>
             </div>
-            <p className="text-right text-xl">{lead.title}</p>
-            <p className="text-right text-lg text-gray-500">
+            <p className="text-right  font-semibold">{lead.title}</p>
+            <p className="text-right  text-gray-500">
               {lead.description}
             </p>
             <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-4 text-white">
@@ -159,7 +164,6 @@ export default function Foras() {
           </div>
         ))}
       </div>
-      {/* end of the diplaying leads  */}
     </div>
   );
 }
