@@ -27,7 +27,7 @@ export default function Sidebar() {
             </svg>
           </span>
         </h2>
-        <div className="flex flex-col items-end gap-1 border-b-2  px-6 pb-10   ">
+        <div className="flex flex-col items-end gap-1 border-b-2  px-2 pb-10   ">
           <Link
             className={`flex gap-2 items-center w-full  p-2 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
               pathname === "/Lawyer-dashboard"
