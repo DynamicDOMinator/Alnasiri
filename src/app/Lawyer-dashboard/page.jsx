@@ -8,15 +8,9 @@ import { useState, useEffect } from "react";
 export default function Foras() {
   const router = useRouter();
   const [seenLeads, setSeenLeads] = useState([]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("seenLeads");
-    if (saved) {
-      setSeenLeads(JSON.parse(saved));
-    }
-  }, []);
-
-  const leadsData = [
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedLeads, setSelectedLeads] = useState([]);
+  const [leadsData, setLeadsData] = useState([
     {
       id: 1,
       date: "17",
@@ -26,6 +20,7 @@ export default function Foras() {
       description: "البحث عن محامي ذو خبرة في انواع هذة القضاية",
       tags: ["عاجل", "حصرى", "تخصص جنائي"],
       contactCount: 5,
+      contactStatus: "5 تواصل مع العميل",
     },
     {
       id: 2,
@@ -36,6 +31,7 @@ export default function Foras() {
       description: "بحاجة إلى محامي متخصص في القضايا التجارية",
       tags: ["عاجل", "تخصص تجاري"],
       contactCount: 3,
+      contactStatus: "3 تواصل مع العميل",
     },
     {
       id: 3,
@@ -46,6 +42,7 @@ export default function Foras() {
       description: "بحاجة إلى استشارة قانونية في مسائل الملكية العقارية",
       tags: ["عقاري", "استشارة"],
       contactCount: 2,
+      contactStatus: "2 تواصل مع العميل",
     },
     {
       id: 4,
@@ -56,6 +53,7 @@ export default function Foras() {
       description: "يبحث عن محامي متخصص في قضايا الأحوال الشخصية",
       tags: ["أحوال شخصية", "عاجل"],
       contactCount: 4,
+      contactStatus: "4 تواصل مع العميل",
     },
     {
       id: 5,
@@ -66,6 +64,7 @@ export default function Foras() {
       description: "مشكلة قانونية متعلقة بحقوق العمال",
       tags: ["عمالي", "حصرى"],
       contactCount: 1,
+      contactStatus: "1 تواصل مع العميل",
     },
     {
       id: 6,
@@ -76,21 +75,64 @@ export default function Foras() {
       description: "بحاجة إلى محامي متخصص في القضايا الإدارية",
       tags: ["إداري", "تخصص إداري"],
       contactCount: 6,
+      contactStatus: "6 تواصل مع العميل",
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("seenLeads");
+    if (saved) {
+      setSeenLeads(JSON.parse(saved));
+    }
+  }, []);
 
   const handleLeadClick = (leadId) => {
     router.push(`Lawyer-dashboard/lead-details/${leadId}`);
   };
 
+  const handleSelectLead = (e, leadId) => {
+    e.stopPropagation();
+    if (selectedLeads.includes(leadId)) {
+      setSelectedLeads(selectedLeads.filter((id) => id !== leadId));
+    } else {
+      setSelectedLeads([...selectedLeads, leadId]);
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    const updatedLeads = leadsData.filter(
+      (lead) => !selectedLeads.includes(lead.id)
+    );
+    setLeadsData(updatedLeads);
+    setIsSelectionMode(false);
+    setSelectedLeads([]);
+  };
+
   return (
     <div className="w-full pb-24 lg:pb-0 max-w-3xl mx-auto relative cairo-font">
       <div className="sticky top-0 w-full max-w-3xl bg-white z-10">
-        <p className="lg:text-right text-center py-5 lg:bg-transparent lg:shadow-none shadow-md lg:pt-20 text-xl md:text-3xl font-bold">
+        <p className="lg:text-right text-center py-5 lg:bg-transparent lg:shadow-none shadow-md lg:pt-16 text-xl md:text-3xl font-bold">
           فرص
         </p>
-        <div className="flex items-center justify-between pt-10 flex-row-reverse bg-white pb-5">
+        <div className="flex items-center justify-between pt-1 flex-row-reverse bg-white ">
           <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
+            {isSelectionMode && (
+              <button
+                onClick={handleDeleteSelected}
+                className="font-bold flex items-center gap-2 border-2 border-red-500 text-red-500 px-4 py-2 rounded-full"
+              >
+                حذف المحدد ({selectedLeads.length})
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setIsSelectionMode(!isSelectionMode);
+                setSelectedLeads([]);
+              }}
+              className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full"
+            >
+              {isSelectionMode ? "إلغاء" : "تحديد"}
+            </button>
             <button className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full">
               فلتر{" "}
               <span>
@@ -108,29 +150,35 @@ export default function Foras() {
           </p>
         </div>
       </div>
-      <div className="flex flex-col gap-5 pb-10 justify-center items-center px-4 md:px-5 lg:px-0 pt-4">
+      <div className="flex flex-col gap-2 pb-10 justify-center items-center px-4 md:px-5 lg:px-0 pt-2">
         {leadsData.map((lead) => (
           <div
             key={lead.id}
-            onClick={() => handleLeadClick(lead.id)}
-            className="relative border-2 border-gray-300  max-w-3xl rounded-lg w-full md:px-10 px-3 py-6 cursor-pointer hover:border-blue-500 transition-colors [direction:ltr]"
+            onClick={() => !isSelectionMode && handleLeadClick(lead.id)}
+            className="relative border-2 border-gray-300  max-w-3xl rounded-lg w-full md:px-10 px-3 pt-4 pb-3 cursor-pointer hover:border-blue-500 transition-colors [direction:ltr]"
           >
+            {isSelectionMode && (
+              <input
+                type="checkbox"
+                className="absolute top-3 right-3 h-5 w-5 cursor-pointer"
+                checked={selectedLeads.includes(lead.id)}
+                onChange={(e) => handleSelectLead(e, lead.id)}
+              />
+            )}
             {seenLeads.includes(lead.id) && (
               <span className="absolute top-3 md:left-8 left-2 bg-gray-500 text-white text-xs px-2 py-1 rounded-full">
                 تم المشاهدة
               </span>
             )}
-            <div className="flex justify-between mt-4 items-center">
+            <div className="flex justify-between mt-4 items-center pt-2">
               <p className="flex items-center">
                 {lead.month} <span>{lead.date}</span>
               </p>
               <p className="font-semibold ">{lead.name}</p>
             </div>
             <p className="text-right  font-semibold">{lead.title}</p>
-            <p className="text-right  text-gray-500">
-              {lead.description}
-            </p>
-            <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-4 text-white">
+            <p className="text-right  text-gray-500">{lead.description}</p>
+            <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-2 text-white">
               {lead.tags.map((tag, index) => (
                 <p
                   key={index}
@@ -145,17 +193,20 @@ export default function Foras() {
                   {tag}
                 </p>
               ))}
-              <p className="flex gap-1 text-black bg-gray-300 py-1 px-2 rounded-md">
-                مرات <span>{lead.contactCount}</span>
-              </p>
+
               <LuPhone className="text-black text-2xl" />
             </div>
-            <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-16">
+            <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-2">
               <button className="bg-orange-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-orange-600">
                 تواصل مع العميل
               </button>
-              <p className="flex items-center gap-1 text-lg text-gray-500">
-                تم التواصل مع العميل مره واحدة
+              <p
+                dir="rtl"
+                className="flex flex-row-reverse items-center gap-2 text-lg text-gray-500"
+              >
+                {lead.contactCount === 0
+                  ? "لم يتم التواصل مع العميل"
+                  : `${lead.contactCount} تواصل مع العميل`}
                 <span>
                   <BsWallet2 />
                 </span>
