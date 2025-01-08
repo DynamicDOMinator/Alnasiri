@@ -55,7 +55,7 @@ export default function FreeQuestions() {
         <p className="lg:text-right text-center py-5 lg:bg-transparent lg:shadow-none shadow-md lg:pt-16 text-lg md:text-3xl font-bold">
           الاسالة المجانية
         </p>
-        <div className="flex items-center justify-between  flex-row-reverse bg-white pb-5">
+        <div className="flex items-center justify-between  flex-row-reverse bg-white pb-2">
           <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
             {isSelectionMode && (
               <button

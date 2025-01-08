@@ -7,6 +7,11 @@ import { CiUser } from "react-icons/ci";
 export default function Sidebar() {
   const pathname = usePathname();
 
+  // Add this check to determine if we're on a lead details page
+  const isLeadDetailsPage = pathname.includes(
+    "/Lawyer-dashboard/lead-details/"
+  );
+
   return (
     <div>
       {/* desktop screen */}
@@ -135,72 +140,79 @@ export default function Sidebar() {
       </div>
 
       {/* Mobile and medium screen navigation */}
-      <div className="lg:hidden fixed bottom-0 right-0 left-0 bg-white border-t-2 py-4 px-4">
-        <div className="flex flex-row-reverse justify-between items-center">
-          <Link
-            className={`flex flex-col items-center gap-1 ${
-              pathname === "/Lawyer-dashboard" ? "text-primary" : ""
-            }`}
-            href="/Lawyer-dashboard"
-          >
-            <Image src="/images/icon1.png" alt="فرص" width={20} height={20} />
-            <span className="text-xs">فرص</span>
-          </Link>
+      {!isLeadDetailsPage && (
+        <div className="lg:hidden fixed bottom-0 right-0 left-0 bg-white border-t-2 py-4 px-4">
+          <div className="flex flex-row-reverse justify-between items-center">
+            <Link
+              className={`flex flex-col items-center gap-1 ${
+                pathname === "/Lawyer-dashboard" ? "text-primary" : ""
+              }`}
+              href="/Lawyer-dashboard"
+            >
+              <Image src="/images/icon1.png" alt="فرص" width={20} height={20} />
+              <span className="text-xs">فرص</span>
+            </Link>
 
-          <Link
-            className={`flex flex-col items-center gap-1 ${
-              pathname === "/Lawyer-dashboard/MyForas" ? "text-primary" : ""
-            }`}
-            href="/Lawyer-dashboard/MyForas"
-          >
-            <Image src="/images/icon2.png" alt="فرصي" width={20} height={20} />
-            <span className="text-xs">فرصي</span>
-          </Link>
+            <Link
+              className={`flex flex-col items-center gap-1 ${
+                pathname === "/Lawyer-dashboard/MyForas" ? "text-primary" : ""
+              }`}
+              href="/Lawyer-dashboard/MyForas"
+            >
+              <Image
+                src="/images/icon2.png"
+                alt="فرصي"
+                width={20}
+                height={20}
+              />
+              <span className="text-xs">فرصي</span>
+            </Link>
 
-          <Link
-            className={`flex flex-col items-center gap-1 ${
-              pathname === "/Lawyer-dashboard/FreeQuestions"
-                ? "text-primary"
-                : ""
-            }`}
-            href="/Lawyer-dashboard/FreeQuestions"
-          >
-            <Image
-              src="/images/icon3.png"
-              alt="الاسئلة المجانية"
-              width={20}
-              height={20}
-            />
-            <span className="text-xs">الاسئلة المجانية</span>
-          </Link>
+            <Link
+              className={`flex flex-col items-center gap-1 ${
+                pathname === "/Lawyer-dashboard/FreeQuestions"
+                  ? "text-primary"
+                  : ""
+              }`}
+              href="/Lawyer-dashboard/FreeQuestions"
+            >
+              <Image
+                src="/images/icon3.png"
+                alt="الاسئلة المجانية"
+                width={20}
+                height={20}
+              />
+              <span className="text-xs">الاسئلة المجانية</span>
+            </Link>
 
-          <Link
-            className={`flex flex-col items-center gap-1 ${
-              pathname === "/Lawyer-dashboard/MyAnswers" ? "text-primary" : ""
-            }`}
-            href="/Lawyer-dashboard/MyAnswers"
-          >
-            <Image
-              src="/images/icon4.png"
-              alt="أجوبتي"
-              width={20}
-              height={20}
-            />
-            <span className="text-xs">أجوبتي</span>
-          </Link>
+            <Link
+              className={`flex flex-col items-center gap-1 ${
+                pathname === "/Lawyer-dashboard/MyAnswers" ? "text-primary" : ""
+              }`}
+              href="/Lawyer-dashboard/MyAnswers"
+            >
+              <Image
+                src="/images/icon4.png"
+                alt="أجوبتي"
+                width={20}
+                height={20}
+              />
+              <span className="text-xs">أجوبتي</span>
+            </Link>
 
-          <Link
-            className={`flex flex-col items-center gap-1 ${
-              pathname === "/Lawyer-dashboard/Settings" ? "text-primary" : ""
-            }`}
-            href="/Lawyer-dashboard/Settings"
-          >
-            <CiUser className="text-2xl" />
+            <Link
+              className={`flex flex-col items-center gap-1 ${
+                pathname === "/Lawyer-dashboard/Settings" ? "text-primary" : ""
+              }`}
+              href="/Lawyer-dashboard/Settings"
+            >
+              <CiUser className="text-2xl" />
 
-            <span className="text-xs">الاعدادات</span>
-          </Link>
+              <span className="text-xs">الاعدادات</span>
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
