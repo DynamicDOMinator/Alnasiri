@@ -12,7 +12,7 @@ const ApplePayButton = () => {
 
   useEffect(() => {
     const checkApplePaySupport = () => {
-      const isIOSDevice = /iphone|ipad|ipod/.test(
+      const isAppleDevice = /iphone|ipad|ipod|macintosh/.test(
         window.navigator.userAgent.toLowerCase()
       );
 
@@ -20,11 +20,11 @@ const ApplePayButton = () => {
         window.ApplePaySession && ApplePaySession.canMakePayments();
 
       setDebugInfo({
-        isIOS: isIOSDevice,
+        isIOS: isAppleDevice,
         hasApplePaySession: !!window.ApplePaySession,
       });
 
-      setIsSupported(isIOSDevice && hasApplePay);
+      setIsSupported(isAppleDevice && hasApplePay);
       setIsLoading(false);
     };
 
