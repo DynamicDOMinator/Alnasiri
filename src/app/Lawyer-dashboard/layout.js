@@ -18,8 +18,8 @@ export default function LawyerDashboardLayout({ children }) {
     <html lang="ar" className={cairo.className}>
       <body className="cairo-font">
         <div className="lg:flex justify-between ">
-          <div className="mx-auto  w-5/6  ">{children}</div>
-          <div className=" w-1/6  border-l-2 border-gray-300 ">
+          <div className="mx-auto w-5/6 ">{children}</div>
+          <div className=" w-1/6  border-l-2  border-gray-300 bg-white  ">
             <Sidebar />
           </div>
         </div>
