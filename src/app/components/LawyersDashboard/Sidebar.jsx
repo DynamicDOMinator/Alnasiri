@@ -10,7 +10,7 @@ export default function Sidebar() {
   return (
     <div>
       {/* desktop screen */}
-      <div className="   lg:fixed hidden lg:block gap-4 right-0 z-50  w-1/6  ml-auto h-screen ">
+      <div className="   lg:fixed hidden lg:border-l-2 border-gray-300 lg:block gap-4 right-0 z-50  w-1/6  ml-auto h-screen ">
         <h2 className="mt-20  justify-center text-3xl font-bold flex items-center gap-2 pb-10">
           نصيري{" "}
           <span>
