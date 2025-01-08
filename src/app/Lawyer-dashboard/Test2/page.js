@@ -33,28 +33,53 @@ const ApplePayButton = () => {
 
   const handleApplePay = async () => {
     try {
-      const paymentRequest = new ApplePaySession.PaymentRequest({
+      const paymentRequest = {
         countryCode: 'US',
         currencyCode: 'USD',
-        supportedNetworks: ['visa', 'masterCard', 'amex'],
-        merchantCapabilities: ['supports3DS'],
+        supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
+        merchantCapabilities: ['supports3DS', 'supportsCredit', 'supportsDebit'],
         total: {
-          label: 'Total',
-          amount: '10.00' // Replace with your actual amount
-        }
-      });
+          label: 'Your Company Name', // Replace with your company name
+          type: 'final',
+          amount: '1.00'
+        },
+        requiredBillingContactFields: ['postalAddress', 'name'],
+        requiredShippingContactFields: ['postalAddress', 'name', 'email', 'phone']
+      };
 
-      const session = new ApplePaySession(3, paymentRequest);
-      
+      const session = new ApplePaySession(6, paymentRequest); // Using latest version (6)
+
       session.onvalidatemerchant = async (event) => {
-        // You'll need to implement merchant validation here
-        console.log('Merchant validation needed:', event);
+        try {
+          // You need to implement this endpoint on your server
+          const response = await fetch('/api/apple-pay/validate-merchant', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              validationURL: event.validationURL
+            })
+          });
+          
+          const merchantSession = await response.json();
+          session.completeMerchantValidation(merchantSession);
+        } catch (err) {
+          console.error('Merchant validation failed:', err);
+          session.abort();
+        }
       };
 
       session.onpaymentauthorized = (event) => {
-        // Handle successful payment here
-        console.log('Payment authorized:', event);
+        // Process the payment on your server
+        console.log('Payment authorized:', event.payment);
+        
+        // Complete the payment
         session.completePayment(ApplePaySession.STATUS_SUCCESS);
+      };
+
+      session.oncancel = (event) => {
+        console.log('Payment cancelled:', event);
       };
 
       session.begin();
