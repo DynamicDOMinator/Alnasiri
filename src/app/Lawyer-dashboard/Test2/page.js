@@ -1,8 +1,32 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { isIOS } from "react-device-detect";
 
 const ApplePayButton = () => {
+  const [isSupported, setIsSupported] = useState(false);
+
+  useEffect(() => {
+    // Check Apple Pay support only on client side
+    const checkApplePaySupport = () => {
+      const isIOSDevice = /iphone|ipad|ipod/.test(
+        window.navigator.userAgent.toLowerCase()
+      );
+
+      const hasApplePay =
+        window.ApplePaySession && ApplePaySession.canMakePayments();
+
+      console.log("Device checks:", {
+        isIOS: isIOSDevice,
+        hasApplePaySession: !!window.ApplePaySession,
+        canMakePayments: hasApplePay,
+      });
+
+      setIsSupported(isIOSDevice && hasApplePay);
+    };
+
+    checkApplePaySupport();
+  }, []);
+
   const handleApplePay = () => {
     // تحقق من دعم Apple Pay
     if (window.ApplePaySession && ApplePaySession.canMakePayments()) {
@@ -58,35 +82,9 @@ const ApplePayButton = () => {
     }
   };
 
-  // Add new function to check Apple Pay support
-  const isApplePaySupported = () => {
-    if (typeof window === "undefined") {
-      console.log("Window is undefined (SSR)");
-      return false;
-    }
-
-    console.log("Device checks:", {
-      isIOS: isIOS,
-      hasApplePaySession: !!window.ApplePaySession,
-      canMakePayments: window.ApplePaySession
-        ? ApplePaySession.canMakePayments()
-        : false,
-    });
-
-    return isIOS && window.ApplePaySession && ApplePaySession.canMakePayments();
-  };
-
-  // Add useEffect to log on component mount
-  React.useEffect(() => {
-    console.log("Running on device:", {
-      isIOS: isIOS,
-      userAgent: window.navigator.userAgent,
-    });
-  }, []);
-
   return (
     <div>
-      {isApplePaySupported() ? (
+      {isSupported ? (
         <button
           onClick={handleApplePay}
           style={{
@@ -104,8 +102,15 @@ const ApplePayButton = () => {
         <div>
           <p>Apple Pay غير متاح لهذا الجهاز.</p>
           <p style={{ fontSize: "12px", color: "gray" }}>
-            {isIOS ? "iOS detected" : "Not iOS"} |
-            {window.ApplePaySession ? " ApplePay Available" : " No ApplePay"}
+            Debug:{" "}
+            {typeof window !== "undefined" && (
+              <>
+                {isIOS ? "iOS detected" : "Not iOS"} |
+                {window.ApplePaySession
+                  ? " ApplePay Available"
+                  : " No ApplePay"}
+              </>
+            )}
           </p>
         </div>
       )}
