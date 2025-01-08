@@ -49,7 +49,7 @@ export default function MyAnswers() {
     <div className="w-full pb-24 lg:pb-0 max-w-3xl mx-auto relative">
       {/* Sticky header */}
       <div className="sticky top-0 w-full max-w-3xl bg-white z-10">
-        <p className="lg:text-right text-center py-5 lg:bg-transparent lg:shadow-none shadow-md lg:pt-20 text-xl md:text-3xl font-bold">
+        <p className="lg:text-right text-center  lg:bg-transparent lg:shadow-none shadow-md lg:pt-16 text-xl md:text-3xl font-bold">
           اجوبتي
         </p>
         <div className=" pb-5">
@@ -60,7 +60,7 @@ export default function MyAnswers() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex flex-col gap-5 justify-center items-center px-4 pb-10  lg:px-0 ">
+      <div className="flex flex-col gap-2 justify-center items-center px-4 pb-10  lg:px-0 ">
         {answers.map((answer) => (
           <div
             key={answer.id}
@@ -81,7 +81,7 @@ export default function MyAnswers() {
             <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-10">
               <Link
                 href={`/Lawyer-dashboard/Answers/${answer.id}`}
-                className="bg-orange-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-orange-600"
+                className="bg-blue-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-blue-600"
               >
                 اعرض جوابي
               </Link>

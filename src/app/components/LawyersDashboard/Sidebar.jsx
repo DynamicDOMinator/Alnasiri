@@ -29,7 +29,7 @@ export default function Sidebar() {
         </h2>
         <div className="flex flex-col items-end gap-1 border-b-2  px-2 pb-10   ">
           <Link
-            className={`flex gap-2 items-center w-full  p-2 rounded-3xl hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center w-full  p-2 rounded-3xl hover:bg-gray-50 ${
               pathname === "/Lawyer-dashboard"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
@@ -41,7 +41,7 @@ export default function Sidebar() {
             <Image src="/images/icon1.png" alt=" فرص" width={15} height={15} />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-gray-50 ${
               pathname === "/Lawyer-dashboard/MyForas"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
@@ -52,7 +52,7 @@ export default function Sidebar() {
             <Image src="/images/icon2.png" alt="فرصي" width={15} height={15} />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-gray-50 ${
               pathname === "/Lawyer-dashboard/FreeQuestions"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
@@ -68,7 +68,7 @@ export default function Sidebar() {
             />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-gray-50 ${
               pathname === "/Lawyer-dashboard/MyAnswers"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
@@ -84,7 +84,7 @@ export default function Sidebar() {
             />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-gray-50 ${
               pathname === "/Lawyer-dashboard/Profile"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
@@ -100,7 +100,7 @@ export default function Sidebar() {
             />
           </Link>
           <Link
-            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-[rgba(217,217,217,0.31)] ${
+            className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-gray-50 ${
               pathname === "/Lawyer-dashboard/Balance"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""

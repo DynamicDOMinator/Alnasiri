@@ -93,7 +93,7 @@ export default function FreeQuestions() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex flex-col gap-5 justify-center items-center pb-10 px-4 lg:px-0">
+      <div className="flex flex-col gap-2 justify-center items-center pb-10 px-4 lg:px-0">
         {questions.map((question) => (
           <div
             key={question.id}
@@ -116,7 +116,7 @@ export default function FreeQuestions() {
             <p className="text-right font-semibold">{question.title}</p>
             <p className="text-right  text-gray-500">{question.description}</p>
             <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-10">
-              <button className="bg-orange-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-orange-600">
+              <button className="bg-blue-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-blue-600">
                 اجب عن السوال
               </button>
               <p className="flex items-center gap-1 text-lgl text-gray-700">

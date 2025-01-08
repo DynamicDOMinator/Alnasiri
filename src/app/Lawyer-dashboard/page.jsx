@@ -129,11 +129,11 @@ export default function Foras() {
                 setIsSelectionMode(!isSelectionMode);
                 setSelectedLeads([]);
               }}
-              className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full"
+              className="font-bold flex items-center gap-2 border-2 border-gray-300 hover:border-gray-400  px-4 py-2 rounded-full"
             >
               {isSelectionMode ? "إلغاء" : "تحديد"}
             </button>
-            <button className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full">
+            <button className="font-bold flex items-center gap-2 border-2 border-gray-300 hover:border-gray-400 px-4 py-2 rounded-full">
               فلتر{" "}
               <span>
                 <Image
@@ -187,7 +187,7 @@ export default function Foras() {
                       ? "bg-red-500"
                       : tag === "حصرى"
                         ? "bg-green-700"
-                        : "bg-blue-800"
+                        : "bg-gray-300 text-black"
                   }`}
                 >
                   {tag}
@@ -197,7 +197,7 @@ export default function Foras() {
               <LuPhone className="text-black text-2xl" />
             </div>
             <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-2">
-              <button className="bg-orange-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-orange-600">
+              <button className="bg-blue-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-blue-600">
                 تواصل مع العميل
               </button>
               <p
