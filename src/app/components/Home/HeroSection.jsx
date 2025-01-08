@@ -52,13 +52,13 @@ const HeroSection = () => {
     switch (step) {
       case 1:
         return (
-          <div className=" mx-auto flex flex-col gap-5 items-center justify-center md:m-0 px-10 pt-6 pb-16 rounded-md bg-white relative  md:ml-auto shadow-lg lg:min-h-[370px]">
+          <div className=" mx-auto  md:m-0 px-10 pt-6 pb-16 rounded-md bg-white  md:ml-auto shadow-lg ">
             <p className="text-2xl text-right text-black font-bold mb-6">
               ماذا تريد أن تفعل؟
             </p>
-            <div className=" w-full ">
+            <div className="flex flex-col gap-5">
               <button
-                className=" flex my-5 items-center flex-row-reverse gap-1 text-blue-500 w-full font-semibold border-2 border-blue-500 hover:underline px-6 py-3 text-right rounded-md shadow "
+                className=" flex items-center flex-row-reverse gap-1 text-blue-500 w-full font-semibold border-2 border-blue-500 hover:underline px-6 py-3 text-right rounded-md shadow "
                 onClick={() => setStep(2)}
               >
                 البحث عن محامي
@@ -82,7 +82,7 @@ const HeroSection = () => {
         );
       case 2:
         return (
-          <div className="px-10 pt-6 pb-10 rounded-md bg-white ml-auto shadow-lg lg:min-h-[370px]">
+          <div className="px-10 pt-6 pb-10 rounded-md bg-white ml-auto shadow-lg">
             <p className="text-2xl font-semibold mb-6 text-black text-right">
               ماذا تريد أن تفعل؟
             </p>
@@ -133,7 +133,7 @@ const HeroSection = () => {
 
       case 5:
         return (
-          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg lg:min-h-[370px]">
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
             <p className="text-2xl  mb-6 text-black text-right">
               أريد ان اجد محامي ذو خبرة في
             </p>
@@ -186,7 +186,7 @@ const HeroSection = () => {
 
       case 6:
         return (
-          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg lg:min-h-[370px]">
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
             <p className="text-2xl  mb-6 text-black text-right">
               اريد ان ابحث عن محامٍ بالاسم
             </p>
@@ -262,7 +262,7 @@ const HeroSection = () => {
         );
       case 7:
         return (
-          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg lg:min-h-[370px]">
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
             <p className="text-2xl  mb-6 text-black text-right">
               أريد ان اجد محامي ذو خبرة في
             </p>
