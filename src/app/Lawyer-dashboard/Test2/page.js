@@ -31,6 +31,38 @@ const ApplePayButton = () => {
     checkApplePaySupport();
   }, []);
 
+  const handleApplePay = async () => {
+    try {
+      const paymentRequest = new ApplePaySession.PaymentRequest({
+        countryCode: 'US',
+        currencyCode: 'USD',
+        supportedNetworks: ['visa', 'masterCard', 'amex'],
+        merchantCapabilities: ['supports3DS'],
+        total: {
+          label: 'Total',
+          amount: '10.00' // Replace with your actual amount
+        }
+      });
+
+      const session = new ApplePaySession(3, paymentRequest);
+      
+      session.onvalidatemerchant = async (event) => {
+        // You'll need to implement merchant validation here
+        console.log('Merchant validation needed:', event);
+      };
+
+      session.onpaymentauthorized = (event) => {
+        // Handle successful payment here
+        console.log('Payment authorized:', event);
+        session.completePayment(ApplePaySession.STATUS_SUCCESS);
+      };
+
+      session.begin();
+    } catch (error) {
+      console.error('Apple Pay error:', error);
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
