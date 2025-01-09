@@ -8,13 +8,10 @@ import { FaLocationDot } from "react-icons/fa6";
 import { GoLaw } from "react-icons/go";
 import { CiMoneyBill } from "react-icons/ci";
 
-export default function AnswersDetails() {
+export default function QuestionDetails() {
   const router = useRouter();
   const params = useParams();
-  const [isEditing, setIsEditing] = useState(false);
-  const [answer, setAnswer] = useState(
-    "بناءً على المعلومات المقدمة في قضيتك الجنائية، أود أن أوضح أن هذا النوع من القضايا يتطلب دراسة متأنية لكافة الأدلة والملابسات. سأقوم بمساعدتك في إعداد دفاع قوي يستند إلى القوانين والسوابق القضائية ذات الصلة. من المهم جمع كافة المستندات والأدلة التي تدعم موقفك القانوني. سنعمل معاً على تحليل جميع جوانب القضية وتطوير استراتيجية دفاع فعالة تهدف إلى حماية حقوقك وتحقيق أفضل نتيجة ممكنة. أقترح أن نحدد موعداً للاستشارة عن بعد لمناقشة تفاصيل القضية بشكل أكثر تفصيلاً والإجابة على جميع استفساراتك."
-  );
+  const [answer, setAnswer] = useState("");
 
   // Extended mock data with all required fields
   const question = {
@@ -37,10 +34,9 @@ export default function AnswersDetails() {
 
   const handleSubmitAnswer = (e) => {
     e.preventDefault();
-    setIsEditing(false);
     // Here you would typically send the answer to your backend
     // After successful submission, redirect back to questions list
-    // router.push("/Lawyer-dashboard/MyAnswers");
+    router.push("/Lawyer-dashboard/FreeQuestions");
   };
 
   return (
@@ -50,7 +46,7 @@ export default function AnswersDetails() {
           <div className="pt-10">
             <div className="flex lg:flex-col  items-center relative">
               <Link
-                href="/Lawyer-dashboard/MyAnswers"
+                href="/Lawyer-dashboard/FreeQuestions"
                 className="absolute right-0"
               >
                 <FaArrowRight />
@@ -111,28 +107,16 @@ export default function AnswersDetails() {
       <div dir="rtl" className="sticky bottom-0 bg-slate-100 pb-5 px-10">
         <h4 className="font-bold py-5">اجابتك</h4>
         <p className="flex gap-1 items-center">
+          {" "}
           الاجابة <span className="text-red-500">*</span>
         </p>
-        {isEditing ? (
-          <textarea
-            className="w-full h-20 resize-none min-h-32 border-2 border-gray-300 rounded-lg p-2 focus:outline-blue-500"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-          />
-        ) : (
-          <div className="w-full min-h-32 border-2 border-gray-300 rounded-lg p-2">
-            {answer}
-          </div>
-        )}
+        <textarea className="w-full h-20 resize-none min-h-32 border-2 border-gray-300 rounded-lg p-2 focus:outline-blue-500"></textarea>
         <div className="flex justify-end gap-3 mt-5">
           <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
             حذف
           </button>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded-lg"
-            onClick={isEditing ? handleSubmitAnswer : () => setIsEditing(true)}
-          >
-            {isEditing ? "تسليم الاجابة" : "تعديل الاجابة"}
+          <button className="bg-green-600 text-white px-4 py-2 rounded-lg">
+            تسليم الاجابة
           </button>
         </div>
       </div>

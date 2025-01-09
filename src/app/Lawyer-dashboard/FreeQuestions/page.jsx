@@ -2,8 +2,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { FaLongArrowAltLeft } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function FreeQuestions() {
+  const router = useRouter();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedQuestions, setSelectedQuestions] = useState([]);
   const [questions, setQuestions] = useState([
@@ -46,6 +48,10 @@ export default function FreeQuestions() {
     setQuestions(updatedQuestions);
     setIsSelectionMode(false);
     setSelectedQuestions([]);
+  };
+
+  const handleAnswerQuestion = (questionId) => {
+    router.push(`/Lawyer-dashboard/FreeQuestions/${questionId}`);
   };
 
   return (
@@ -116,7 +122,10 @@ export default function FreeQuestions() {
             <p className="text-right font-semibold">{question.title}</p>
             <p className="text-right  text-gray-500">{question.description}</p>
             <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-10">
-              <button className="bg-blue-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-blue-600">
+              <button 
+                onClick={() => handleAnswerQuestion(question.id)}
+                className="bg-blue-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-blue-600"
+              >
                 اجب عن السوال
               </button>
               <p className="flex items-center gap-1 text-lgl text-gray-700">

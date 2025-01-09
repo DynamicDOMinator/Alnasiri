@@ -68,15 +68,12 @@ export default function MyAnswers() {
           >
             <div className=" flex justify-between items-center ">
               <p className="flex items-center">
-                {" "}
-                ديسمبر <span>17</span>{" "}
+                {answer.month} <span>{answer.date}</span>
               </p>
-              <p className="font-semibold">أحمد السيد</p>
+              <p className="font-semibold">{answer.name}</p>
             </div>
-            <p className="text-right font-semibold">بحث عن قضية جنائة</p>
-            <p className="text-right text-gray-500">
-              البحث عن محامي ذو خبرة في انواع هذة القضاية
-            </p>
+            <p className="text-right font-semibold">{answer.title}</p>
+            <p className="text-right text-gray-500">{answer.description}</p>
 
             <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-10">
               <Link
