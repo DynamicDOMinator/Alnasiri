@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const steps = {
   INITIAL: 1,
@@ -12,9 +13,11 @@ const steps = {
   OTP: 4,
 };
 
-// Define axiosInstance or use axios directly
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const OTP_API_URL = process.env.NEXT_PUBLIC_OTP_API_URL;
 
 export default function AuthModal({ isOpen, onClose, onLogin }) {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(steps.INITIAL);
   const [loginMethod, setLoginMethod] = useState("email");
   const [formData, setFormData] = useState({
@@ -34,125 +37,109 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
 
   useEffect(() => {
     if (!isOpen) {
-      setCurrentStep(steps.INITIAL);
-      setLoginMethod("email");
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        password: "",
-        acceptTerms: false,
-      });
-      setError("");
-      setIsExistingUser(false);
+      resetForm();
     }
   }, [isOpen]);
 
+  const resetForm = () => {
+    setCurrentStep(steps.INITIAL);
+    setLoginMethod("email");
+    setError("");
+    setIsExistingUser(false);
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+      acceptTerms: false,
+    });
+  };
+
   const findByEmail = async (email) => {
     try {
-      const response = await axios.get(
-        `https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/users/find/email/${email}`
-      );
-      return response.data;
-    } catch {
-      return null;
+      const response = await axios.get(`${API_BASE_URL}/user/check-email`, {
+        params: { email },
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+      return response.status === 200;
+    } catch (error) {
+      return false;
     }
   };
 
-  // Controller-like function to handle email check
   const handleEmailCheck = async () => {
     setLoading(true);
     try {
-      const user = await findByEmail(formData.email);
-
-      if (user) {
-        setIsExistingUser(true);
-        setCurrentStep(steps.LOGIN);
-        setShowPasswordInput(true);
-        setIsLoginRequest(true);
-      } else {
-        setCurrentStep(steps.REGISTER);
-        setShowPasswordInput(false);
-        setIsLoginRequest(false);
-      }
-    } catch {
-      return null;
+      const isNewUser = await findByEmail(formData.email);
+      setIsExistingUser(!isNewUser);
+      setCurrentStep(isNewUser ? steps.REGISTER : steps.LOGIN);
+      setShowPasswordInput(!isNewUser);
+      setIsLoginRequest(!isNewUser);
+    } catch (error) {
+      setError("حدث خطأ أثناء التحقق من البريد الإلكتروني");
     } finally {
       setLoading(false);
     }
   };
 
-  // Log input values whenever they change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => {
-      const updatedData = { ...prevData, [name]: value };
-      return updatedData;
-    });
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
-  // Function to handle OTP submission
   const handleOtpSubmit = async () => {
-    // Logic to verify OTP code
-    console.log("OTP Code Submitted:", otpCode);
+    if (otpCode.length !== 6) {
+      setError("الرجاء إدخال رمز التحقق المكون من 6 أرقام");
+      return;
+    }
+
     try {
-      const response = await axios.post(
-        "https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/users/verify/otp",
-        {
-          email: formData.email, // Send the OTP code
-          otp: otpCode, // Include personalId if needed
-        }
-      );
-      console.log(response);
+      const response = await axios.post(OTP_API_URL, {
+        email: formData.email,
+        otp: otpCode,
+      });
+
       if (response.status === 200) {
-        // Proceed to the next step if OTP verification is successful
-        setCurrentStep(steps.REGISTER); // or whatever step you want to go to
+        setCurrentStep(steps.REGISTER);
         setIsOtpModalOpen(false);
-      } else {
-        setError("فشل في التحقق من الرمز"); // "Failed to verify the code"
       }
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "حدث خطأ أثناء التحقق من الرمز"; // "An error occurred while verifying the code"
-      setError(errorMessage);
+      setError(
+        error.response?.data?.message || "حدث خطأ أثناء التحقق من الرمز"
+      );
     }
   };
 
-  // Function to handle OTP input change
   const handleOtpChange = (index, value) => {
-    // Check if the value is a digit (0-9)
-    if (/^\d$/.test(value) || value === "") {
-      const newOtp = [...otpCode.split("")]; // Convert the current OTP string to an array
-      newOtp[index] = value; // Update the specific index with the new value
-      setOtpCode(newOtp.join("")); // Join the array back to a string
+    // Only allow digits
+    if (!/^\d*$/.test(value)) return;
 
-      // Move to the next input if the value is filled
-      if (value && index < 5) {
-        // Use setTimeout to ensure the state is updated before focusing
-        setTimeout(() => {
-          const nextInput = document.getElementById(`otp-input-${index + 1}`);
-          if (nextInput) {
-            nextInput.focus();
-          }
-        }, 0);
-      }
-    }
-  };
+    // Update OTP value
+    const newOtp = otpCode.split("");
+    newOtp[index] = value;
+    setOtpCode(newOtp.join(""));
 
-  // Function to handle key down event for moving focus
-  const handleKeyDown = (e, index) => {
-    // Move to the previous input if Backspace is pressed and current input is empty
-    if (e.key === "Backspace" && index > 0 && !otpCode[index]) {
-      const prevInput = document.getElementById(`otp-input-${index - 1}`);
-      if (prevInput) {
-        prevInput.focus();
-      }
-    }
-    // Move to the next input if a digit is entered
-    if (e.key.length === 1 && /^\d$/.test(e.key) && index < 5) {
+    // Move to next input if a digit was entered
+    if (value && index < 5) {
       const nextInput = document.getElementById(`otp-input-${index + 1}`);
       if (nextInput) {
         nextInput.focus();
+      }
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    // Handle backspace
+    if (e.key === "Backspace" && !otpCode[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-input-${index - 1}`);
+      if (prevInput) {
+        prevInput.focus();
       }
     }
   };
@@ -163,103 +150,131 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
     setLoading(true);
 
     try {
-      let response;
       if (isLoginRequest && currentStep === steps.LOGIN) {
-        response = await axios.post(
-          "https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/users/login",
-          {
-            email: formData.email,
-            password: formData.password,
-          }
-        );
-
-        if (response.status === 200) {
-          if (typeof window !== "undefined") {
-            localStorage.setItem("auth", response.data.token);
-            localStorage.setItem("user", response.data.user.firstName);
-            localStorage.setItem("role", response.data.user.role);
-            window.location.reload();
-          }
-        }
+        await handleLogin();
       } else if (currentStep === steps.REGISTER) {
-        response = await axios.post(
-          "https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/users/register",
-          {
-            firstName: formData.name,
-            lastName: "السمان",
-            email: formData.email,
-            phoneNumber: `+966${formData.phone}`,
-            password: formData.password,
-            role: "user",
-          }
-        );
-      }
-
-      console.log("Response:", response);
-
-      if (response.status === 200) {
-        console.log("Login successful");
-      } else if (response.status === 201) {
-        console.log("Registration successful, moving to OTP step");
-        setCurrentStep(steps.OTP);
-      } else {
-        setError("حدث خطأ أثناء العملية");
+        await handleRegister();
       }
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || "حدث خطأ أثناء العملية";
-      setError(errorMessage);
+      setError(err.response?.data?.message || "حدث خطأ أثناء العملية");
     } finally {
       setLoading(false);
     }
   };
 
-  // Add OTP modal rendering
-  const renderOtpModal = () => {
-    console.log("Rendering OTP Modal with phone number:", formData.phone);
-    return (
-      <div
-        className={`fixed inset-0 flex items-center justify-center z-50 ${isOtpModalOpen ? "block" : "hidden"}`}
-      >
-        <div
-          className="fixed inset-0 bg-black opacity-50"
-          onClick={() => setIsOtpModalOpen(false)}
-        ></div>
-        <div className="bg-white rounded-lg shadow-lg p-6 z-10 w-11/12 md:w-1/2 lg:w-1/3">
-          <h2 className="text-xl font-semibold text-center mb-4">
-            أدخل رمز التحقق
-          </h2>
-          <p className="text-center pb-3">
-            <span>
-              {formData.phone ? `+966${formData.phone}` : "رقم غير متوفر"}
-            </span>{" "}
-            تم الارسال علي
-          </p>
-          <div className="flex justify-center space-x-2">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <input
-                key={index}
-                id={`otp-input-${index}`}
-                type="text"
-                value={otpCode[index] || ""}
-                onChange={(e) => handleOtpChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                maxLength="1"
-                className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-              />
-            ))}
-          </div>
-          <button
-            onClick={handleOtpSubmit}
-            className="w-full bg-orange-600 text-white rounded-md py-2 hover:bg-blue-600 mt-4"
-          >
-            تأكيد
-          </button>
-        </div>
-      </div>
-    );
+  const handleLogin = async () => {
+    const response = await axios.post(`${API_BASE_URL}/user/login`, {
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (response.status === 200) {
+      const { remember_token, data } = response.data;
+      setAuthData(remember_token, data.name, data.role || "user", data.id);
+      onLogin({
+        token: remember_token,
+        username: data.name,
+        role: data.role || "user",
+        userId: data.id,
+      });
+      router.push("/Askquestion");
+      onClose();
+    }
   };
 
+  const handleRegister = async () => {
+    console.log("Registration data:", formData);
+    const response = await axios.post(
+      `${API_BASE_URL}/user/register`,
+      {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      },
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      setAuthData(response.data.token, response.data.data.name);
+      setIsOtpModalOpen(true);
+    }
+  };
+
+  const setAuthData = (token, username, role = "lawyer", userId) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("auth", token);
+      localStorage.setItem("user", username);
+      localStorage.setItem("userId", userId);
+      if (role) localStorage.setItem("role", role);
+    }
+  };
+
+  const LawyerRegistrationLink = () => (
+    <p className="text-sm">
+      هل أنت محامي؟
+      <Link
+        href="/Register-Lawyer"
+        onClick={onClose}
+        className="text-[#FF883EE0] hover:underline pr-2"
+      >
+        سجل من هنا
+      </Link>
+    </p>
+  );
+
+  const renderOtpModal = () => {
+    return (
+      <Dialog
+        open={isOtpModalOpen}
+        onClose={() => {}}
+        className="relative z-50"
+      >
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 z-10 w-11/12 md:w-1/2 lg:w-1/3">
+            <h2 className="text-xl font-semibold text-center mb-4">
+              أدخل رمز التحقق
+            </h2>
+            <p className="text-center pb-3" dir="rtl">
+              تم الارسال علي{" "}
+              {formData.phone && (
+                <span className="font-bold" dir="ltr">
+                  +966 {formData.phone}
+                </span>
+              )}
+            </p>
+            <div className="flex justify-center gap-2 rtl">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <input
+                  key={index}
+                  id={`otp-input-${index}`}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={otpCode[index] || ""}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              ))}
+            </div>
+            <button
+              onClick={handleOtpSubmit}
+              className="w-full bg-orange-600 text-white rounded-md py-2 hover:bg-blue-600 mt-4"
+            >
+              تأكيد
+            </button>
+          </div>
+        </div>
+      </Dialog>
+    );
+  };
   return (
     <>
       <Dialog open={isOpen} onClose={onClose} className="relative z-50">
@@ -353,15 +368,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
                 </button>
 
                 <div className="text-center space-y-2">
-                  <p className="text-sm">
-                    هل أنت محامي؟
-                    <Link
-                      href="/Register-Lawyer"
-                      className="text-[#FF883EE0] hover:underline"
-                    >
-                      سجل من هنا
-                    </Link>
-                  </p>
+                  <LawyerRegistrationLink />
                 </div>
               </form>
             )}
@@ -410,7 +417,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
 
                 <div className="flex justify-end items-center gap-2">
                   <span className="text-sm">
-                    أوافق لى شروط الاستخدام وسياسة الخصوصي
+                    أوافق لى شروط الاستخدام وسياسة الخصوصية
                   </span>
                   <input
                     type="checkbox"
@@ -439,15 +446,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
                 </button>
 
                 <div className="text-center space-y-2">
-                  <p className="text-sm">
-                    ل أنت محامي؟{" "}
-                    <a
-                      href="/lawyer-registration"
-                      className="text-[#FF883EE0] hover:underline"
-                    >
-                      سجل من هنا
-                    </a>
-                  </p>
+                  <LawyerRegistrationLink />
                 </div>
               </form>
             )}

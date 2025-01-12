@@ -234,6 +234,7 @@ export default function LeadDetails() {
             <p>{item.answer}</p>
           </div>
         ))}
+        
       </div>
 
       <div className="fixed bottom-0 left-0 lg:w-5/6 w-full bg-white border-t-2 py-4 border-gray-100 flex justify-center">

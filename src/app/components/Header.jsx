@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
 import {
   Dialog,
   DialogPanel,
@@ -113,37 +112,58 @@ export default function Example() {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null);
 
+  // Check if user is logged in on component mount
   useEffect(() => {
-    // Check if user is logged in
-    if (typeof window !== "undefined") {
-      const authToken = localStorage.getItem("auth");
-      if (authToken) {
-        setIsLoggedIn(true);
-        setUsername(localStorage.getItem("user"));
-        setRole(localStorage.getItem("role"));
+    const checkAuth = () => {
+      if (typeof window !== "undefined") {
+        const authToken = localStorage.getItem("auth");
+        if (authToken) {
+          setIsLoggedIn(true);
+          setUsername(localStorage.getItem("user"));
+          setRole(localStorage.getItem("role"));
+        } else {
+          setIsLoggedIn(false);
+          setUsername(null);
+          setRole(null);
+        }
       }
-    }
-    setLoading(false);
-  }, []);
+      setLoading(false);
+    };
+
+    checkAuth();
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleLogout = () => {
     setLoading(true);
     if (typeof window !== "undefined") {
-      // Check if in browser
       localStorage.removeItem("auth");
       localStorage.removeItem("user");
+      localStorage.removeItem("userId");
       localStorage.removeItem("role");
+      localStorage.removeItem("fullName");
+      localStorage.removeItem("lastName");
+      localStorage.removeItem("lawyerId");
+      localStorage.removeItem("middleName");
+      localStorage.removeItem("remember_token");
     }
     setIsLoggedIn(false);
     setUser(null);
-    window.location.href = "/";
+    setUsername(null);
+    setRole(null);
+    window.location.href = "/"; // Redirect to home page after logout
     setLoading(false);
   };
 
   const handleLogin = (userData) => {
-    console.log("User data on login:", userData); // Log user data
+    if (typeof window !== "undefined") {
+      localStorage.setItem("auth", userData.token);
+      localStorage.setItem("user", userData.username);
+      localStorage.setItem("role", userData.role);
+    }
     setIsLoggedIn(true);
     setUser(userData);
+    setUsername(userData.username);
+    setRole(userData.role);
     setAuthModalOpen(false); // Close the auth modal after login
   };
 
@@ -178,7 +198,7 @@ export default function Example() {
     if (role === "lawyer") {
       return (
         <Popover className="relative">
-          <PopoverButton  className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
+          <PopoverButton className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
             <span className="text-sm font-medium">
               {username || "المستخدم"}
             </span>
@@ -192,9 +212,9 @@ export default function Example() {
               >
                 لوحه التحكم
                 <ChevronDownIcon
-                className="h-5 w-5 rotate-90"
-                aria-hidden="true"
-              />
+                  className="h-5 w-5 rotate-90"
+                  aria-hidden="true"
+                />
               </Link>
               <Link
                 href="/profile"
@@ -202,21 +222,19 @@ export default function Example() {
               >
                 الملف الشخصي
                 <ChevronDownIcon
-                className="h-5 w-5 rotate-90"
-                aria-hidden="true"
-              />
+                  className="h-5 w-5 rotate-90"
+                  aria-hidden="true"
+                />
               </Link>
               <div className="px-2">
-
-                 <button
-                onClick={handleLogout}
-                 className="block w-full px-4 py-2 mt-3  border-2 text-sm text-center text-gray-700 hover:bg-gray-100"
-                disabled={loading}
-              >
-                {loading ? <Spinner /> : "تسجيل خروج"}
-              </button>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full px-4 py-2 mt-3 border-2 text-sm text-center text-gray-700 hover:bg-gray-100"
+                  disabled={loading}
+                >
+                  {loading ? <Spinner /> : "تسجيل خروج"}
+                </button>
               </div>
-             
             </div>
           </PopoverPanel>
         </Popover>
@@ -246,7 +264,7 @@ export default function Example() {
               href="/settings"
               className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
             >
-             الاشعارات
+              الاشعارات
               <ChevronDownIcon
                 className="h-5 w-5 rotate-90"
                 aria-hidden="true"
@@ -294,7 +312,7 @@ export default function Example() {
           aria-label="Global"
           className="flex items-center justify-between p-6 lg:px-16"
         >
-          {/* عرض باقي مكونات الهيدر هنا بدون زر تسجيل الدخول */}
+          {/* Display a loading spinner or placeholder */}
         </nav>
       </header>
     );
@@ -494,7 +512,7 @@ export default function Example() {
                       {products.map((item) => (
                         <div
                           key={item.name}
-                          className="group relative flex items-center  gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
+                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
                         >
                           <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                             <item.icon
@@ -601,7 +619,7 @@ export default function Example() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        onLogin={handleLogin}
+        onLogin={handleLogin} // تمرير handleLogin هنا
       />
     </>
   );

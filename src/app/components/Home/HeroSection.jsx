@@ -67,7 +67,6 @@ const HeroSection = () => {
                   className="size-3  flex-none text-blue-500 rotate-90"
                 />
               </button>
-
               <Link href="/Askquestion">
                 <button className=" flex items-center flex-row-reverse gap-1 text-blue-500 w-full font-semibold border-2 border-blue-500 hover:underline px-6 py-3 text-right rounded-md shadow ">
                   اسال محامي مجانا
