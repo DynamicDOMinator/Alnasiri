@@ -53,12 +53,12 @@ const HeroSection = () => {
       case 1:
         return (
           <div className=" mx-auto  md:m-0 px-10 pt-6 pb-16 rounded-md bg-white  md:ml-auto shadow-lg ">
-            <p className="text-2xl text-right text-black font-bold mb-6">
+            <p className="text-2xl text-center text-black font-bold mb-6">
               ماذا تريد أن تفعل؟
             </p>
             <div className="flex flex-col gap-5">
               <button
-                className=" flex items-center flex-row-reverse gap-1 text-blue-500 w-full font-semibold border-2 border-blue-500 hover:underline px-6 py-3 text-right rounded-md shadow "
+                className=" flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 w-full font-semibold border-2 border-blue-500 hover:underline px-6 py-3 text-right rounded-md shadow "
                 onClick={() => setStep(2)}
               >
                 البحث عن محامي
@@ -68,7 +68,7 @@ const HeroSection = () => {
                 />
               </button>
               <Link href="/Askquestion">
-                <button className=" flex items-center flex-row-reverse gap-1 text-blue-500 w-full font-semibold border-2 border-blue-500 hover:underline px-6 py-3 text-right rounded-md shadow ">
+                <button className=" flex items-center flex-row-reverse gap-1 text-blue-500 hover:bg-blue-50 w-full font-semibold border-2 border-blue-500 hover:underline px-6 py-3 text-right rounded-md shadow ">
                   اسال محامي مجانا
                   <ChevronDownIcon
                     aria-hidden="true"
@@ -81,13 +81,13 @@ const HeroSection = () => {
         );
       case 2:
         return (
-          <div className="px-10 pt-6 pb-10 rounded-md bg-white ml-auto shadow-lg">
-            <p className="text-2xl font-semibold mb-6 text-black text-right">
+          <div className="px-10 pt-6 pb-10 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
+            <p className="text-2xl font-semibold mb-6 text-black text-center">
               ماذا تريد أن تفعل؟
             </p>
             <div className="flex flex-col gap-6 ">
               <button
-                className=" flex items-center flex-row-reverse gap-1 text-blue-500 font-semibold text-right border-2 border-blue-500 hover:underline px-6 py-3 rounded shadow"
+                className=" flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 font-semibold text-right border-2 border-blue-500 hover:underline px-6 py-3 rounded shadow"
                 onClick={() => setStep(7)}
               >
                 من ذوي الخبرة في مسألة قانونية
@@ -97,7 +97,7 @@ const HeroSection = () => {
                 />
               </button>
               <button
-                className=" flex items-center flex-row-reverse gap-1 text-blue-500 font-semibold border-2 text-right border-blue-500 hover:underline px-6 py-3 rounded shadow"
+                className=" flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 font-semibold border-2 text-right border-blue-500 hover:underline px-6 py-3 rounded shadow"
                 onClick={() => setStep(6)}
               >
                 أبحث بالاسم
@@ -107,7 +107,7 @@ const HeroSection = () => {
                 />
               </button>
               <button
-                className=" flex items-center flex-row-reverse gap-1 text-blue-500 font-semibold border-2 text-right border-blue-500 hover:underline px-6 py-3 rounded shadow"
+                className=" flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 font-semibold border-2 text-right border-blue-500 hover:underline px-6 py-3 rounded shadow"
                 onClick={() => setStep(5)}
               >
                 ابحث بالقرب مني
@@ -118,7 +118,7 @@ const HeroSection = () => {
               </button>
             </div>
             <button
-              className=" flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
+              className=" flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 mt-6 hover:underline"
               onClick={() => setStep(1)}
             >
               العودة
@@ -132,7 +132,7 @@ const HeroSection = () => {
 
       case 5:
         return (
-          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white  min-h-[370px] ml-auto shadow-lg">
             <p className="text-2xl  mb-6 text-black text-right">
               أريد ان اجد محامي ذو خبرة في
             </p>
@@ -185,7 +185,7 @@ const HeroSection = () => {
 
       case 6:
         return (
-          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
             <p className="text-2xl  mb-6 text-black text-right">
               اريد ان ابحث عن محامٍ بالاسم
             </p>
@@ -261,7 +261,7 @@ const HeroSection = () => {
         );
       case 7:
         return (
-          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white ml-auto shadow-lg">
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
             <p className="text-2xl  mb-6 text-black text-right">
               أريد ان اجد محامي ذو خبرة في
             </p>
@@ -317,7 +317,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="flex flex-col-reverse md:flex-row-reverse bg-[#264360]  mt-20 overflow-hidden  h-fit w-full    text-white">
+    <div className="flex flex-col-reverse md:flex-row-reverse bg-[#264360]  mt-16 overflow-hidden  h-fit w-full    text-white">
       <div
         className=" md:basis-1/2 pt-10 w-full bg-left  bg-cover"
         style={{ backgroundImage: `url("/images/bg-heroSection.png")` }}

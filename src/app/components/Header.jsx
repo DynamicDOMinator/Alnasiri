@@ -173,7 +173,7 @@ export default function Example() {
       return (
         <button
           onClick={() => setAuthModalOpen(true)}
-          className="bg-primary border-primary bg-[#FF6624] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center"
+          className="bg-primary border-primary bg-[#16498C] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center"
         >
           تسجيل دخول
           <span>
@@ -245,7 +245,7 @@ export default function Example() {
     return (
       <Popover className="relative">
         <PopoverButton className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
-          <span className="text-lg font-medium">{username || "المستخدم"}</span>
+          <span className="text-lg font-medium">{username}</span>
           <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
         </PopoverButton>
         <PopoverPanel className="absolute left-10 z-10 mt-6 w-48 bg-white py-1 shadow-lg">
@@ -307,7 +307,7 @@ export default function Example() {
 
   if (loading) {
     return (
-      <header className="bg-white shadow fixed top-0 w-full z-50">
+      <header className="bg-white shadow fixed  top-0 w-full z-50">
         <nav
           aria-label="Global"
           className="flex items-center justify-between p-6 lg:px-16"
@@ -323,7 +323,7 @@ export default function Example() {
       <header className="bg-white shadow fixed top-0 w-full z-50">
         <nav
           aria-label="Global"
-          className="flex items-center justify-between p-6 lg:px-16"
+          className="flex items-center justify-between px-3  py-3 lg:px-16"
         >
           <div className="flex flex-1">
             <div>
@@ -343,10 +343,10 @@ export default function Example() {
           </div>
 
           <div className="flex items-center gap-10">
-            <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse">
+            <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse ">
               {/* Product Menu */}
               <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900 mt-2">
+                <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
                   <ChevronDownIcon
                     aria-hidden="true"
                     className="size-5 flex-none text-gray-400"
@@ -390,7 +390,7 @@ export default function Example() {
 
               {/* Items Menu */}
               <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900 mt-2">
+                <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
                   <ChevronDownIcon
                     aria-hidden="true"
                     className="size-5 flex-none text-gray-400"
@@ -433,7 +433,7 @@ export default function Example() {
               </Popover>
 
               <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1 text-lg font-semibold text-gray-900 mt-2">
+                <PopoverButton className="flex outline-none items-center gap-x-1   font-semibold text-gray-900 mt-2">
                   <ChevronDownIcon
                     aria-hidden="true"
                     className="size-5 flex-none text-gray-400"

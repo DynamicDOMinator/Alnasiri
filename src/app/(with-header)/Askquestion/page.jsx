@@ -109,7 +109,7 @@ export default function ClientForm() {
   );
 
   return (
-    <div className="pt-36">
+    <div className="pt-36 py-10">
       {showDialog && <CustomAlert />}
       {isClient ? (
         <div dir="rtl" className="p-5 max-w-6xl mx-auto ">

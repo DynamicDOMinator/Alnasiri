@@ -3,7 +3,7 @@ import { MdQuestionMark } from "react-icons/md";
 import Link from "next/link";
 function SecondSection() {
   return (
-    <div className="bg-slate-100  ">
+    <div className="bg-blue-50  ">
       <div className="text-center pt-10 md:px-48 ">
         <p className="md:text-3xl px-6 md:p-0 text-2xl font-bold">
           {" "}
@@ -12,11 +12,11 @@ function SecondSection() {
         </p>
       </div>
 
-      <div className="flex flex-wrap md:flex-nowrap px-4  items-center justify-center gap-10 mt-16 bg-[#FF883E17] py-10 ">
+      <div className="flex flex-wrap md:flex-nowrap px-4  items-center justify-center gap-10 mt-16  py-10 ">
         <div className="bg-white shadow rounded-lg text-right px-4 pl-6  py-8 w-full md:w-auto md:min-w-[380px]">
           <h2 className="flex items-top gap-2  font-semibold text-lg justify-end">
             اسأل سؤال لمحامي مجانا <br /> و احصل على اجابة مجانية
-            <span className="bg-[#FF6624] h-fit px-1 py-1 rounded-2xl">
+            <span className="bg-[#16498C] h-fit px-1 py-1 rounded-2xl">
               <MdQuestionMark className="text-white" />
             </span>
           </h2>
@@ -29,7 +29,7 @@ function SecondSection() {
           </ul>
 
           <Link href="/Askquestion">
-            <button className="mt-4 flex items-center justify-center gap-2  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
+            <button className="mt-4 flex items-center justify-center gap-2 hover:bg-blue-50 text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
               أطرح سؤالاً
               <span className="bg-gray-400 py-1 px-1 rounded-2xl border-black border-2">
                 <MdQuestionMark className="text-black" />
@@ -41,7 +41,7 @@ function SecondSection() {
         <div className="bg-white shadow rounded-lg text-right px-4 pl-6  py-8 w-full md:w-auto md:min-w-[380px]">
           <h2 className="flex items-top gap-2  font-semibold text-lg justify-end">
             ابحث عن محاميين موثقين في وزارة <br /> العدل و حاصلين على رخص مهنية
-            <span className="bg-[#FF6624] h-fit px-1 py-1 rounded-2xl">
+            <span className="bg-[#16498C] h-fit px-1 py-1 rounded-2xl">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -64,7 +64,7 @@ function SecondSection() {
             <li>سهولة الوصول</li>
           </ul>
 
-          <button className="mt-4 flex items-center justify-center gap-1  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
+          <button className="mt-4 flex items-center justify-center gap-1 hover:bg-blue-50  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
             ابداء البحث
             <span>
               <svg

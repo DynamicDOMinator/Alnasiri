@@ -11,7 +11,7 @@ import {
 
 function Footer() {
   return (
-    <footer className="bg-[#16498C] md:py-12 lg:py-16 py-10 lg:mt-20">
+    <footer className="bg-[#16498C] md:py-12 lg:py-16 py-10 lg:mt-0">
       <div dir="rtl" className="container mx-auto px-4 flex flex-col">
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-8 lg:w-10/12 w-full mx-auto justify-between">
           {/* About Section */}

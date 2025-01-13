@@ -57,13 +57,16 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
 
   const findByEmail = async (email) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/user/check-email`, {
-        params: { email },
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/check-email/check-email`,
+        {
+          params: { email },
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return response.status === 200;
     } catch (error) {
       return false;
@@ -73,11 +76,11 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
   const handleEmailCheck = async () => {
     setLoading(true);
     try {
-      const isNewUser = await findByEmail(formData.email);
-      setIsExistingUser(!isNewUser);
-      setCurrentStep(isNewUser ? steps.REGISTER : steps.LOGIN);
-      setShowPasswordInput(!isNewUser);
-      setIsLoginRequest(!isNewUser);
+      const emailExists = await findByEmail(formData.email);
+      setIsExistingUser(emailExists);
+      setCurrentStep(emailExists ? steps.LOGIN : steps.REGISTER);
+      setShowPasswordInput(emailExists);
+      setIsLoginRequest(emailExists);
     } catch (error) {
       setError("حدث خطأ أثناء التحقق من البريد الإلكتروني");
     } finally {
@@ -163,54 +166,70 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
   };
 
   const handleLogin = async () => {
-    const response = await axios.post(`${API_BASE_URL}/user/login`, {
+    const response = await axios.post(`${API_BASE_URL}/login`, {
       email: formData.email,
       password: formData.password,
     });
 
     if (response.status === 200) {
-      const { remember_token, data } = response.data;
-      setAuthData(remember_token, data.name, data.role || "user", data.id);
+      const { token, data } = response.data;
+      setAuthData(token, data.name, data.user_type);
       onLogin({
-        token: remember_token,
+        token: token,
         username: data.name,
-        role: data.role || "user",
-        userId: data.id,
+        role: data.user_type,
       });
-      router.push("/Askquestion");
+
+      // Redirect based on user role
+      if (data.user_type === "lawyer") {
+        router.push("/Lawyer-dashboard");
+      } else {
+        router.push("/Askquestion");
+      }
+
       onClose();
     }
   };
 
   const handleRegister = async () => {
-    console.log("Registration data:", formData);
-    const response = await axios.post(
-      `${API_BASE_URL}/user/register`,
-      {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+    console.log("Registration data being sent:", formData);
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/user/register`,
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
         },
-      }
-    );
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    if (response.status === 200) {
-      setAuthData(response.data.token, response.data.data.name);
-      setIsOtpModalOpen(true);
+      console.log("Registration response:", response);
+      console.log("Response status:", response.status);
+      console.log("Response data:", response.data);
+
+      if (response.status === 200) {
+        setAuthData(response.data.token, response.data.data.name);
+        setIsOtpModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      console.error("Error response:", error.response);
+      throw error;
     }
   };
 
-  const setAuthData = (token, username, role = "lawyer", userId) => {
+  const setAuthData = (token, username, role = "") => {
     if (typeof window !== "undefined") {
       localStorage.setItem("auth", token);
       localStorage.setItem("user", username);
-      localStorage.setItem("userId", userId);
+      // localStorage.setItem("userId", userId);
       if (role) localStorage.setItem("role", role);
     }
   };

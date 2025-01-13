@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 function ForthSection() {
   return (
-    <div className="md:flex md:justify-center  md:gap-10 lg:gap-0 2xl:gap-10 md:px-10 px-4  max-w-7xl mx-auto">
+    <div className="md:flex md:justify-center  lg:mt-10 md:gap-10 lg:gap-0 2xl:gap-10 md:px-10 px-4  max-w-6xl mx-auto">
       <div className="basis-1/2 py-16 relative flex flex-col  gap-6 items-center justify-center">
         <div className="lg:absolute top-0 right-0 z-30 py-5 md:py-0">
           <Image
@@ -61,7 +61,7 @@ function ForthSection() {
           </p>
         </div>
 
-        <button className="bg-[#3069B4] text-white text-lg px-4 py-2 rounded-md mt-6 mr-auto">
+        <button className="bg-[#16498C] hover:bg-blue-800 text-white text-lg px-4 py-2 rounded-md mt-6 ml-auto">
           أبحث عن محام
         </button>
       </div>
