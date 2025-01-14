@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function ClientForm() {
+  const router = useRouter();
   const [showDetails, setShowDetails] = useState(false);
   const [hireLawyer, setHireLawyer] = useState(null);
   const [hireTime, setHireTime] = useState("");
@@ -21,7 +23,7 @@ export default function ClientForm() {
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem("auth");
       setAuthToken(token);
     }
   }, []);
@@ -67,7 +69,6 @@ export default function ClientForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if the user is logged in
     if (!authToken) {
       setShowDialog(true);
       return;
@@ -77,16 +78,41 @@ export default function ClientForm() {
       return;
     }
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
     try {
-      const response = await axios.post("API_URL_HERE", {
-        ...formData,
-        hireLawyer,
-        hireTime,
-        contactMethod,
-      });
-      console.log("تم إرسال البيانات بنجاح:", response.data);
+      const userId = localStorage.getItem("userId");
+
+      if (!userId) {
+        setErrors({
+          submit: "خطأ في معرف المستخدم. الرجاء تسجيل الدخول مرة أخرى.",
+        });
+        return;
+      }
+
+      const requestData = {
+        user_uuid: userId,
+        question_title: formData.question,
+        question_content: formData.description,
+        question_city: formData.city,
+        question_status: hireLawyer ? "yes" : "no",
+        case_specialization: formData.specialty,
+        ...(hireLawyer
+          ? {
+              contact_method: contactMethod,
+              question_time: hireTime,
+            }
+          : {}),
+      };
+
+      const response = await axios.post(
+        `${apiUrl}/question/create`,
+        requestData
+      );
+      const questionId = response.data.question.uuid;
+      localStorage.setItem("lastQuestionId", questionId);
+
+      router.push(`/Askquestion/${questionId}`);
     } catch (error) {
-      console.error("حدث خطأ أثناء الإرسال:", error);
       setErrors({
         submit: "حدث خطأ أثناء إرسال البيانات. الرجاء المحاولة مرة أخرى.",
       });
@@ -292,7 +318,11 @@ export default function ClientForm() {
                     type="radio"
                     name="hireLawyer"
                     value="false"
-                    onChange={() => setHireLawyer(false)}
+                    onChange={() => {
+                      setHireLawyer(false);
+                      setHireTime("");
+                      setContactMethod(null);
+                    }}
                     className="form-radio ml-2"
                   />
                   <span>لا</span>
@@ -390,7 +420,7 @@ export default function ClientForm() {
             {/* Submit */}
             <button
               type="submit"
-              className="bg-[#FF6624]  hover:bg-orange-500 w-full md:w-auto text-white py-2 px-16 rounded"
+              className="bg-[#16498C]  hover:bg-blue-900 w-full md:w-auto text-white py-2 px-16 rounded"
             >
               إرسال
             </button>

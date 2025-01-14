@@ -145,6 +145,7 @@ export default function Example() {
       localStorage.removeItem("lawyerId");
       localStorage.removeItem("middleName");
       localStorage.removeItem("remember_token");
+      localStorage.removeItem("lastQuestionId");
     }
     setIsLoggedIn(false);
     setUser(null);

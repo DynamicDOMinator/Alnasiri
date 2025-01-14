@@ -173,11 +173,12 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
 
     if (response.status === 200) {
       const { token, data } = response.data;
-      setAuthData(token, data.name, data.user_type);
+      setAuthData(token, data.name, data.user_type, data.uuid);
       onLogin({
         token: token,
         username: data.name,
         role: data.user_type,
+        userId: data.uuid,
       });
 
       // Redirect based on user role
@@ -215,7 +216,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
       console.log("Response data:", response.data);
 
       if (response.status === 200) {
-        setAuthData(response.data.token, response.data.data.name);
+        setAuthData(response.data.token, response.data.data.name , response.data.user_type, response.data.data.uuid);
         setIsOtpModalOpen(true);
       }
     } catch (error) {
@@ -225,12 +226,12 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
     }
   };
 
-  const setAuthData = (token, username, role = "") => {
+  const setAuthData = (token, username, role, userId) => {
     if (typeof window !== "undefined") {
       localStorage.setItem("auth", token);
       localStorage.setItem("user", username);
-      // localStorage.setItem("userId", userId);
-      if (role) localStorage.setItem("role", role);
+      localStorage.setItem("userId", userId);
+       localStorage.setItem("role", role);
     }
   };
 
