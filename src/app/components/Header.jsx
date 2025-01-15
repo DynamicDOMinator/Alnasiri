@@ -116,7 +116,11 @@ export default function Example() {
   useEffect(() => {
     const checkAuth = () => {
       if (typeof window !== "undefined") {
-        const authToken = localStorage.getItem("auth");
+        const authToken =
+          localStorage.getItem("auth") &&
+          localStorage.getItem("role") &&
+          localStorage.getItem("user") &&
+          localStorage.getItem("userId");
         if (authToken) {
           setIsLoggedIn(true);
           setUsername(localStorage.getItem("user"));

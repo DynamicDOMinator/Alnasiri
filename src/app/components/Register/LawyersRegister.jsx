@@ -344,11 +344,12 @@ function LawyersRegister() {
           if (response.data && response.data.data) {
             const userData = response.data.data;
             const token = response.data.token;
+            const response = response.data;
 
             // Store user data in localStorage
             localStorage.setItem("lawyerId", userData.id.toString());
             localStorage.setItem("auth", token);
-            localStorage.setItem("remember_token", userData.remember_token);
+            localStorage.setItem("userId", userData.uuid);
             localStorage.setItem("user", userData.first_name);
             localStorage.setItem("middleName", userData.middle_name);
             localStorage.setItem("lastName", userData.last_name);
@@ -356,7 +357,7 @@ function LawyersRegister() {
               "fullName",
               `${userData.first_name} ${userData.middle_name} ${userData.last_name}`
             );
-            localStorage.setItem("role", "lawyer");
+            localStorage.setItem("role", response.user_type);
 
             // Move to step 1 (الملف الشخصي) after successful registration
             updateState({

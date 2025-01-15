@@ -185,7 +185,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
       if (data.user_type === "lawyer") {
         router.push("/Lawyer-dashboard");
       } else {
-        router.push("/Askquestion");
+        // router.push("/Askquestion");
       }
 
       onClose();
@@ -216,7 +216,12 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
       console.log("Response data:", response.data);
 
       if (response.status === 200) {
-        setAuthData(response.data.token, response.data.data.name , response.data.user_type, response.data.data.uuid);
+        setAuthData(
+          response.data.token,
+          response.data.data.name,
+          response.data.user_type,
+          response.data.data.uuid
+        );
         setIsOtpModalOpen(true);
       }
     } catch (error) {
@@ -231,7 +236,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
       localStorage.setItem("auth", token);
       localStorage.setItem("user", username);
       localStorage.setItem("userId", userId);
-       localStorage.setItem("role", role);
+      localStorage.setItem("role", role);
     }
   };
 
@@ -506,7 +511,7 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
             )}
 
             {loading && (
-              <div className="flex justify-center my-4">
+              <div  className="flex justify-center my-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-blue-500 border-t-transparent"></div>
               </div>
             )}
