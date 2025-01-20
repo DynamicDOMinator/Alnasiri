@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Dialog } from "@headlessui/react";
 import axios from "axios";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAuth } from "../contexts/AuthContext";
 
 const steps = {
   INITIAL: 1,
@@ -13,11 +13,9 @@ const steps = {
   OTP: 4,
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const OTP_API_URL = process.env.NEXT_PUBLIC_OTP_API_URL;
-
-export default function AuthModal({ isOpen, onClose, onLogin }) {
-  const router = useRouter();
+export default function AuthModal({ isOpen, onClose }) {
+  const { loginUser: handleLogin, register, checkEmail } = useAuth();
   const [currentStep, setCurrentStep] = useState(steps.INITIAL);
   const [loginMethod, setLoginMethod] = useState("email");
   const [formData, setFormData] = useState({
@@ -30,10 +28,10 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
   const [error, setError] = useState("");
   const [isExistingUser, setIsExistingUser] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [isLoginRequest, setIsLoginRequest] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -55,36 +53,23 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
     });
   };
 
-  const findByEmail = async (email) => {
-    try {
-      const response = await axios.get(
-        `${API_BASE_URL}/check-email/check-email`,
-        {
-          params: { email },
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.status === 200;
-    } catch (error) {
-      return false;
-    }
-  };
-
   const handleEmailCheck = async () => {
-    setLoading(true);
     try {
-      const emailExists = await findByEmail(formData.email);
+      if (!formData.email) {
+        setError("الرجاء إدخال البريد الإلكتروني");
+        return;
+      }
+
+      const emailExists = await checkEmail(formData.email);
+      console.log("Email check result:", emailExists);
+
       setIsExistingUser(emailExists);
       setCurrentStep(emailExists ? steps.LOGIN : steps.REGISTER);
       setShowPasswordInput(emailExists);
       setIsLoginRequest(emailExists);
     } catch (error) {
+      console.error("Email check error:", error);
       setError("حدث خطأ أثناء التحقق من البريد الإلكتروني");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -150,93 +135,63 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
       if (isLoginRequest && currentStep === steps.LOGIN) {
-        await handleLogin();
+        setAuthLoading(true);
+        if (!formData.email || !formData.password) {
+          setError("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
+          return;
+        }
+
+        const credentials = {
+          email: formData.email,
+          password: formData.password,
+        };
+
+        const response = await handleLogin(credentials);
+
+        if (response) {
+          onClose();
+          resetForm();
+        }
       } else if (currentStep === steps.REGISTER) {
         await handleRegister();
       }
-    } catch (err) {
-      setError(err.response?.data?.message || "حدث خطأ أثناء العملية");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogin = async () => {
-    const response = await axios.post(`${API_BASE_URL}/login`, {
-      email: formData.email,
-      password: formData.password,
-    });
-
-    if (response.status === 200) {
-      const { token, data } = response.data;
-      setAuthData(token, data.name, data.user_type, data.uuid);
-      onLogin({
-        token: token,
-        username: data.name,
-        role: data.user_type,
-        userId: data.uuid,
-      });
-
-      // Redirect based on user role
-      if (data.user_type === "lawyer") {
-        router.push("/Lawyer-dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error.response?.status === 401) {
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      } else if (error.response?.status === 422) {
+        setError("يرجى التحقق من صحة البيانات المدخلة");
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
       } else {
-        // router.push("/Askquestion");
+        setError("حدث خطأ أثناء العملية");
       }
-
-      onClose();
+    } finally {
+      setAuthLoading(false);
     }
   };
 
   const handleRegister = async () => {
-    console.log("Registration data being sent:", formData);
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/user/register`,
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-        },
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      };
 
-      console.log("Registration response:", response);
-      console.log("Response status:", response.status);
-      console.log("Response data:", response.data);
-
-      if (response.status === 200) {
-        setAuthData(
-          response.data.token,
-          response.data.data.name,
-          response.data.user_type,
-          response.data.data.uuid
-        );
-        setIsOtpModalOpen(true);
+      if (typeof window === "undefined") {
+        throw new Error("Cannot access localStorage on the server");
       }
+
+      await register(userData, "user");
+      setIsOtpModalOpen(true);
     } catch (error) {
       console.error("Registration error:", error);
-      console.error("Error response:", error.response);
-      throw error;
-    }
-  };
-
-  const setAuthData = (token, username, role, userId) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("auth", token);
-      localStorage.setItem("user", username);
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("role", role);
+      setError(error.response?.data?.message || "Failed to register");
     }
   };
 
@@ -385,11 +340,28 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
                   />
                 )}
 
+                {/* Error message display */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-right">
+                    {error}
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-[#3069B4] text-white rounded-lg py-2"
+                  disabled={authLoading}
+                  className={`w-full bg-[#3069B4] text-white rounded-lg py-2 relative ${
+                    authLoading ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
-                  تسجيل الدخول
+                  {authLoading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
+                      <span className="mr-2">جاري التحميل...</span>
+                    </div>
+                  ) : (
+                    "تسجيل الدخول"
+                  )}
                 </button>
 
                 <div className="text-center space-y-2">
@@ -507,12 +479,6 @@ export default function AuthModal({ isOpen, onClose, onLogin }) {
                 >
                   تأكيد
                 </button>
-              </div>
-            )}
-
-            {loading && (
-              <div  className="flex justify-center my-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-blue-500 border-t-transparent"></div>
               </div>
             )}
           </div>

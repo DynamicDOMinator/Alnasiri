@@ -28,6 +28,7 @@ import {
 } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import AuthModal from "./AuthModal";
+import { useAuth } from "../contexts/AuthContext";
 
 // Product data
 const products = [
@@ -45,7 +46,7 @@ const products = [
   },
   {
     name: "Security",
-    description: "Your customers’ data will be safe and secure",
+    description: "Your customers' data will be safe and secure",
     href: "/security",
     icon: FingerPrintIcon,
   },
@@ -106,75 +107,11 @@ const Spinner = () => (
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  const [username, setUsername] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState(null);
+  const { isAuthenticated, userName, userType, logout, loading } = useAuth();
 
-  // Check if user is logged in on component mount
-  useEffect(() => {
-    const checkAuth = () => {
-      if (typeof window !== "undefined") {
-        const authToken =
-          localStorage.getItem("auth") &&
-          localStorage.getItem("role") &&
-          localStorage.getItem("user") &&
-          localStorage.getItem("userId");
-        if (authToken) {
-          setIsLoggedIn(true);
-          setUsername(localStorage.getItem("user"));
-          setRole(localStorage.getItem("role"));
-        } else {
-          setIsLoggedIn(false);
-          setUsername(null);
-          setRole(null);
-        }
-      }
-      setLoading(false);
-    };
-
-    checkAuth();
-  }, []); // Empty dependency array ensures this runs only once on mount
-
-  const handleLogout = () => {
-    setLoading(true);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("auth");
-      localStorage.removeItem("user");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("role");
-      localStorage.removeItem("fullName");
-      localStorage.removeItem("lastName");
-      localStorage.removeItem("lawyerId");
-      localStorage.removeItem("middleName");
-      localStorage.removeItem("remember_token");
-      localStorage.removeItem("lastQuestionId");
-    }
-    setIsLoggedIn(false);
-    setUser(null);
-    setUsername(null);
-    setRole(null);
-    window.location.href = "/"; // Redirect to home page after logout
-    setLoading(false);
-  };
-
-  const handleLogin = (userData) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("auth", userData.token);
-      localStorage.setItem("user", userData.username);
-      localStorage.setItem("role", userData.role);
-    }
-    setIsLoggedIn(true);
-    setUser(userData);
-    setUsername(userData.username);
-    setRole(userData.role);
-    setAuthModalOpen(false); // Close the auth modal after login
-  };
-
-  // Replace the login button with this new component
+  // Replace the existing auth logic with context usage
   const AuthSection = () => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       return (
         <button
           onClick={() => setAuthModalOpen(true)}
@@ -199,112 +136,28 @@ export default function Example() {
       );
     }
 
-    // Check if the user's role is "lawyer"
-    if (role === "lawyer") {
-      return (
-        <Popover className="relative">
-          <PopoverButton className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
-            <span className="text-sm font-medium">
-              {username || "المستخدم"}
-            </span>
-            <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-          </PopoverButton>
-          <PopoverPanel className="absolute left-10 z-10 mt-6 w-48 bg-white pb-2 py-1 shadow-lg">
-            <div className="py-1">
-              <Link
-                href="/dashboard"
-                className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-              >
-                لوحه التحكم
-                <ChevronDownIcon
-                  className="h-5 w-5 rotate-90"
-                  aria-hidden="true"
-                />
-              </Link>
-              <Link
-                href="/profile"
-                className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-              >
-                الملف الشخصي
-                <ChevronDownIcon
-                  className="h-5 w-5 rotate-90"
-                  aria-hidden="true"
-                />
-              </Link>
-              <div className="px-2">
-                <button
-                  onClick={handleLogout}
-                  className="block w-full px-4 py-2 mt-3 border-2 text-sm text-center text-gray-700 hover:bg-gray-100"
-                  disabled={loading}
-                >
-                  {loading ? <Spinner /> : "تسجيل خروج"}
-                </button>
-              </div>
-            </div>
-          </PopoverPanel>
-        </Popover>
-      );
-    }
-
-    // Default dropdown for other roles
     return (
       <Popover className="relative">
         <PopoverButton className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
-          <span className="text-lg font-medium">{username}</span>
+          <span className="text-sm font-medium">{userName}</span>
           <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
         </PopoverButton>
-        <PopoverPanel className="absolute left-10 z-10 mt-6 w-48 bg-white py-1 shadow-lg">
-          <div className="py-1">
+
+        <PopoverPanel className="absolute right-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+          {userType === "lawyer" && (
             <Link
-              href="/profile"
-              className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+              href="/Lawyer-dashboard"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
             >
-              الإعدادات
-              <ChevronDownIcon
-                className="h-5 w-5 rotate-90"
-                aria-hidden="true"
-              />
+              لوحة التحكم
             </Link>
-            <Link
-              href="/settings"
-              className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-            >
-              الاشعارات
-              <ChevronDownIcon
-                className="h-5 w-5 rotate-90"
-                aria-hidden="true"
-              />
-            </Link>
-            <Link
-              href="/settings"
-              className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-            >
-              اسئلتي
-              <ChevronDownIcon
-                className="h-5 w-5 rotate-90"
-                aria-hidden="true"
-              />
-            </Link>
-            <Link
-              href="/settings"
-              className="flex flex-row-reverse items-center justify-between gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-            >
-              المراجعات
-              <ChevronDownIcon
-                className="h-5 w-5 rotate-90"
-                aria-hidden="true"
-              />
-            </Link>
-            <div className="px-4 py-2">
-              <button
-                onClick={handleLogout}
-                className="block w-full px-4 py-2 border-2 text-sm text-center text-gray-700 hover:bg-gray-100"
-                disabled={loading}
-              >
-                {loading ? <Spinner /> : "تسجيل خروج"}
-              </button>
-            </div>
-          </div>
+          )}
+          <button
+            onClick={logout}
+            className="block w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100"
+          >
+            تسجيل خروج
+          </button>
         </PopoverPanel>
       </Popover>
     );
@@ -624,7 +477,6 @@ export default function Example() {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        onLogin={handleLogin} // تمرير handleLogin هنا
       />
     </>
   );

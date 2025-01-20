@@ -2,6 +2,7 @@ import React from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { FaUserTie } from "react-icons/fa";
+import LawyerRegisterBtn from "./LawyerRegisterBtn";
 import {
   FaFacebookF,
   FaTwitter,
@@ -83,17 +84,16 @@ function Footer() {
                 المشورة القانونية
               </li>
               <li className="hover:text-gray-300 cursor-pointer">للمحامين</li>
+
+              <li className="hover:text-gray-300 cursor-pointer">
+                <Link href="/Blog">المدونة</Link>
+              </li>
             </ul>
-            <Link href="/Register-Lawyer">
-              <button className="bg-[#FF6624] hover:bg-[#e55a20] text-white gap-2 rounded-md flex mt-8 items-center justify-center flex-row-reverse py-2.5 px-4 text-center w-full md:w-2/3 lg:w-auto mx-auto lg:mx-0 text-sm md:text-base">
-                تسجيل كمحامي
-                <FaUserTie />
-              </button>
-            </Link>
+
+            <LawyerRegisterBtn />
           </div>
         </div>
 
-        {/* Updated footer bottom section */}
         <div className="border-t border-white/20 mt-8 pt-6 lg:w-10/12 mx-auto w-full">
           <div className="flex flex-col md:flex-row justify-center items-center gap-4">
             <div className="flex items-center gap-2">

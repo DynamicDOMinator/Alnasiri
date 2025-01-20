@@ -21,6 +21,7 @@ const Test = () => {
   );
 
   const [mapUrls, setMapUrls] = useState([]);
+  const [data, setState] = useState(null);
 
   const convertToEmbedUrl = async (url) => {
     try {
@@ -71,6 +72,18 @@ const Test = () => {
 
     fetchUrls();
   }, [users]);
+
+  useEffect(() => {
+    // Only access localStorage here, after component mounts
+    try {
+      const storedData = localStorage.getItem('yourKey');
+      if (storedData) {
+        setState(storedData);
+      }
+    } catch (error) {
+      console.error('localStorage error:', error);
+    }
+  }, []);
 
   return (
     <div className="py-32">

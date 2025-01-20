@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from "react";
 
 function About() {
-  const [data, setData] = useState(null);
+  const [data, setState] = useState(null);
 
   useEffect(() => {
-    // This code runs only in the browser
+    // Access localStorage only after component mounts (client-side)
     const storedData = localStorage.getItem("yourKey");
-    setData(storedData);
+    setState(storedData);
     // ... use the data as needed
   }, []);
 

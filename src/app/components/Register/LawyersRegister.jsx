@@ -5,6 +5,7 @@ import moment from "moment-hijri";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 // Constants (should ideally be moved to a separate file)
 const saudiCities = [
@@ -40,16 +41,15 @@ const validators = {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   },
-  isValidSaudiPhone: (phone) => {
-    const phoneRegex = /^[+]?966[0-9]{9}$/;
-    return phoneRegex.test(phone);
-  },
   isValidLicenseNumber: (license) => {
     return /^\d{6}$/.test(license);
   },
 };
 
 function LawyersRegister() {
+  // Add auth context
+  const { register, isAuthenticated } = useAuth();
+
   // Consolidate all initial state into a single object for better organization
   const initialFormData = {
     // Personal Information
@@ -76,7 +76,7 @@ function LawyersRegister() {
   const [state, setState] = useState({
     formData: initialFormData,
     errors: {},
-    activeStep: 0,
+    activeStep: isAuthenticated ? 1 : 0,
     isLoading: false,
     submitError: "",
     specialtySelections: [
@@ -100,7 +100,7 @@ function LawyersRegister() {
     const { name, value, type, checked } = e.target;
 
     if (type === "checkbox") {
-      updateFormData({ [name]: checked });
+      updateState({ formData: { ...state.formData, [name]: checked } });
       return;
     }
 
@@ -114,7 +114,7 @@ function LawyersRegister() {
 
     // Email field should update directly without validation during typing
     if (name === "email") {
-      updateFormData({ [name]: value });
+      updateState({ formData: { ...state.formData, [name]: value } });
       return;
     }
 
@@ -128,14 +128,17 @@ function LawyersRegister() {
     // Special handling for license number
     if (name === "licenseNumber") {
       const experienceYears = calculateExperienceYears(value);
-      updateFormData({
-        licenseNumber: value,
-        experienceYears,
+      updateState({
+        formData: {
+          ...state.formData,
+          licenseNumber: value,
+          experienceYears,
+        },
       });
       return;
     }
 
-    updateFormData({ [name]: value });
+    updateState({ formData: { ...state.formData, [name]: value } });
   };
 
   // Helper function to update form data
@@ -269,24 +272,6 @@ function LawyersRegister() {
         isValid = false;
       }
 
-      // Validate phone numbers format
-      if (
-        state.formData.phone &&
-        !validators.isValidSaudiPhone(state.formData.phone)
-      ) {
-        newErrors.phone = "يجب أن يبدأ رقم الهاتف بـ +966 ويتكون من 13 رقمًا";
-        isValid = false;
-      }
-
-      if (
-        state.formData.whatsapp &&
-        !validators.isValidSaudiPhone(state.formData.whatsapp)
-      ) {
-        newErrors.whatsapp =
-          "يجب أن يبدأ رقم الواتساب بـ +966 ويتكون من 13 رقمًا";
-        isValid = false;
-      }
-
       // Validate password
       if (state.formData.password && state.formData.password.length < 8) {
         newErrors.password = "يجب أن يتكون كلمة المرور من 8 أحرف على الأقل";
@@ -311,75 +296,114 @@ function LawyersRegister() {
     return isValid;
   };
 
-  // Update handleNext to check API response first
+  // Update handleNext to include final validation
   const handleNext = async () => {
+    console.log("handleNext called, current step:", state.activeStep);
+
     if (state.activeStep === 0) {
       if (validateStep(state.activeStep)) {
         try {
+          console.log("Starting registration process...");
+          setState((prev) => ({ ...prev, isLoading: true }));
+
+          const fullName =
+            `${state.formData.firstName} ${state.formData.middleName} ${state.formData.lastName}`.trim();
+          const phoneNumber = state.formData.personalId.replace(/\D/g, "");
+          const formattedPhone = `+966${phoneNumber.slice(-9)}`;
+
           const registerData = {
-            first_name: state.formData.firstName,
-            middle_name: state.formData.middleName,
-            last_name: state.formData.lastName,
+            name: fullName,
             email: state.formData.email,
             city: state.formData.city,
             password: state.formData.password,
-            repeat_password: state.formData.password,
-            phone_number: state.formData.personalId,
-            otp: "string",
+            phone: formattedPhone,
             experience: calculateExperienceYears(state.formData.licenseNumber),
+            license_number: state.formData.licenseNumber,
           };
 
-          console.log("Registration Data being sent:", registerData);
+          console.log("Register Data:", registerData);
 
-          const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/lawyer/register`,
-            registerData,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+          if (!validateFinalData(registerData)) {
+            setState((prev) => ({ ...prev, isLoading: false }));
+            return;
+          }
 
-          if (response.data && response.data.data) {
-            const userData = response.data.data;
-            const token = response.data.token;
-            const response = response.data;
+          const result = await register(registerData, "lawyer");
 
-            // Store user data in localStorage
-            localStorage.setItem("lawyerId", userData.id.toString());
-            localStorage.setItem("auth", token);
-            localStorage.setItem("userId", userData.uuid);
-            localStorage.setItem("user", userData.first_name);
-            localStorage.setItem("middleName", userData.middle_name);
-            localStorage.setItem("lastName", userData.last_name);
-            localStorage.setItem(
-              "fullName",
-              `${userData.first_name} ${userData.middle_name} ${userData.last_name}`
-            );
-            localStorage.setItem("role", response.user_type);
-
-            // Move to step 1 (الملف الشخصي) after successful registration
-            updateState({
+          if (result.data && result.data.token) {
+            setState((prev) => ({
+              ...prev,
               activeStep: 1,
+              isLoading: false,
               registrationSuccessful: true,
-            });
+            }));
             toast.success("تم التسجيل بنجاح!");
+          } else {
+            throw new Error("Registration response missing token");
           }
         } catch (error) {
+          console.error("Registration error details:", error.response?.data);
           const errorMessage =
             error.response?.data?.message || "حدث خطأ أثناء التسجيل";
           toast.error(errorMessage);
-          console.error("Registration error:", error);
+          setState((prev) => ({ ...prev, isLoading: false }));
         }
       } else {
         toast.error("يرجى تصحيح الأخطاء قبل المتابعة.");
       }
     } else if (state.activeStep === 1) {
-      if (validateStep(state.activeStep)) {
-        updateState({ activeStep: 2 });
-      } else {
-        toast.error("يرجى تصحيح الأخطاء قبل المتابعة.");
+      console.log("Processing step 1");
+      try {
+        setState((prev) => ({ ...prev, isLoading: true }));
+
+        // Check if running in the browser before accessing localStorage
+        if (typeof window !== "undefined") {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            throw new Error("No authentication token found");
+          }
+        }
+
+        // Format specialties array from specialtySelections
+        const specialtiesArray = state.specialtySelections
+          .map((selection) => selection.value)
+          .filter(Boolean);
+
+        const officeData = {
+          speciality_id: 9,
+          bio: "",
+          profile_image: "",
+          google_map: "",
+          law_office: state.formData.officeName,
+          call_number: state.formData.phone,
+          whatsapp_number: state.formData.whatsapp,
+          specialties: specialtiesArray,
+          speaking_english: state.formData.speaksEnglish,
+        };
+
+        const response = await axios.post(
+          `${API_BASE_URL}/lawyer/create-lawyer-office`,
+          officeData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.data) {
+          router.push("/Lawyer-dashboard");
+        }
+
+        setState((prev) => ({ ...prev, isLoading: false }));
+      } catch (error) {
+        console.error("Office creation error:", error);
+        toast.error(
+          error.response?.data?.message || "حدث خطأ أثناء إنشاء الملف الشخصي"
+        );
+        setState((prev) => ({ ...prev, isLoading: false }));
       }
     }
   };
@@ -430,112 +454,44 @@ function LawyersRegister() {
     console.log("Selected Specializations:", updatedSpecializations);
   };
 
-  // Move the loading state to the top level with other state declarations
-  const [isLoading, setIsLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-
   // Simplified handleSubmit
   const handleSubmit = async () => {
     try {
-      updateState({ isLoading: true, errorMessage: "" });
+      // Combine the name parts into a single name
+      const fullName = `${state.formData.firstName} ${state.formData.middleName} ${state.formData.lastName}`;
 
-      const registerData = {
-        first_name: state.formData.firstName,
-        middle_name: state.formData.middleName,
-        last_name: state.formData.lastName,
+      const lawyerData = {
+        name: fullName, // Combined name
         email: state.formData.email,
         city: state.formData.city,
         password: state.formData.password,
-        repeat_password: state.formData.password,
-        phone_number: state.formData.personalId,
-        otp: "string",
+        phone: state.formData.personalId,
         experience: calculateExperienceYears(state.formData.licenseNumber),
+        license_number: state.formData.licenseNumber,
       };
 
-      console.log("Sending registration data:", registerData);
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/lawyer/register`,
-        registerData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Server response:", response.data);
-
-      // Check if response.data exists and contains the necessary data
-      if (response.data && response.data.data) {
-        const userData = response.data.data;
-        const token = response.data.token;
-
-        // Store user data in localStorage
-        localStorage.setItem("lawyerId", userData.id.toString());
-        localStorage.setItem("auth", token);
-        localStorage.setItem("remember_token", userData.remember_token);
-        localStorage.setItem("user", userData.first_name);
-        localStorage.setItem("middleName", userData.middle_name);
-        localStorage.setItem("lastName", userData.last_name);
-        localStorage.setItem(
-          "fullName",
-          `${userData.first_name} ${userData.middle_name} ${userData.last_name}`
-        );
-        localStorage.setItem("role", "lawyer");
-
-        // Show success message
-        toast.success("تم التسجيل بنجاح!");
-
-        // Update state to move to step 1 and set registration as successful
-        updateState({
-          activeStep: 1,
-          registrationSuccessful: true,
-        });
-      } else {
-        throw new Error("Invalid response format from server");
-      }
+      await register(lawyerData, "lawyer");
+      // Handle successful registration
     } catch (error) {
-      let errorMsg = "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى";
-
-      if (error.response) {
-        if (error.response.data.errors) {
-          const errors = error.response.data.errors;
-          errorMsg = Object.values(errors).flat().join("\n");
-        } else if (error.response.data.message) {
-          errorMsg = error.response.data.message;
-        }
-      } else if (error.request) {
-        errorMsg =
-          "لا يمكن الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت الخاص بك";
-      }
-
-      updateState({ errorMessage: errorMsg });
-      toast.error(errorMsg);
-    } finally {
-      updateState({ isLoading: false });
+      console.error("Registration error:", error);
+      updateState({
+        errorMessage: error.response?.data?.message || "Failed to register",
+      });
+      toast.error(error.response?.data?.message || "Failed to register");
     }
   };
 
-  // دالة للتحقق النهائي من البيانات
+  // Update validateFinalData to handle both registration data and form data
   const validateFinalData = (data) => {
-    // التحقق من صحة لبريد الإلكتروني
-    if (!validators.isValidEmail(data.email)) {
+    // Check if email exists
+    if (!data.email || !validators.isValidEmail(data.email)) {
       toast.error("البريد الإلكتروني غير صالح");
       return false;
     }
 
-    // التحقق من صحة أرقام الهواتف
-    if (
-      !validators.isValidSaudiPhone(data.phone) ||
-      !validators.isValidSaudiPhone(data.whatsapp)
-    ) {
-      toast.error("أرقام الهواتف غير صالحة");
-      return false;
-    }
-
-    // التحقق من وجود تخصص واحد على الأقل
-    if (data.specializations.length === 0) {
+    // Remove phone number validation
+    // Only check if specializations exist (for step 1)
+    if (data.specializations && data.specializations.length === 0) {
       toast.error("يجب اختيار تخصص واحد على الأقل");
       return false;
     }
@@ -1041,6 +997,31 @@ function LawyersRegister() {
         return null;
     }
   };
+
+  // Add a useEffect to monitor state changes (for debugging)
+  useEffect(() => {
+    console.log("Active Step:", state.activeStep);
+    console.log("Registration Successful:", state.registrationSuccessful);
+  }, [state.activeStep, state.registrationSuccessful]);
+
+  // Add this useEffect to monitor activeStep changes
+  useEffect(() => {
+    console.log("Active Step changed to:", state.activeStep);
+  }, [state.activeStep]);
+
+  // Add this useEffect to monitor the entire state
+  useEffect(() => {
+    console.log("Full state:", state);
+  }, [state]);
+
+  // Add this useEffect to monitor state changes
+  useEffect(() => {
+    console.log("Current state:", {
+      activeStep: state.activeStep,
+      registrationSuccessful: state.registrationSuccessful,
+      isLoading: state.isLoading,
+    });
+  }, [state.activeStep, state.registrationSuccessful, state.isLoading]);
 
   return (
     <div className="max-w-3xl px-4 mx-auto my-8 p-4 sm:p-8 bg-white rounded-lg shadow-md md:mt-20 mt-32">

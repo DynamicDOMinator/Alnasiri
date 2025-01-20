@@ -1,25 +1,19 @@
-import "../globals.css";
 import { Cairo } from "next/font/google";
-
+import "../globals.css";
 import Sidebar from "../components/LawyersDashboard/Sidebar";
 
 const cairo = Cairo({
-  subsets: ["arabic"],
-  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
 });
-
-export const metadata = {
-  title: "Lawyer Dashboard",
-  description: "Lawyer Dashboard Page",
-};
 
 export default function LawyerDashboardLayout({ children }) {
   return (
-    <html lang="ar" className={cairo.className}>
-      <body className="cairo-font">
-        <div className="lg:flex justify-between ">
-          <div className="mx-auto w-5/6 ">{children}</div>
-          <div className=" w-1/6   ">
+    <html>
+      <body className={cairo.className}>
+        <div className="lg:flex justify-between">
+          <div className="mx-auto w-5/6">{children}</div>
+          <div className="w-1/6">
             <Sidebar />
           </div>
         </div>
