@@ -9,7 +9,7 @@ export default function LawyerRegisterBtn() {
   const [showAlert, setShowAlert] = useState(false);
 
   const handleRegisterBtn = (e) => {
-    if (isAuthenticated) {
+    if (typeof window !== 'undefined' && isAuthenticated) {
       e.preventDefault();
       setShowAlert(true);
     }

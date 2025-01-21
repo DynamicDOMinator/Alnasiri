@@ -1,30 +1,46 @@
+export const revalidate = 3600; // Revalidate every hour
+
 async function getBlogData(uuid) {
   try {
-    console.log(`Fetching blog data for UUID: ${uuid}`);
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const res = await fetch(`${API_BASE_URL}/blogs/get-blog-by-uuid/${uuid}`, {
+      next: { revalidate: 3600 },
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
 
-    const res = await fetch(
-      `http://127.0.0.1:8000/api/blogs/get-blog-by-uuid/${uuid}`,
-      {
-        cache: "no-store",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    if (!res.ok) {
+      throw new Error(`Failed to fetch blog data: ${res.status}`);
+    }
 
     const data = await res.json();
-    return data; // The API now returns the blog directly, no need to find it
+    return data;
   } catch (error) {
     console.error("Error fetching blog data:", error);
-    throw new Error("Failed to fetch blog data");
+    return null;
+  }
+}
+
+// Generate static params for common blog posts
+export async function generateStaticParams() {
+  try {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const res = await fetch(`${API_BASE_URL}/blogs/get-all-blogs`);
+    const blogs = await res.json();
+
+    return blogs.map((blog) => ({
+      id: blog.uuid,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
   }
 }
 
 export default async function BlogPost({ params }) {
-  console.log("Page params:", params);
-
-  const blog = await getBlogData(params.id); // Changed from params.uuid to params.id
+  const blog = await getBlogData(params.id);
 
   if (!blog) {
     return (

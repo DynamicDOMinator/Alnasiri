@@ -15,38 +15,48 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setToken(localStorage.getItem("token"));
-      setUserName(localStorage.getItem("userName"));
-      setUserType(localStorage.getItem("userType"));
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      const storedUserName = localStorage.getItem("userName");
+      const storedUserType = localStorage.getItem("userType");
+
+      setToken(storedToken);
+      setUserName(storedUserName);
+      setUserType(storedUserType);
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (userName) {
-      localStorage.setItem("userName", userName);
-    } else {
-      localStorage.removeItem("userName");
+    if (typeof window !== "undefined") {
+      if (userName) {
+        localStorage.setItem("userName", userName);
+      } else {
+        localStorage.removeItem("userName");
+      }
     }
   }, [userName]);
 
   useEffect(() => {
-    if (userType) {
-      localStorage.setItem("userType", userType);
-    } else {
-      localStorage.removeItem("userType");
+    if (typeof window !== "undefined") {
+      if (userType) {
+        localStorage.setItem("userType", userType);
+      } else {
+        localStorage.removeItem("userType");
+      }
     }
   }, [userType]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userType");
-    setToken(null);
-    setUserName(null);
-    setUserType(null);
-    router.push("/");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userType");
+      setToken(null);
+      setUserName(null);
+      setUserType(null);
+      router.push("/");
+    }
   };
 
   const handleLogin = async (credentials) => {
@@ -66,9 +76,11 @@ export function AuthProvider({ children }) {
           throw new Error("No user data or token received");
         }
 
-        localStorage.setItem("token", newToken);
-        localStorage.setItem("userName", user.name);
-        localStorage.setItem("userType", user.user_type);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", newToken);
+          localStorage.setItem("userName", user.name);
+          localStorage.setItem("userType", user.user_type);
+        }
 
         setToken(newToken);
         setUserName(user.name);
@@ -90,71 +102,100 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (userData, userType = "user") => {
+  const registerUser = async (userData) => {
     try {
       setLoading(true);
-      const endpoint =
-        userType === "lawyer"
-          ? `${API_BASE_URL}/lawyer/register`
-          : `${API_BASE_URL}/user/register`;
+      const response = await axios.post(
+        `${API_BASE_URL}/user/register`,
+        userData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
 
-      const formattedData =
-        userType === "lawyer"
-          ? {
-              name: userData.name,
-              email: userData.email,
-              city: userData.city,
-              password: userData.password,
-              phone: userData.phone,
-              experience: userData.experience || 0,
-              license_number: userData.license_number,
-            }
-          : {
-              name: userData.name,
-              email: userData.email,
-              phone: userData.phone,
-              password: userData.password,
-            };
+      if (response.data) {
+        const { data: user, token } = response.data;
 
-      const response = await axios.post(endpoint, formattedData, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
-
-      if (response.status === 200 && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("userType", userType);
-        localStorage.setItem("userName", response.data.data.name);
-
-        if (userType === "lawyer") {
-          
-          window.location.reload();
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", token);
+          localStorage.setItem("userName", user.name);
+          localStorage.setItem("userType", "user");
         }
 
-        setToken(response.data.token);
-        setUserName(response.data.data.name);
-        setUserType(userType);
+        setToken(token);
+        setUserName(user.name);
+        setUserType("user");
 
-        return {
-          success: true,
-          data: response.data,
-          status: response.status,
-        };
+        router.push("/Askquestion");
+        return { data: response.data };
       }
-
-      return {
-        success: false,
-        data: response.data,
-        status: response.status,
-      };
+      return { data: response.data };
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("User registration error:", error);
       throw error;
     } finally {
       setLoading(false);
     }
+  };
+
+  const registerLawyer = async (userData) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${API_BASE_URL}/lawyer/register`,
+        {
+          name: userData.name,
+          email: userData.email,
+          city: userData.city,
+          password: userData.password,
+          phone: userData.phone,
+          experience: userData.experience || 0,
+          license_number: userData.license_number,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (response.data) {
+        const { data: user, token } = response.data;
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", token);
+          localStorage.setItem("userName", user.name);
+          localStorage.setItem("userType", "lawyer");
+        }
+
+        setToken(token);
+        setUserName(user.name);
+        setUserType("lawyer");
+
+        return {
+          data: response.data,
+        };
+      }
+
+      return {
+        data: response.data,
+      };
+    } catch (error) {
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (userData, userType = "user") => {
+    if (userType === "lawyer") {
+      return registerLawyer(userData);
+    }
+    return registerUser(userData);
   };
 
   const checkEmail = async (email) => {
@@ -171,8 +212,7 @@ export function AuthProvider({ children }) {
       );
       return response.status === 200;
     } catch (error) {
-      console.error("Email check error:", error);
-      return false;
+      return null;
     }
   };
 
@@ -181,6 +221,8 @@ export function AuthProvider({ children }) {
     userName,
     userType,
     register,
+    registerUser,
+    registerLawyer,
     logout: handleLogout,
     loginUser: handleLogin,
     checkEmail,

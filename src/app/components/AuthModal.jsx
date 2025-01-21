@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog } from "@headlessui/react";
 import axios from "axios";
 import Link from "next/link";
@@ -10,12 +10,16 @@ const steps = {
   INITIAL: 1,
   LOGIN: 2,
   REGISTER: 3,
-  OTP: 4,
 };
 
 const OTP_API_URL = process.env.NEXT_PUBLIC_OTP_API_URL;
 export default function AuthModal({ isOpen, onClose }) {
-  const { loginUser: handleLogin, register, checkEmail } = useAuth();
+  const {
+    loginUser: handleLogin,
+    checkEmail,
+    registerUser,
+    registerLawyer,
+  } = useAuth();
   const [currentStep, setCurrentStep] = useState(steps.INITIAL);
   const [loginMethod, setLoginMethod] = useState("email");
   const [formData, setFormData] = useState({
@@ -28,30 +32,31 @@ export default function AuthModal({ isOpen, onClose }) {
   const [error, setError] = useState("");
   const [isExistingUser, setIsExistingUser] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
-  const [otpCode, setOtpCode] = useState("");
   const [isLoginRequest, setIsLoginRequest] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+
+  const resetForm = useCallback(() => {
+    if ([steps.INITIAL, steps.LOGIN, steps.REGISTER].includes(currentStep)) {
+      setCurrentStep(steps.INITIAL);
+      setLoginMethod("email");
+      setError("");
+      setIsExistingUser(false);
+      setShowPasswordInput(false);
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        password: "",
+        acceptTerms: false,
+      });
+    }
+  }, [currentStep]);
 
   useEffect(() => {
     if (!isOpen) {
       resetForm();
     }
-  }, [isOpen]);
-
-  const resetForm = () => {
-    setCurrentStep(steps.INITIAL);
-    setLoginMethod("email");
-    setError("");
-    setIsExistingUser(false);
-    setFormData({
-      name: "",
-      phone: "",
-      email: "",
-      password: "",
-      acceptTerms: false,
-    });
-  };
+  }, [isOpen, resetForm]);
 
   const handleEmailCheck = async () => {
     try {
@@ -61,14 +66,12 @@ export default function AuthModal({ isOpen, onClose }) {
       }
 
       const emailExists = await checkEmail(formData.email);
-      console.log("Email check result:", emailExists);
 
       setIsExistingUser(emailExists);
       setCurrentStep(emailExists ? steps.LOGIN : steps.REGISTER);
       setShowPasswordInput(emailExists);
       setIsLoginRequest(emailExists);
     } catch (error) {
-      console.error("Email check error:", error);
       setError("حدث خطأ أثناء التحقق من البريد الإلكتروني");
     }
   };
@@ -79,57 +82,6 @@ export default function AuthModal({ isOpen, onClose }) {
       ...prevData,
       [name]: value,
     }));
-  };
-
-  const handleOtpSubmit = async () => {
-    if (otpCode.length !== 6) {
-      setError("الرجاء إدخال رمز التحقق المكون من 6 أرقام");
-      return;
-    }
-
-    try {
-      const response = await axios.post(OTP_API_URL, {
-        email: formData.email,
-        otp: otpCode,
-      });
-
-      if (response.status === 200) {
-        setCurrentStep(steps.REGISTER);
-        setIsOtpModalOpen(false);
-      }
-    } catch (error) {
-      setError(
-        error.response?.data?.message || "حدث خطأ أثناء التحقق من الرمز"
-      );
-    }
-  };
-
-  const handleOtpChange = (index, value) => {
-    // Only allow digits
-    if (!/^\d*$/.test(value)) return;
-
-    // Update OTP value
-    const newOtp = otpCode.split("");
-    newOtp[index] = value;
-    setOtpCode(newOtp.join(""));
-
-    // Move to next input if a digit was entered
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-input-${index + 1}`);
-      if (nextInput) {
-        nextInput.focus();
-      }
-    }
-  };
-
-  const handleKeyDown = (e, index) => {
-    // Handle backspace
-    if (e.key === "Backspace" && !otpCode[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-input-${index - 1}`);
-      if (prevInput) {
-        prevInput.focus();
-      }
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -151,7 +103,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
         const response = await handleLogin(credentials);
 
-        if (response) {
+        if (response && typeof window !== "undefined") {
           onClose();
           resetForm();
         }
@@ -159,7 +111,6 @@ export default function AuthModal({ isOpen, onClose }) {
         await handleRegister();
       }
     } catch (error) {
-      console.error("Login error:", error);
       if (error.response?.status === 401) {
         setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
       } else if (error.response?.status === 422) {
@@ -176,6 +127,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
   const handleRegister = async () => {
     try {
+      setAuthLoading(true);
       const userData = {
         name: formData.name,
         email: formData.email,
@@ -183,15 +135,41 @@ export default function AuthModal({ isOpen, onClose }) {
         password: formData.password,
       };
 
-      if (typeof window === "undefined") {
-        throw new Error("Cannot access localStorage on the server");
-      }
+      const registerResponse = await registerUser(userData);
 
-      await register(userData, "user");
-      setIsOtpModalOpen(true);
+      if (registerResponse) {
+        onClose();
+        return;
+      }
     } catch (error) {
-      console.error("Registration error:", error);
       setError(error.response?.data?.message || "Failed to register");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLawyerRegister = async () => {
+    try {
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        city: formData.city,
+        experience: formData.experience,
+        license_number: formData.license_number,
+      };
+
+      const registerResponse = await registerLawyer(userData);
+
+      if (registerResponse?.success) {
+        setCurrentStep(steps.OTP);
+        return;
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to register");
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -208,58 +186,11 @@ export default function AuthModal({ isOpen, onClose }) {
     </p>
   );
 
-  const renderOtpModal = () => {
-    return (
-      <Dialog
-        open={isOtpModalOpen}
-        onClose={() => {}}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 z-10 w-11/12 md:w-1/2 lg:w-1/3">
-            <h2 className="text-xl font-semibold text-center mb-4">
-              أدخل رمز التحقق
-            </h2>
-            <p className="text-center pb-3" dir="rtl">
-              تم الارسال علي{" "}
-              {formData.phone && (
-                <span className="font-bold" dir="ltr">
-                  +966 {formData.phone}
-                </span>
-              )}
-            </p>
-            <div className="flex justify-center gap-2 rtl">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <input
-                  key={index}
-                  id={`otp-input-${index}`}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={otpCode[index] || ""}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-              ))}
-            </div>
-            <button
-              onClick={handleOtpSubmit}
-              className="w-full bg-orange-600 text-white rounded-md py-2 hover:bg-blue-600 mt-4"
-            >
-              تأكيد
-            </button>
-          </div>
-        </div>
-      </Dialog>
-    );
-  };
   return (
     <>
+      {/* Main Auth Modal */}
       <Dialog open={isOpen} onClose={onClose} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <div className="mx-auto max-w-2xl md:min-w-[500px] rounded-lg bg-white p-6 relative">
             <button
@@ -283,6 +214,7 @@ export default function AuthModal({ isOpen, onClose }) {
               </svg>
             </button>
 
+            {/* Main Auth Steps */}
             {currentStep === steps.INITIAL && (
               <div className="space-y-4 text-right">
                 <h2 className="text-xl text-[#FF883EE0] font-bold">
@@ -447,44 +379,9 @@ export default function AuthModal({ isOpen, onClose }) {
                 </div>
               </form>
             )}
-
-            {currentStep === steps.OTP && (
-              <div className="space-y-4 text-right">
-                <h2 className="text-xl font-bold text-[#FF883EE0]">
-                  أدخل رمز التحقق
-                </h2>
-                <p className="text-center pb-3">
-                  <span>
-                    {formData.phone ? `+966${formData.phone}` : "رقم غير متوفر"}
-                  </span>{" "}
-                  تم الارسال علي
-                </p>
-                <div className="flex justify-center space-x-2">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <input
-                      key={index}
-                      id={`otp-input-${index}`}
-                      type="text"
-                      value={otpCode[index] || ""}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleKeyDown(e, index)}
-                      maxLength="1"
-                      className="w-12 h-12 text-center border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={handleOtpSubmit}
-                  className="w-full bg-orange-600 text-white rounded-md py-2 hover:bg-blue-600 mt-4"
-                >
-                  تأكيد
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </Dialog>
-      {renderOtpModal()}
     </>
   );
 }

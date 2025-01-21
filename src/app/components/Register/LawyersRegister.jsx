@@ -76,7 +76,7 @@ function LawyersRegister() {
   const [state, setState] = useState({
     formData: initialFormData,
     errors: {},
-    activeStep: isAuthenticated ? 1 : 0,
+    activeStep: isAuthenticated ? 1 : 0, // Set initial step based on authentication
     isLoading: false,
     submitError: "",
     specialtySelections: [
@@ -89,6 +89,13 @@ function LawyersRegister() {
     registrationSuccessful: false,
     errorMessage: "",
   });
+
+  // Add useEffect to handle authentication changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      updateState({ activeStep: 1 });
+    }
+  }, [isAuthenticated]);
 
   // Create helper function to update state
   const updateState = (updates) => {
@@ -174,19 +181,17 @@ function LawyersRegister() {
 
   const router = useRouter();
 
-  // Add this state for categories
   const [categories, setCategories] = useState([]);
 
-  // Add useEffect to fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
         const response = await axios.get(
-          "https://theoretical-agatha-ahmedelsamman-4d2b79ac.koyeb.app/main-categories"
+          `${API_BASE_URL}/speciality/get-all-speciality`
         );
         setCategories(response.data);
       } catch (error) {
-        console.error("Error fetching categories:", error);
         toast.error("حدث خطأ في تحميل التخصصات");
       }
     };
@@ -194,13 +199,11 @@ function LawyersRegister() {
     fetchCategories();
   }, []);
 
-  // Simplified form validation without debugging
   const validateStep = (step) => {
     let isValid = true;
     let newErrors = {};
 
     if (step === 0) {
-      // Check all required fields in step 0
       const requiredFields = [
         { name: "firstName", label: "الاسم الأول" },
         { name: "middleName", label: "الاسم الأوسط" },
@@ -298,12 +301,9 @@ function LawyersRegister() {
 
   // Update handleNext to include final validation
   const handleNext = async () => {
-    console.log("handleNext called, current step:", state.activeStep);
-
     if (state.activeStep === 0) {
       if (validateStep(state.activeStep)) {
         try {
-          console.log("Starting registration process...");
           setState((prev) => ({ ...prev, isLoading: true }));
 
           const fullName =
@@ -320,8 +320,6 @@ function LawyersRegister() {
             experience: calculateExperienceYears(state.formData.licenseNumber),
             license_number: state.formData.licenseNumber,
           };
-
-          console.log("Register Data:", registerData);
 
           if (!validateFinalData(registerData)) {
             setState((prev) => ({ ...prev, isLoading: false }));
@@ -342,7 +340,6 @@ function LawyersRegister() {
             throw new Error("Registration response missing token");
           }
         } catch (error) {
-          console.error("Registration error details:", error.response?.data);
           const errorMessage =
             error.response?.data?.message || "حدث خطأ أثناء التسجيل";
           toast.error(errorMessage);
@@ -352,7 +349,6 @@ function LawyersRegister() {
         toast.error("يرجى تصحيح الأخطاء قبل المتابعة.");
       }
     } else if (state.activeStep === 1) {
-      console.log("Processing step 1");
       try {
         setState((prev) => ({ ...prev, isLoading: true }));
 
@@ -370,7 +366,6 @@ function LawyersRegister() {
           .filter(Boolean);
 
         const officeData = {
-          speciality_id: 9,
           bio: "",
           profile_image: "",
           google_map: "",
@@ -380,7 +375,8 @@ function LawyersRegister() {
           specialties: specialtiesArray,
           speaking_english: state.formData.speaksEnglish,
         };
-
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const token = localStorage.getItem("token");
         const response = await axios.post(
           `${API_BASE_URL}/lawyer/create-lawyer-office`,
           officeData,
@@ -399,7 +395,6 @@ function LawyersRegister() {
 
         setState((prev) => ({ ...prev, isLoading: false }));
       } catch (error) {
-        console.error("Office creation error:", error);
         toast.error(
           error.response?.data?.message || "حدث خطأ أثناء إنشاء الملف الشخصي"
         );
@@ -430,28 +425,27 @@ function LawyersRegister() {
     return 0; // Return 0 as default
   };
 
-  // Update handleSpecialtyChange function
+  // Update handleSpecialtyChange function to avoid direct state updates
   const handleSpecialtyChange = (id, value) => {
-    // First, create the updated selections array
-    const updatedSelections = state.specialtySelections.map((selection) =>
-      selection.id === id ? { ...selection, value } : selection
-    );
+    // Use a single setState call
+    setState((prev) => {
+      const updatedSelections = prev.specialtySelections.map((selection) =>
+        selection.id === id ? { ...selection, value } : selection
+      );
 
-    // Update specialtySelections state
-    updateState({ specialtySelections: updatedSelections });
+      const updatedSpecializations = updatedSelections
+        .map((selection) => selection.value)
+        .filter(Boolean);
 
-    // Immediately calculate the new specializations array using the updated selections
-    const updatedSpecializations = updatedSelections
-      .map((selection) => selection.value)
-      .filter(Boolean); // This removes any empty values
-
-    // Update formData with the new specializations
-    updateFormData({
-      specializations: updatedSpecializations,
+      return {
+        ...prev,
+        specialtySelections: updatedSelections,
+        formData: {
+          ...prev.formData,
+          specializations: updatedSpecializations,
+        },
+      };
     });
-
-    // Log the updated specializations immediately
-    console.log("Selected Specializations:", updatedSpecializations);
   };
 
   // Simplified handleSubmit
@@ -473,7 +467,6 @@ function LawyersRegister() {
       await register(lawyerData, "lawyer");
       // Handle successful registration
     } catch (error) {
-      console.error("Registration error:", error);
       updateState({
         errorMessage: error.response?.data?.message || "Failed to register",
       });
@@ -898,7 +891,7 @@ function LawyersRegister() {
 
                   return (
                     <div
-                      key={selection.id}
+                      key={`specialty-${selection.id}`}
                       className="flex flex-col gap-2"
                       style={{ order: order }}
                     >
@@ -906,6 +899,7 @@ function LawyersRegister() {
                         {`أولوية ${toArabicNumerals(index)}`}
                       </p>
                       <select
+                        key={`select-${selection.id}`}
                         value={selection.value}
                         onChange={(e) =>
                           handleSpecialtyChange(selection.id, e.target.value)
@@ -914,17 +908,18 @@ function LawyersRegister() {
                         className={`w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                         required={selection.isRequired}
                       >
-                        <option value="">
+                        <option key={`default-${selection.id}`} value="">
                           {selection.isRequired
                             ? "اختر التخصص الرئيسي"
                             : "اختر التخصص"}
                         </option>
                         {categories.map((category) => (
                           <option
-                            key={category._id}
-                            value={category._id}
+                            key={`category-${category.id}-selection-${selection.id}`}
+                            value={category.id}
                             disabled={state.specialtySelections.some(
-                              (s) => s.value === category._id
+                              (s) =>
+                                s.value === category.id && s.id !== selection.id
                             )}
                           >
                             {category.name}
@@ -997,31 +992,6 @@ function LawyersRegister() {
         return null;
     }
   };
-
-  // Add a useEffect to monitor state changes (for debugging)
-  useEffect(() => {
-    console.log("Active Step:", state.activeStep);
-    console.log("Registration Successful:", state.registrationSuccessful);
-  }, [state.activeStep, state.registrationSuccessful]);
-
-  // Add this useEffect to monitor activeStep changes
-  useEffect(() => {
-    console.log("Active Step changed to:", state.activeStep);
-  }, [state.activeStep]);
-
-  // Add this useEffect to monitor the entire state
-  useEffect(() => {
-    console.log("Full state:", state);
-  }, [state]);
-
-  // Add this useEffect to monitor state changes
-  useEffect(() => {
-    console.log("Current state:", {
-      activeStep: state.activeStep,
-      registrationSuccessful: state.registrationSuccessful,
-      isLoading: state.isLoading,
-    });
-  }, [state.activeStep, state.registrationSuccessful, state.isLoading]);
 
   return (
     <div className="max-w-3xl px-4 mx-auto my-8 p-4 sm:p-8 bg-white rounded-lg shadow-md md:mt-20 mt-32">

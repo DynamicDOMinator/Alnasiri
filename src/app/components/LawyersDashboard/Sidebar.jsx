@@ -3,9 +3,26 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { CiUser } from "react-icons/ci";
+import { useState, useEffect } from "react";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    // Safely access localStorage only after component mounts
+    if (typeof window !== "undefined") {
+      const storedUserName = localStorage.getItem("userName");
+      if (storedUserName) {
+        // Split the full name and take first two names
+        const names = storedUserName.split(" ");
+        const displayName = names.slice(0, 2).join(" ");
+        setUserName(displayName);
+      } else {
+        setUserName("المستخدم"); // Fallback value
+      }
+    }
+  }, []); // Empty dependency array for single execution on mount
 
   // Add this check to determine if we're on a lead details page
   const isLeadDetailsPage = pathname.includes(
@@ -42,8 +59,13 @@ export default function Sidebar() {
             href="/Lawyer-dashboard "
           >
             <p className="w-full text-right">فرص</p>
-
-            <Image src="/images/icon1.png" alt=" فرص" width={15} height={15} />
+            <Image
+              src="/images/icon1.png"
+              alt="فرص"
+              width={15}
+              height={15}
+              style={{ width: "auto", height: "auto" }}
+            />
           </Link>
           <Link
             className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-gray-50 ${
@@ -54,7 +76,13 @@ export default function Sidebar() {
             href="/Lawyer-dashboard/MyForas"
           >
             <p className="w-full text-right">فرصي</p>
-            <Image src="/images/icon2.png" alt="فرصي" width={15} height={15} />
+            <Image
+              src="/images/icon2.png"
+              alt="فرصي"
+              width={15}
+              height={15}
+              style={{ width: "auto", height: "auto" }}
+            />
           </Link>
           <Link
             className={`flex gap-2 items-center p-2 pl-10 rounded-3xl w-full hover:bg-gray-50 ${
@@ -70,6 +98,7 @@ export default function Sidebar() {
               alt="الاسئلة المجانية"
               width={15}
               height={15}
+              style={{ width: "auto", height: "auto" }}
             />
           </Link>
           <Link
@@ -86,6 +115,7 @@ export default function Sidebar() {
               alt="أجوبتي"
               width={15}
               height={15}
+              style={{ width: "auto", height: "auto" }}
             />
           </Link>
           <Link
@@ -102,6 +132,7 @@ export default function Sidebar() {
               alt="profile"
               width={15}
               height={15}
+              style={{ width: "auto", height: "auto" }}
             />
           </Link>
           <Link
@@ -118,13 +149,14 @@ export default function Sidebar() {
               alt="balance"
               width={15}
               height={15}
+              style={{ width: "auto", height: "auto" }}
             />
           </Link>
         </div>
         {/* Modified settings section */}
         <div className="absolute flex items-center gap-4 w-full justify-end pr-5 bottom-5">
           <div>
-            <p className="text-sm font-semibold">أحمد السيد</p>
+            <p className="text-sm font-semibold">{userName}</p>
             <p className="text-sm text-right">الاعدادات</p>
           </div>
           <div>
@@ -132,8 +164,9 @@ export default function Sidebar() {
               className="w-12"
               src="/images/imgse.png"
               alt="settings"
-              width={100}
-              height={100}
+              width={48}
+              height={48}
+              style={{ width: "auto", height: "auto" }}
             />
           </div>
         </div>
@@ -149,7 +182,13 @@ export default function Sidebar() {
               }`}
               href="/Lawyer-dashboard"
             >
-              <Image src="/images/icon1.png" alt="فرص" width={20} height={20} />
+              <Image
+                src="/images/icon1.png"
+                alt="فرص"
+                width={20}
+                height={20}
+                style={{ width: "auto", height: "auto" }}
+              />
               <span className="text-xs">فرص</span>
             </Link>
 
@@ -164,6 +203,7 @@ export default function Sidebar() {
                 alt="فرصي"
                 width={20}
                 height={20}
+                style={{ width: "auto", height: "auto" }}
               />
               <span className="text-xs">فرصي</span>
             </Link>
@@ -181,6 +221,7 @@ export default function Sidebar() {
                 alt="الاسئلة المجانية"
                 width={20}
                 height={20}
+                style={{ width: "auto", height: "auto" }}
               />
               <span className="text-xs">الاسئلة المجانية</span>
             </Link>
@@ -196,6 +237,7 @@ export default function Sidebar() {
                 alt="أجوبتي"
                 width={20}
                 height={20}
+                style={{ width: "auto", height: "auto" }}
               />
               <span className="text-xs">أجوبتي</span>
             </Link>
@@ -207,7 +249,6 @@ export default function Sidebar() {
               href="/Lawyer-dashboard/Settings"
             >
               <CiUser className="text-2xl" />
-
               <span className="text-xs">الاعدادات</span>
             </Link>
           </div>
