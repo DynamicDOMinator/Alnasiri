@@ -21,7 +21,9 @@ function DepositContent() {
     expiryYear: "",
     cvv: "",
   });
-
+/* eslint-disable */
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+/* eslint-enable */
   const fetchBalance = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -30,7 +32,7 @@ function DepositContent() {
       }
 
       const response = await fetch(
-        "http://127.0.0.1:8000/api/wallet/get-balance",
+        `${BASE_URL}/wallet/get-balance`,
         {
           method: "GET",
           headers: {
@@ -73,6 +75,7 @@ function DepositContent() {
   // Fetch initial balance
   useEffect(() => {
     fetchBalance();
+    //eslint-disable-next-line
   }, []);
 
   const verifyTransaction = async (transactionId) => {
@@ -83,7 +86,7 @@ function DepositContent() {
       }
 
       const response = await fetch(
-        `http://127.0.0.1:8000/api/lawyer/check-transaction/${transactionId}`,
+        `${BASE_URL}/lawyer/check-transaction/${transactionId}`,
         {
           method: "GET",
           headers: {
