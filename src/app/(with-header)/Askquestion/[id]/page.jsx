@@ -145,8 +145,6 @@ export default function QuestionSuccess() {
         <div className="text-6xl mb-4 text-green-500 animate-bounce">✓</div>
         <h1 className="text-2xl font-bold mb-4">شكرا لك تم تلقي سؤالك.</h1>
 
-      
-
         <div className="text-right p-4 relative rounded-lg mb-6 border border-gray-300 mt-10">
           <h2 className="mb-2 absolute -top-3 bg-white px-2">السؤال</h2>
           <p className="text-xl font-semibold mt-2">
@@ -173,7 +171,6 @@ export default function QuestionSuccess() {
               </>
             )}
           </div>
-
         </div>
 
         <div className="flex justify-between md:flex-row flex-col gap-4 bg-white px-4 py-10 rounded-lg shadow-lg">

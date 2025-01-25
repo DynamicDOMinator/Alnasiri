@@ -6,7 +6,7 @@ import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { GoLaw } from "react-icons/go";
-import { CiMoneyBill } from "react-icons/ci";
+
 
 export default function AnswersDetails() {
   const router = useRouter();
@@ -108,7 +108,7 @@ export default function AnswersDetails() {
         ))}
       </div>
 
-      <div dir="rtl" className="sticky bottom-0 bg-slate-100 pb-5 px-10">
+      <div dir="rtl" className="sticky lg:max-w-3xl mx-auto bottom-0 bg-slate-100 pb-5 px-10">
         <h4 className="font-bold py-5">اجابتك</h4>
         <p className="flex gap-1 items-center">
           الاجابة <span className="text-red-500">*</span>

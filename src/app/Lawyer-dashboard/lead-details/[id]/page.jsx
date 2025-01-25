@@ -22,17 +22,17 @@ const leadsDetailsData = {
     questions: [
       {
         question: "ما هي تفاصيل القضية الجنائية؟",
-        answer: "قضية متعلقة بالاحتيال المالي"
+        answer: "قضية متعلقة بالاحتيال المالي",
       },
       {
         question: "هل تم رفع دعوى قضائية؟",
-        answer: "نعم، تم رفع الدعوى قبل شهر"
+        answer: "نعم، تم رفع الدعوى قبل شهر",
       },
       {
         question: "رقم الطلب؟",
-        answer: "252588"
-      }
-    ]
+        answer: "252588",
+      },
+    ],
   },
   2: {
     name: "محمد علي",
@@ -45,17 +45,17 @@ const leadsDetailsData = {
     questions: [
       {
         question: "ما هي طبيعة النزاع التجاري؟",
-        answer: "نزاع على عقد توريد"
+        answer: "نزاع على عقد توريد",
       },
       {
         question: "قيمة النزاع؟",
-        answer: "500,000 ريال"
+        answer: "500,000 ريال",
       },
       {
         question: "رقم الطلب؟",
-        answer: "252589"
-      }
-    ]
+        answer: "252589",
+      },
+    ],
   },
   3: {
     name: "فاطمة أحمد",
@@ -68,17 +68,17 @@ const leadsDetailsData = {
     questions: [
       {
         question: "ما هو موضوع الاستشارة العقارية؟",
-        answer: "نزاع على ملكية أرض وتداخل صكوك"
+        answer: "نزاع على ملكية أرض وتداخل صكوك",
       },
       {
         question: "هل تم توثيق العقار؟",
-        answer: "نعم، موثق في كتابة العدل"
+        answer: "نعم، موثق في كتابة العدل",
       },
       {
         question: "رقم الطلب؟",
-        answer: "252590"
-      }
-    ]
+        answer: "252590",
+      },
+    ],
   },
   4: {
     name: "عمر محمود",
@@ -91,17 +91,17 @@ const leadsDetailsData = {
     questions: [
       {
         question: "ما هو نوع قضية الأحوال الشخصية؟",
-        answer: "قضية حضانة أطفال"
+        answer: "قضية حضانة أطفال",
       },
       {
         question: "هل هناك أحكام سابقة؟",
-        answer: "نعم، حكم ابتدائي صادر قبل 3 أشهر"
+        answer: "نعم، حكم ابتدائي صادر قبل 3 أشهر",
       },
       {
         question: "رقم الطلب؟",
-        answer: "252591"
-      }
-    ]
+        answer: "252591",
+      },
+    ],
   },
   5: {
     name: "سارة خالد",
@@ -114,17 +114,17 @@ const leadsDetailsData = {
     questions: [
       {
         question: "ما هو سبب النزاع العمالي؟",
-        answer: "فصل تعسفي ومستحقات مالية"
+        answer: "فصل تعسفي ومستحقات مالية",
       },
       {
         question: "هل تم رفع شكوى لمكتب العمل؟",
-        answer: "نعم، تم رفع الشكوى قبل أسبوعين"
+        answer: "نعم، تم رفع الشكوى قبل أسبوعين",
       },
       {
         question: "رقم الطلب؟",
-        answer: "252592"
-      }
-    ]
+        answer: "252592",
+      },
+    ],
   },
   6: {
     name: "ياسر محمد",
@@ -137,18 +137,18 @@ const leadsDetailsData = {
     questions: [
       {
         question: "ما هي طبيعة القضية الإدارية؟",
-        answer: "قرار إداري تعسفي من جهة حكومية"
+        answer: "قرار إداري تعسفي من جهة حكومية",
       },
       {
         question: "هل تم التظلم على القرار؟",
-        answer: "نعم، تم التظلم وتم رفضه"
+        answer: "نعم، تم التظلم وتم رفضه",
       },
       {
         question: "رقم الطلب؟",
-        answer: "252593"
-      }
-    ]
-  }
+        answer: "252593",
+      },
+    ],
+  },
 };
 
 export default function LeadDetails() {
@@ -166,7 +166,7 @@ export default function LeadDetails() {
   }, [id]);
 
   return (
-    <div >
+    <div>
       <div dir="rtl" className="lg:max-w-3xl mx-auto  relative ">
         <div className="sticky top-0 bg-white pb-2">
           <div className="pt-10">
@@ -234,7 +234,6 @@ export default function LeadDetails() {
             <p>{item.answer}</p>
           </div>
         ))}
-        
       </div>
 
       <div className="fixed bottom-0 left-0 lg:w-5/6 w-full bg-white border-t-2 py-4 border-gray-100 flex justify-center">

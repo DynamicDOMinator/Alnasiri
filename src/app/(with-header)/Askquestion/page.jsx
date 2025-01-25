@@ -21,6 +21,37 @@ export default function ClientForm() {
   const [errors, setErrors] = useState({});
   const { isAuthenticated } = useAuth();
   const [showDialog, setShowDialog] = useState(false);
+  const [cities, setCities] = useState([]);
+  const [specialties, setSpecialties] = useState([]);
+
+  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  useEffect(() => {
+    const featchSpecialties = async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/speciality/get-all-speciality`
+        );
+        const speciality = res.data.map((speciality) => speciality.name);
+        setSpecialties(speciality);
+        console.log(speciality);
+      } catch (error) {
+        console.log("التخصصات غير متاحه", error);
+      }
+    };
+    featchSpecialties();
+  }, [BASE_URL]);
+
+  useEffect(() => {
+    const featchCities = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/lawyer/get-all-cities`);
+        const cityNames = res.data.map((city) => city.name);
+        setCities(cityNames);
+      } catch (error) {}
+    };
+    featchCities();
+  }, [BASE_URL]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,6 +105,7 @@ export default function ClientForm() {
 
     try {
       let token = null;
+
       if (typeof window !== "undefined") {
         token = localStorage.getItem("token");
       }
@@ -99,9 +131,14 @@ export default function ClientForm() {
           : {}),
       };
 
+      console.log("Request Data:", requestData);
+
       const apiUrl = hireLawyer
-        ? "http://127.0.0.1:8000/api/lawyer/create-lawyer-chance"
-        : "http://127.0.0.1:8000/api/question/create";
+        ? `${BASE_URL}/lawyer/create-lawyer-chance`
+        : `${BASE_URL}/question/create`;
+
+      console.log("API URL:", apiUrl);
+      console.log("Token:", token);
 
       const response = await axios.post(apiUrl, requestData, {
         headers: {
@@ -115,6 +152,7 @@ export default function ClientForm() {
         // Handle lawyer chance response
         if (response.data && response.data.uuid) {
           setQuestion(response.data.uuid, response.data);
+
           router.push(`/Askquestion/${response.data.uuid}`);
         } else {
           throw new Error("Invalid lawyer chance response");
@@ -273,11 +311,11 @@ export default function ClientForm() {
               }`}
             >
               <option value="">اختر مدينتك</option>
-              <option value="الرياض">الرياض</option>
-              <option value="جدة">جدة</option>
-              <option value="مكة">مكة</option>
-              <option value="الدمام">الدمام</option>
-              <option value="الخبر">الخبر</option>
+              {cities.map((city, index) => (
+                <option key={index} value={city}>
+                  {city}
+                </option>
+              ))}
             </select>
             {errors.city && (
               <p className="text-red-500 text-sm mt-1">{errors.city}</p>
@@ -293,21 +331,20 @@ export default function ClientForm() {
               name="specialty"
               value={formData.specialty}
               onChange={handleChange}
-              required
-              className="w-full p-2 border rounded-md text-right"
+              className={`w-full p-2 border rounded-md text-right ${
+                errors.specialty ? "border-red-500" : ""
+              }`}
             >
               <option value="">اختر تخصص القضية</option>
-              <option value="قضايا جنائية">قضايا جنائية</option>
-              <option value="قضايا مدنية">قضايا مدنية</option>
-              <option value="قضايا تجارية">قضايا تجارية</option>
-              <option value="قضايا عمالية">قضايا عمالية</option>
-              <option value="أحوال شخصية">أحوال شخصية</option>
-              <option value="قضايا عقارية">قضايا عقارية</option>
-              <option value="قضايا إدارية">قضايا إدارية</option>
-              <option value="قضايا تأمين">قضايا تأمين</option>
-              <option value="ملكية فكرية">ملكية فكرية</option>
-              <option value="أخرى">أخرى</option>
+              {specialties.map((speciality, index) => (
+                <option key={index} value={speciality}>
+                  {speciality}
+                </option>
+              ))}
             </select>
+            {errors.specialty && (
+              <p className="text-red-500 text-sm mt-1">{errors.specialty}</p>
+            )}
           </div>
 
           {/* Hire Lawyer */}
@@ -356,7 +393,7 @@ export default function ClientForm() {
                   <input
                     type="radio"
                     name="hireTime"
-                    value="immediately"
+                    value="urgent"
                     onChange={(e) => setHireTime(e.target.value)}
                     className="form-radio ml-2"
                   />
@@ -366,7 +403,7 @@ export default function ClientForm() {
                   <input
                     type="radio"
                     name="hireTime"
-                    value="within30days"
+                    value="with_in_30_days"
                     onChange={(e) => setHireTime(e.target.value)}
                     className="form-radio ml-2"
                   />
@@ -376,7 +413,7 @@ export default function ClientForm() {
                   <input
                     type="radio"
                     name="hireTime"
-                    value="notSure"
+                    value="not_sure"
                     onChange={(e) => setHireTime(e.target.value)}
                     className="form-radio ml-2"
                   />

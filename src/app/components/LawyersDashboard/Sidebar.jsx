@@ -4,27 +4,59 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { CiUser } from "react-icons/ci";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [userName, setUserName] = useState("");
+  const [profileImage, setProfileImage] = useState(null);
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
-    // Safely access localStorage only after component mounts
+    const fetchLawyerOffice = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/lawyer/get-lawyer-office-by`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setProfileImage(response.data.profile_image_link);
+      } catch (error) {
+        return null;
+      } finally {
+        setIsImageLoading(false);
+      }
+    };
+
+    fetchLawyerOffice();
+  }, [API_BASE_URL]);
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+  };
+
+  const handleImageError = () => {
+    setIsImageLoading(false);
+    setProfileImage(null);
+  };
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const storedUserName = localStorage.getItem("userName");
       if (storedUserName) {
-        // Split the full name and take first two names
         const names = storedUserName.split(" ");
         const displayName = names.slice(0, 2).join(" ");
         setUserName(displayName);
       } else {
-        setUserName("المستخدم"); // Fallback value
+        setUserName("المستخدم");
       }
     }
-  }, []); // Empty dependency array for single execution on mount
+  }, []);
 
-  // Add this check to determine if we're on a lead details page
   const isLeadDetailsPage = pathname.includes(
     "/Lawyer-dashboard/lead-details/"
   );
@@ -32,8 +64,8 @@ export default function Sidebar() {
   return (
     <div>
       {/* desktop screen */}
-      <div className="   lg:fixed hidden lg:border-l-2 border-gray-300 lg:block gap-4 right-0 z-50  w-1/6  ml-auto h-screen ">
-        <h2 className="mt-20  justify-center text-3xl font-bold flex items-center gap-2 pb-10">
+      <div className="lg:fixed hidden lg:border-l-2 border-gray-300 lg:block gap-4 right-0 z-50 w-1/6 ml-auto h-screen">
+        <h2 className="mt-20 justify-center text-3xl font-bold flex items-center gap-2 pb-10">
           نصيري{" "}
           <span>
             <svg
@@ -49,14 +81,14 @@ export default function Sidebar() {
             </svg>
           </span>
         </h2>
-        <div className="flex flex-col items-end gap-1 border-b-2  px-2 pb-10   ">
+        <div className="flex flex-col items-end gap-1 border-b-2 px-2 pb-10">
           <Link
-            className={`flex gap-2 items-center w-full  p-2 rounded-3xl hover:bg-gray-50 ${
+            className={`flex gap-2 items-center w-full p-2 rounded-3xl hover:bg-gray-50 ${
               pathname === "/Lawyer-dashboard"
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
-            href="/Lawyer-dashboard "
+            href="/Lawyer-dashboard"
           >
             <p className="w-full text-right">فرص</p>
             <Image
@@ -141,7 +173,7 @@ export default function Sidebar() {
                 ? "bg-[rgba(217,217,217,0.31)]"
                 : ""
             }`}
-            href="/Lawyer-dashboard/Balance"
+            href="/Lawyer-dashboard/Wallet"
           >
             <p className="w-full text-right">رصيدي</p>
             <Image
@@ -160,14 +192,44 @@ export default function Sidebar() {
             <p className="text-sm text-right">الاعدادات</p>
           </div>
           <div>
-            <Image
-              className="w-12"
-              src="/images/imgse.png"
-              alt="settings"
-              width={48}
-              height={48}
-              style={{ width: "auto", height: "auto" }}
-            />
+            {isImageLoading ? (
+              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                <svg
+                  className="animate-spin h-5 w-5 text-gray-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              </div>
+            ) : profileImage ? (
+              <Image
+                className="w-12 h-12 rounded-full object-cover"
+                src={profileImage}
+                alt="profile"
+                width={48}
+                height={48}
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white text-xl">
+                {userName ? userName.charAt(0).toUpperCase() : "U"}
+              </div>
+            )}
           </div>
         </div>
       </div>

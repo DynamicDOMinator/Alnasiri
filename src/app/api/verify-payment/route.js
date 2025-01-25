@@ -21,7 +21,7 @@ export async function POST(request) {
         month: body.expiryMonth,
         year: body.expiryYear,
       },
-      callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment-callback`,
+      callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/TestPayment`,
     };
 
     // Make request to Moyasar API

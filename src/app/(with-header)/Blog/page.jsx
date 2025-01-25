@@ -2,9 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 
 function decodeHtml(html) {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'");
 }
 
 export const revalidate = 3600; // Revalidate every hour
@@ -18,13 +22,15 @@ async function getData() {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
+      cache: "no-store",
     });
 
     if (!res.ok) {
       throw new Error("Failed to fetch data");
     }
 
-    return res.json();
+    const data = await res.json();
+    return data;
   } catch (error) {
     console.error("Error fetching data:", error);
     return [];
@@ -68,7 +74,7 @@ export default async function Blog() {
                 <Image
                   className="rounded-lg h-[150px] w-full object-cover"
                   src="/images/blog.jpg"
-                  alt={blog.title}
+                  alt={decodeHtml(blog.title)}
                   width={300}
                   height={300}
                   priority={true}

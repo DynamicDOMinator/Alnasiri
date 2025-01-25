@@ -52,6 +52,8 @@ export function AuthProvider({ children }) {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
       localStorage.removeItem("userType");
+      localStorage.removeItem("profileImage");
+
       setToken(null);
       setUserName(null);
       setUserType(null);
@@ -89,7 +91,7 @@ export function AuthProvider({ children }) {
         if (user.user_type === "user") {
           router.push("/Askquestion");
         } else if (user.user_type === "lawyer") {
-          return null;
+          router.push("/Lawyer-dashboard");
         }
 
         return response.data;

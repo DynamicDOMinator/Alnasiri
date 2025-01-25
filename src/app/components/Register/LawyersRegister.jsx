@@ -532,7 +532,7 @@ function LawyersRegister() {
               المعلومات الشخصية
             </h2>
 
-            <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div dir="rtl" className="grid grid-cols-1 sm:grid-cols-1 gap-4">
               {/* First Row */}
               {/* First Name - Right */}
               <div className="order-1 relative ">

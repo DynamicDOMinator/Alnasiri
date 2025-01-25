@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import {
   Dialog,
   DialogPanel,
@@ -29,6 +29,7 @@ import {
 import Link from "next/link";
 import AuthModal from "./AuthModal";
 import { useAuth } from "../contexts/AuthContext";
+import { AiOutlineLogout } from "react-icons/ai";
 
 // Product data
 const products = [
@@ -138,8 +139,18 @@ export default function Example() {
 
     return (
       <Popover className="relative">
-        <PopoverButton className="flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg text-gray-700 hover:text-gray-900 focus:outline-none">
-          <span className="text-sm font-medium">{userName}</span>
+        <PopoverButton
+          className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+            userType === "lawyer"
+              ? "bg-[#16498C] text-white border-[#16498C]"
+              : "text-gray-700 hover:text-gray-900"
+          }`}
+        >
+          {userType === "lawyer" ? (
+            <span className="text-sm font-medium">لوحة التحكم</span>
+          ) : (
+            <span className="text-sm font-medium">{userName}</span>
+          )}
           <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
         </PopoverButton>
 
@@ -152,10 +163,33 @@ export default function Example() {
               لوحة التحكم
             </Link>
           )}
+          {userType === "user" && (
+            <>
+              <Link
+                href="/notifications"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+              >
+                الاشعارات
+              </Link>
+              <Link
+                href="/my-questions"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+              >
+                اسالتي
+              </Link>
+              <Link
+                href="/profile-settings"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+              >
+                الاعدادات
+              </Link>
+            </>
+          )}
           <button
             onClick={logout}
-            className="block w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100"
-          >
+            className=" justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+          > <span><AiOutlineLogout />
+</span>
             تسجيل خروج
           </button>
         </PopoverPanel>
