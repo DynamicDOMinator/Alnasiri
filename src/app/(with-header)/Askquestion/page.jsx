@@ -158,7 +158,6 @@ export default function ClientForm() {
           throw new Error("Invalid lawyer chance response");
         }
       } else {
-        // Handle regular question response
         if (response.data?.question?.uuid) {
           setQuestion(response.data.question.uuid, response.data.question);
           router.push(`/Askquestion/${response.data.question.uuid}`);
@@ -167,10 +166,9 @@ export default function ClientForm() {
         }
       }
     } catch (error) {
-      console.error("Error:", error);
       setErrors({
         submit:
-          error.response?.data?.message ||
+          error.response.data.error ||
           "حدث خطأ أثناء إرسال البيانات. الرجاء المحاولة مرة أخرى.",
       });
     }

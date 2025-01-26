@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 function decodeHtml(html) {
+  if (!html) return '';
+  
   return html
     .replace(/<[^>]*>/g, "")
     .replace(/&amp;/g, "&")
@@ -17,12 +19,11 @@ async function getData() {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const res = await fetch(`${API_BASE_URL}/blogs/get-all-blogs`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 3600 }, // Use ISR with 1 hour revalidation
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-      },
-      cache: "no-store",
+      }
     });
 
     if (!res.ok) {
@@ -50,8 +51,8 @@ export default async function Blog() {
             تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات
           </p>
         </div>
-        <div className="pt-16 text-center">
-          <p>لا توجد مقالات متاحة حالياً</p>
+        <div className="container mx-auto px-4 mt-8">
+          <p className="text-center text-gray-600">لا توجد مقالات متاحة حالياً</p>
         </div>
       </div>
     );
@@ -66,33 +67,30 @@ export default async function Blog() {
         </p>
       </div>
 
-      <div className="pt-16">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 place-items-center md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="container mx-auto px-4 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogs.map((blog) => (
-            <Link href={`/Blog/${blog.uuid}`} key={blog.id}>
-              <div className="h-[350px] relative w-[350px] bg-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                <Image
-                  className="rounded-lg h-[150px] w-full object-cover"
-                  src="/images/blog.jpg"
-                  alt={decodeHtml(blog.title)}
-                  width={300}
-                  height={300}
-                  priority={true}
-                />
-                <div className="p-4">
-                  <div
-                    className="text-lg font-semibold overflow-hidden max-h-[80px] bg-white"
-                    dangerouslySetInnerHTML={{ __html: blog.title }}
+            <Link href={`/Blog/${blog.id}`} key={blog.id}>
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div className="relative h-48 w-full">
+                  <Image
+                    src={blog.image || "/images/default-blog.jpg"}
+                    alt={blog.title || 'Blog post'}
+                    fill
+                    className="object-cover"
                   />
-                  <div
-                    className="line-clamp-2 mt-2 overflow-hidden bg-white"
-                    dangerouslySetInnerHTML={{
-                      __html: blog.description,
-                    }}
-                  />
-                  <button className="bg-blue-500 absolute bottom-4 right-4 text-white px-4 py-2 rounded-lg">
-                    قراءة المزيد
-                  </button>
+                </div>
+                <div className="p-6">
+                  <h2 className="text-xl font-bold mb-2 line-clamp-2">
+                    {blog.title || 'Untitled Post'}
+                  </h2>
+                  <p className="text-gray-600 mb-4 line-clamp-3">
+                    {decodeHtml(blog.content) || 'No content available'}
+                  </p>
+                  <div className="flex justify-between items-center text-sm text-gray-500">
+                    <span>{blog.created_at ? new Date(blog.created_at).toLocaleDateString("ar-SA") : 'No date'}</span>
+                    <span>اقرأ المزيد</span>
+                  </div>
                 </div>
               </div>
             </Link>

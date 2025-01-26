@@ -443,7 +443,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
         </div>
       </div>
 
-      <div className="flex justify-center mt-10 lg:mt-20">
+      <div className="flex justify-center mb-20 lg:mb-0 mt-10 lg:mt-20">
         <button
           onClick={() => setShowPaymentModal(true)}
           className={`w-1/2 py-2 px-4 mx-auto rounded ${
@@ -573,7 +573,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   disabled={isLoading}
                 >
                   {isLoading
-                    ? "جاري المعالجة..."
+                    ? "...جاري المعالجة."
                     : `ادفع ${selectedAmount} ر.س`}
                 </button>
               </div>

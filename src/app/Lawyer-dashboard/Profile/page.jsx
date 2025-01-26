@@ -768,8 +768,8 @@ export default function Profile() {
           )}
 
           {/* Header */}
-          <div className="mb-8 lg:pt-16 pt-10 bg-white z-30 sticky top-0">
-            <h1 className="lg:text-3xl text-center lg:text-right font-bold text-gray-800">
+          <div className="mb-8 lg:max-w-4xl lg:pt-16 pt-10 bg-white mx-auto z-30 sticky top-0">
+            <h1 className="lg:text-3xl pb-2 text-center lg:text-right font-bold text-gray-800">
               معلومات صفحتي الشخصية
             </h1>
           </div>

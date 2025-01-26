@@ -9,7 +9,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useQuestion } from "../../../contexts/QuestionContext";
 import { useAuth } from "../../../contexts/AuthContext";
-
+import Search from "../../../components/Search component/Search";
 export default function QuestionSuccess() {
   const params = useParams();
   const { currentQuestionId, questionData, clearQuestion } = useQuestion();
@@ -75,7 +75,7 @@ export default function QuestionSuccess() {
         }
       } catch (error) {
         console.error("Final error:", error);
-        setError(error.message || "حدث خطأ أثناء تحميل السؤال");
+        setError(error.response?.data?.error || "حدث خطأ أثناء تحميل السؤال");
       } finally {
         setLoading(false);
       }
@@ -143,7 +143,7 @@ export default function QuestionSuccess() {
     <div className="pt-36 py-10 text-center" dir="rtl">
       <div className="max-w-6xl mx-auto p-6 ">
         <div className="text-6xl mb-4 text-green-500 animate-bounce">✓</div>
-        <h1 className="text-2xl font-bold mb-4">شكرا لك تم تلقي سؤالك.</h1>
+        <h1 className="text-2xl font-bold mb-4">شكرا لك تم تلقي سؤالك</h1>
 
         <div className="text-right p-4 relative rounded-lg mb-6 border border-gray-300 mt-10">
           <h2 className="mb-2 absolute -top-3 bg-white px-2">السؤال</h2>
@@ -203,14 +203,68 @@ export default function QuestionSuccess() {
           </p>
         </div>
         {/* search inputs  */}
-        <div className="flex justify-between bg-red-500">
-          <div></div>
-          <div>
-            <p>
-              لم تجد الاجابة التي تحتاجها؟ نحن هنا <br /> لمساعدتك
-            </p>
+
+        <div className="relative bg-white pb-4 rounded-lg shadow-lg">
+        <div className="w-[90%] mx-auto my-10 h-3 rounded-lg bg-blue-900"></div>
+
+        <div className="flex lg:flex-row flex-col gap-4 ">
+          <div className="lg:w-1/2 lg:px-16">
+          {/* search component */}
+          <Search/>
+          {/* end of the component */}
           </div>
+
+
+
+
+
+          <div className="lg:w-1/2 border-r-2  ">
+          <div className="lg:px-16  h-full w-full relative">
+          <p className="text-xl font-bold text-right px-3 lg:px-0">
+              لم تجد الاجابة التي تحتاجها؟ نحن هنا لمساعدتك
+            </p>
+          
+            
+            <p className="text-gray-600 text-right pt-5 px-3 lg:px-0">المحامون المرخصون متاحون وجاهزون لتقديم المشورة بشأن مجموعة واسعه من المسائل القانونية</p>
+            <div className="lg:absolute bottom-0 right-0  w-[100%]">
+            <Link href="/Askquestion" >
+          
+          <button className="border-2  w-[90%]  py-3 my-5 hover:bg-gray-200 rounded-lg">
+        أسال محامي مجانا
+        </button>
+          </Link>
+            </div>
+          
+          
+          </div>
+       
+          </div>
+
+
+
+
+{/* search component */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
+
+          
+        </div>
+      
       </div>
     </div>
   );
