@@ -363,7 +363,7 @@ function LawyersRegister() {
         // Format specialties array from specialtySelections
         const specialtiesArray = state.specialtySelections
           .map((selection) => selection.value)
-          .filter(Boolean);
+          .filter((value) => value !== "");
 
         const officeData = {
           bio: "",
@@ -425,25 +425,16 @@ function LawyersRegister() {
     return 0; // Return 0 as default
   };
 
-  // Update handleSpecialtyChange function to avoid direct state updates
-  const handleSpecialtyChange = (id, value) => {
-    // Use a single setState call
+  // Update handleSpecialtyChange function to store specialty IDs instead of names
+  const handleSpecialtyChange = (selectionId, value) => {
     setState((prev) => {
       const updatedSelections = prev.specialtySelections.map((selection) =>
-        selection.id === id ? { ...selection, value } : selection
+        selection.id === selectionId ? { ...selection, value } : selection
       );
-
-      const updatedSpecializations = updatedSelections
-        .map((selection) => selection.value)
-        .filter(Boolean);
 
       return {
         ...prev,
         specialtySelections: updatedSelections,
-        formData: {
-          ...prev.formData,
-          specializations: updatedSpecializations,
-        },
       };
     });
   };
@@ -901,25 +892,23 @@ function LawyersRegister() {
                       <select
                         key={`select-${selection.id}`}
                         value={selection.value}
-                        onChange={(e) =>
-                          handleSpecialtyChange(selection.id, e.target.value)
-                        }
+                        onChange={(e) => handleSpecialtyChange(selection.id, e.target.value)}
                         dir="rtl"
-                        className={`w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                        required={selection.isRequired}
+                        className={`w-full p-2 border rounded-md ${
+                          selection.isRequired && !selection.value
+                            ? "border-red-500"
+                            : ""
+                        }`}
                       >
-                        <option key={`default-${selection.id}`} value="">
-                          {selection.isRequired
-                            ? "اختر التخصص الرئيسي"
-                            : "اختر التخصص"}
-                        </option>
+                        <option value="">اختر التخصص</option>
                         {categories.map((category) => (
                           <option
                             key={`category-${category.id}-selection-${selection.id}`}
                             value={category.id}
                             disabled={state.specialtySelections.some(
                               (s) =>
-                                s.value === category.id && s.id !== selection.id
+                                s.value === String(category.id) &&
+                                s.id !== selection.id
                             )}
                           >
                             {category.name}

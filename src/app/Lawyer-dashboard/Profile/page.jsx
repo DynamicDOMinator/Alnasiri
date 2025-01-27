@@ -53,12 +53,12 @@ export default function Profile() {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationType, setNotificationType] = useState("error");
   const [formData, setFormData] = useState({
+    bio: "",
     city: "",
     law_office: "",
     specialties: [],
-    profile_img: null,
     google_map: "",
-    bio: "",
+    profile_img: null,
   });
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [showMap, setShowMap] = useState(false);
@@ -70,6 +70,7 @@ export default function Profile() {
     { id: 4, value: "", isRequired: false },
   ]);
   const [isLoading, setIsLoading] = useState(true);
+  const [cities, setCities] = useState([]);
 
   // Fetch categories once on mount
   useEffect(() => {
@@ -147,22 +148,34 @@ export default function Profile() {
 
           setFormData((prev) => ({
             ...prev,
-            city: user.city || "",
-            law_office: lawyer_office.law_office || "",
+            city: user?.city === null ? "" : user?.city,
+            law_office:
+              lawyer_office?.law_office === null
+                ? ""
+                : lawyer_office?.law_office,
             specialties: specialtyIds,
-            google_map: lawyer_office.google_map || "",
-            bio: lawyer_office.bio || "",
+            google_map:
+              lawyer_office?.google_map === null
+                ? ""
+                : lawyer_office?.google_map,
+            bio: lawyer_office?.bio === null ? "" : lawyer_office?.bio,
             profile_img: null,
           }));
         } else {
           // If no specialties, just update other form data
           setFormData((prev) => ({
             ...prev,
-            city: user.city || "",
-            law_office: lawyer_office.law_office || "",
+            city: user?.city === null ? "" : user?.city,
+            law_office:
+              lawyer_office?.law_office === null
+                ? ""
+                : lawyer_office?.law_office,
             specialties: [],
-            google_map: lawyer_office.google_map || "",
-            bio: lawyer_office.bio || "",
+            google_map:
+              lawyer_office?.google_map === null
+                ? ""
+                : lawyer_office?.google_map,
+            bio: lawyer_office?.bio === null ? "" : lawyer_office?.bio,
             profile_img: null,
           }));
         }
@@ -189,6 +202,21 @@ export default function Profile() {
     };
   }, []); // Empty dependency array means run once on mount
 
+  // Fetch cities
+  useEffect(() => {
+    const fetchCitiesData = async () => {
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const response = await axios.get(`${API_BASE_URL}/lawyer/get-all-cities`);
+        const cityNames = response.data.map(city => city.name); // Extract city names
+        setCities(cityNames);
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+    fetchCitiesData();
+  }, []);
+
   // Update specialties in formData when specialty selections change
   useEffect(() => {
     const selectedSpecialties = specialtySelections
@@ -210,24 +238,35 @@ export default function Profile() {
         throw new Error("No token found");
       }
 
-      // Create FormData object
+      // Get non-empty specialties from selections
+      const specialtiesToSend = specialtySelections
+        .map((selection) => selection.value)
+        .filter((value) => value !== "");
+
+      console.log("Sending specialties:", specialtiesToSend);
+
+      // Create FormData for file upload
       const formDataToSend = new FormData();
 
-      formDataToSend.append("bio", formData.bio || "");
-      formDataToSend.append("city", formData.city || "");
-      formDataToSend.append("google_map", formData.google_map || "");
-      formDataToSend.append("law_office", formData.law_office || "");
+      // Append each specialty ID as a separate field with array notation
+      specialtiesToSend.forEach((specialtyId) => {
+        formDataToSend.append(`specialties[]`, specialtyId);
+      });
 
-      // Append each specialty individually
-      if (formData.specialties && formData.specialties.length > 0) {
-        formData.specialties.forEach((specialty, index) => {
-          formDataToSend.append(`specialties[${index}]`, specialty);
-        });
-      }
+      // Append other fields
+      formDataToSend.append("bio", formData.bio);
+      formDataToSend.append("city", formData.city);
+      formDataToSend.append("google_map", formData.google_map);
+      formDataToSend.append("law_office", formData.law_office);
 
       // Only append profile_img if a new image is selected
       if (formData.profile_img instanceof File) {
         formDataToSend.append("profile_img", formData.profile_img);
+      }
+
+      // Log all form data being sent
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}: ${value}`);
       }
 
       const response = await axios.post(
@@ -236,6 +275,7 @@ export default function Profile() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -246,13 +286,13 @@ export default function Profile() {
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
 
-      // Update image URL if a new one is returned
-      if (response.data.profile_image_link) {
+      // Update image URL only if a new image was uploaded and returned
+      if (
+        formData.profile_img instanceof File &&
+        response.data.profile_image_link
+      ) {
         setCurrentImageUrl(response.data.profile_image_link);
         setImagePreview(response.data.profile_image_link);
-      } else {
-        // If no new image URL, keep the current one
-        setImagePreview(currentImageUrl);
       }
 
       // Reset the file input
@@ -338,27 +378,13 @@ export default function Profile() {
   };
 
   const handleSpecialtyChange = (selectionId, value) => {
-    // First update the specialty selections
-    setSpecialtySelections((prev) =>
-      prev.map((selection) =>
+    // Update the specialty selections
+    setSpecialtySelections((prev) => {
+      const updated = prev.map((selection) =>
         selection.id === selectionId ? { ...selection, value } : selection
-      )
-    );
-
-    // Then update formData specialties based on the selections
-    setFormData((prev) => {
-      const updatedSpecialties = specialtySelections
-        .map((selection) => selection.value)
-        .filter((value) => value !== "");
-
-      if (value && !updatedSpecialties.includes(value)) {
-        updatedSpecialties.push(value);
-      }
-
-      return {
-        ...prev,
-        specialties: updatedSpecialties,
-      };
+      );
+      console.log("Updated selections:", updated);
+      return updated;
     });
   };
 
@@ -691,7 +717,11 @@ export default function Profile() {
 
           <input
             name="google_map"
-            value={formData.google_map}
+            value={
+              formData.google_map === null || formData.google_map === ""
+                ? "لا يوجد"
+                : formData.google_map
+            }
             onChange={handleChange}
             placeholder="سيتم تحديث الرابط تلقائياً عند اختيار الموقع"
             className="w-full border-2 hidden p-2 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
@@ -719,9 +749,7 @@ export default function Profile() {
               </a>
             </span>
           ) : (
-            <span className="block p-2 text-gray-500">
-              لم يتم إضافة موقع المكتب بعد
-            </span>
+            <span className="block p-2 text-gray-500">لا يوجد</span>
           )}
         </div>
       )}
@@ -823,36 +851,48 @@ export default function Profile() {
                   نبذة تعريفية:
                 </span>
                 {isEditing ? (
-                  <input
+                  <textarea
+                    id="bio"
                     name="bio"
-                    value={formData.bio}
+                    value={
+                      formData.bio === null || formData.bio === ""
+                        ? "لا يوجد"
+                        : formData.bio
+                    }
                     onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        bio: e.target.value,
-                      }))
+                      setFormData((prev) => ({ ...prev, bio: e.target.value }))
                     }
                     className="w-full border-2 p-2 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
                 ) : (
-                  <p className="block p-2">{formData.bio}</p>
+                  <p className="block p-2">{formData.bio || "لا يوجد"}</p>
                 )}
               </div>
 
               {/* City Input */}
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <span className="block text-gray-700 font-medium mb-2">
+                <span className="block pb-2 text-sm font-medium text-gray-700">
                   مدينة العمل:
                 </span>
                 {isEditing ? (
-                  <input
+                  <select
+                    id="city"
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full border-2 p-2 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-                  />
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="" disabled>
+                      اختر مدينة
+                    </option>
+                    {cities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
-                  <span className="block p-2">{formData.city}</span>
+                  <p className="block p-2">{formData.city || "لا يوجد"}</p>
                 )}
               </div>
 
@@ -863,13 +903,25 @@ export default function Profile() {
                 </span>
                 {isEditing ? (
                   <input
+                    type="text"
                     name="law_office"
-                    value={formData.law_office}
-                    onChange={handleChange}
+                    value={
+                      formData.law_office === null || formData.law_office === ""
+                        ? "لا يوجد"
+                        : formData.law_office
+                    }
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        law_office: e.target.value,
+                      }))
+                    }
                     className="w-full border-2 p-2 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
                   />
                 ) : (
-                  <span className="block p-2">{formData.law_office}</span>
+                  <p className="block p-2">
+                    {formData.law_office || "لا يوجد"}
+                  </p>
                 )}
               </div>
 
@@ -957,14 +1009,14 @@ export default function Profile() {
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {formData.specialties?.map((priorityId, index) => {
+                    {formData.specialties?.map((specialtyId, index) => {
                       const category = categories.find(
-                        (cat) => cat.id === Number(priorityId)
+                        (cat) => cat.id === Number(specialtyId)
                       );
                       return (
                         category && (
                           <span
-                            key={`priority-${priorityId}-${index}`}
+                            key={`priority-${specialtyId}-${index}`}
                             className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
                           >
                             {category.name}

@@ -51,7 +51,9 @@ export default function HeroSection() {
     }
 
     if (searchName && searchName.trim()) {
-      searchParams.append("lawyer_name", searchName.trim());
+      const encodedName = encodeURIComponent(searchName.trim());
+      searchParams.append("lawyer_name", encodedName);
+      searchParams.append("language", "ar");
     }
 
     if (searchParams.toString()) {

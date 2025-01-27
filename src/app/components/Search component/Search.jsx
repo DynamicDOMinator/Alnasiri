@@ -8,6 +8,7 @@ export default function Search() {
   const [city, setCity] = useState([]);
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [searchName, setSearchName] = useState("");
 
   const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -45,6 +46,12 @@ export default function Search() {
       searchParams.append("specialties", selectedSpecialty.trim());
     }
 
+    if (searchName && searchName.trim()) {
+      const encodedName = encodeURIComponent(searchName.trim());
+      searchParams.append("lawyer_name", encodedName);
+      searchParams.append("language", "ar");
+    }
+
     if (searchParams.toString()) {
       router.push(`/Find-Lawyer?${searchParams.toString()}`);
     }
@@ -56,7 +63,7 @@ export default function Search() {
         <p className="text-xl font-bold text-right px-3 lg:px-0">
           هل تحتاج الي مساعدة الان ؟ ابحث عن محام لديه خبرة في حالتك
         </p>
-      </div>
+        </div>
       <div className="mt-5">
         <select
           className="w-full border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-100"
