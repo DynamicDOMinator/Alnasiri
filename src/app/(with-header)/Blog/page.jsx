@@ -1,46 +1,43 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FaUserCircle } from "react-icons/fa";
+import parse from "html-react-parser";
 
+// Helper function to ensure proper image URL formatting
+function getImageUrl(url) {
+  if (!url) return "/images/default-blog.jpg";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (url.startsWith("/")) return url;
+  return `/images/${url}`;
+}
 
 // Generate metadata for the blog list page
 export const metadata = {
-  title: 'المدونة - المقالات القانونية',
-  description: 'تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات',
+  title: "المدونة - المقالات القانونية",
+  description: "تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات",
   openGraph: {
-    title: 'المدونة - المقالات القانونية',
-    description: 'تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات',
-    type: 'website',
+    title: "المدونة - المقالات القانونية",
+    description: "تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات",
+    type: "website",
   },
   other: {
-    'keywords': 'مقالات قانونية, محامين, قانون, استشارات قانونية',
+    keywords: "مقالات قانونية, محامين, قانون, استشارات قانونية",
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_API_BASE_URL),
   alternates: {
-    canonical: '/Blog',
+    canonical: "/Blog",
   },
 };
-
-function decodeHtml(html) {
-  if (!html) return '';
-  
-  return html
-    .replace(/<[^>]*>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'");
-}
 
 async function getData() {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const res = await fetch(`${API_BASE_URL}/blogs/get-all-blogs`, {
-      cache: 'no-store', // This ensures SSR behavior
+      cache: "no-store", // This ensures SSR behavior
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-      }
+      },
     });
 
     if (!res.ok) {
@@ -59,7 +56,7 @@ export default async function Blog() {
   const blogs = await getData();
 
   // Filter out inactive blogs (status = 0)
-  const activeBlogs = blogs.filter(blog => blog.status === "1");
+  const activeBlogs = blogs.filter((blog) => blog.status === "1");
 
   // If no active blogs are returned, show a message
   if (!activeBlogs || activeBlogs.length === 0) {
@@ -72,7 +69,9 @@ export default async function Blog() {
           </p>
         </div>
         <div className="container mx-auto px-4 mt-8">
-          <p className="text-center text-gray-600">لا توجد مقالات متاحة حالياً</p>
+          <p className="text-center text-gray-600">
+            لا توجد مقالات متاحة حالياً
+          </p>
         </div>
       </div>
     );
@@ -88,31 +87,28 @@ export default async function Blog() {
       </div>
 
       <div className="container mx-auto px-4 mt-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid max-w-7xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {activeBlogs.map((blog) => (
             <Link href={`/Blog/${blog.uuid}`} key={blog.uuid}>
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={blog.author_image || "/images/default-blog.jpg"}
-                    alt={blog.title}
-                    fill
-                    className="object-cover"
-                  />
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-[470px]">
+                <div className="relative h-[50%] w-full">
+                  {blog.author_image ? (
+                    <Image
+                      src={getImageUrl(blog.author_image)}
+                      alt={blog.title}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <FaUserCircle className="w-32 h-32 text-gray-400" />
+                    </div>
+                  )}
                 </div>
-                <div className="p-6">
-                  <h2 className="text-xl font-bold mb-2 line-clamp-2">
-                    {blog.title}
-                  </h2>
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {blog.description}
-                  </p>
-                  <div className="flex justify-between items-center text-sm text-gray-500">
-                    <span className="flex items-center gap-2">
-                      <span>بواسطة:</span>
-                      <span>{blog.author_name}</span>
-                    </span>
-                    <span>{new Date(blog.created_at).toLocaleDateString("ar-SA")}</span>
+                <div className="p-6 flex flex-col flex-1">
+                  <h2 className=" mb-2 line-clamp-2">{parse(blog.title)}</h2>
+                  <div className="mb-4 line-clamp-3 flex-1">
+                    {parse(blog.description)}
                   </div>
                 </div>
               </div>
