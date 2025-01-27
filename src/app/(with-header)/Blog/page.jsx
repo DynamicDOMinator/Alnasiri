@@ -23,7 +23,7 @@ export const metadata = {
   other: {
     keywords: "مقالات قانونية, محامين, قانون, استشارات قانونية",
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_API_BASE_URL),
+  // metadataBase: new URL(process.env.NEXT_PUBLIC_API_BASE_URL),
   alternates: {
     canonical: "/Blog",
   },

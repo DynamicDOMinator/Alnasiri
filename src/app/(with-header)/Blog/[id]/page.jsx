@@ -58,7 +58,7 @@ export async function generateMetadata({ params }) {
     other: {
       keywords: blog.Meta_Keywords,
     },
-    metadataBase: new URL(process.env.NEXT_PUBLIC_API_BASE_URL),
+    // metadataBase: new URL(process.env.NEXT_PUBLIC_API_BASE_URL),
     alternates: {
       canonical: `/Blog/${params.id}`,
     },
