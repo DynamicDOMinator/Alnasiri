@@ -44,15 +44,16 @@ export default function HeroSection() {
 
     if (selectedCity && selectedCity.trim()) {
       searchParams.append("city", selectedCity.trim());
+      searchParams.append("language", "ar");
     }
 
     if (selectedSpecialty && selectedSpecialty.trim()) {
       searchParams.append("specialties", selectedSpecialty.trim());
+      searchParams.append("language", "ar");
     }
 
     if (searchName && searchName.trim()) {
-      const encodedName = encodeURIComponent(searchName.trim());
-      searchParams.append("lawyer_name", encodedName);
+      searchParams.append("lawyer_name", searchName.trim());
       searchParams.append("language", "ar");
     }
 
@@ -145,16 +146,16 @@ export default function HeroSection() {
 
       case 5:
         return (
-          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md bg-white min-h-[370px] ml-auto shadow-lg">
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
             <p className="text-2xl mb-6 text-black text-right">
-              أريد ان اجد محامي ذو خبرة في
+              ابحث بالقرب مني
             </p>
 
             <label
               htmlFor="citySelect"
               className="block text-black text-lg text-right mb-2"
             >
-              المدينة (اختياري)
+              اختر المدينة
             </label>
             <select
               id="citySelect"
@@ -169,6 +170,7 @@ export default function HeroSection() {
                 </option>
               ))}
             </select>
+
             <div className="flex justify-between items-center lg:pt-20 pt-10">
               <button
                 className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
@@ -182,9 +184,9 @@ export default function HeroSection() {
               </button>
               <button
                 className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
-                onClick={handleSearch}
+                onClick={() => setStep(12)}
               >
-                ابحث عن محامي
+                التالي
               </button>
             </div>
           </div>
@@ -298,6 +300,261 @@ export default function HeroSection() {
               <button
                 className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
                 onClick={() => setStep(2)}
+              >
+                العودة
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-3 flex-none text-blue-500 rotate-90"
+                />
+              </button>
+              <button
+                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                onClick={() => setStep(11)}
+              >
+                التالي
+              </button>
+            </div>
+          </div>
+        );
+
+      case 8:
+        return (
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
+            <p className="text-2xl mb-6 text-black text-right">
+              البحث حسب التخصص والمدينة
+            </p>
+            <label
+              htmlFor="specialtySelect"
+              className="block text-black text-lg text-right mb-2"
+            >
+              التخصص القانوني
+            </label>
+            <select
+              id="specialtySelect"
+              className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
+              value={selectedSpecialty}
+              onChange={(e) => setSelectedSpecialty(e.target.value)}
+            >
+              <option value="">اختر التخصص</option>
+              {speciality.map((spec, index) => (
+                <option key={index} value={spec}>
+                  {spec}
+                </option>
+              ))}
+            </select>
+
+            <label
+              htmlFor="citySelect"
+              className="block text-black text-lg text-right mb-2"
+            >
+              المدينة (اختياري)
+            </label>
+            <select
+              id="citySelect"
+              className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="">اختر المدينة</option>
+              {city.map((cityName, index) => (
+                <option key={index} value={cityName}>
+                  {cityName}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex justify-between items-center lg:pt-20 pt-10">
+              <button
+                className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
+                onClick={() => setStep(2)}
+              >
+                العودة
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-3 flex-none text-blue-500 rotate-90"
+                />
+              </button>
+              <button
+                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                onClick={handleSearch}
+              >
+                ابحث عن محامي
+              </button>
+            </div>
+          </div>
+        );
+
+      case 9:
+        return (
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
+            <p className="text-2xl mb-6 text-black text-right">
+              البحث حسب التخصص
+            </p>
+            <label
+              htmlFor="specialtySelect"
+              className="block text-black text-lg text-right mb-2"
+            >
+              التخصص القانوني
+            </label>
+            <select
+              id="specialtySelect"
+              className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
+              value={selectedSpecialty}
+              onChange={(e) => setSelectedSpecialty(e.target.value)}
+            >
+              <option value="">اختر التخصص</option>
+              {speciality.map((spec, index) => (
+                <option key={index} value={spec}>
+                  {spec}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex justify-between items-center lg:pt-20 pt-10">
+              <button
+                className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
+                onClick={() => setStep(2)}
+              >
+                العودة
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-3 flex-none text-blue-500 rotate-90"
+                />
+              </button>
+              <button
+                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                onClick={handleSearch}
+              >
+                ابحث عن محامي
+              </button>
+            </div>
+          </div>
+        );
+      case 10:
+        return (
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
+            <p className="text-2xl mb-6 text-black text-right">
+              المدينة (اختياري)
+            </p>
+
+            <label
+              htmlFor="citySelect"
+              className="block text-black text-lg text-right mb-2"
+            >
+              اختر المدينة
+            </label>
+            <select
+              id="citySelect"
+              className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="">اختر المدينة</option>
+              {city.map((cityName, index) => (
+                <option key={index} value={cityName}>
+                  {cityName}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex justify-between items-center lg:pt-20 pt-10">
+              <button
+                className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
+                onClick={() => setStep(5)}
+              >
+                العودة
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-3 flex-none text-blue-500 rotate-90"
+                />
+              </button>
+              <button
+                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                onClick={handleSearch}
+              >
+                ابحث عن محامي
+              </button>
+            </div>
+          </div>
+        );
+      case 11:
+        return (
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
+            <p className="text-2xl mb-6 text-black text-right">
+              المدينة (اختياري)
+            </p>
+
+            <label
+              htmlFor="citySelect"
+              className="block text-black text-lg text-right mb-2"
+            >
+              اختر المدينة
+            </label>
+            <select
+              id="citySelect"
+              className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="">اختر المدينة</option>
+              {city.map((cityName, index) => (
+                <option key={index} value={cityName}>
+                  {cityName}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex justify-between items-center lg:pt-20 pt-10">
+              <button
+                className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
+                onClick={() => setStep(7)}
+              >
+                العودة
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-3 flex-none text-blue-500 rotate-90"
+                />
+              </button>
+              <button
+                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                onClick={handleSearch}
+              >
+                ابحث عن محامي
+              </button>
+            </div>
+          </div>
+        );
+      case 12:
+        return (
+          <div className="md:px-10 px-4 pt-6 pb-4 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
+            <p className="text-2xl mb-6 text-black text-right">
+              التخصص القانوني (اختياري)
+            </p>
+
+            <label
+              htmlFor="specialtySelect"
+              className="block text-black text-lg text-right mb-2"
+            >
+              اختر التخصص
+            </label>
+            <select
+              id="specialtySelect"
+              className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
+              value={selectedSpecialty}
+              onChange={(e) => setSelectedSpecialty(e.target.value)}
+            >
+              <option value="">اختر التخصص</option>
+              {speciality.map((spec, index) => (
+                <option key={index} value={spec}>
+                  {spec}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex justify-between items-center lg:pt-20 pt-10">
+              <button
+                className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
+                onClick={() => setStep(5)}
               >
                 العودة
                 <ChevronDownIcon

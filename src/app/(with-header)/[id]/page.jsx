@@ -10,10 +10,16 @@ function getImageUrl(url) {
   return `/images/${url}`;
 }
 
-async function getBlogData(uuid) {
+// Helper function to strip HTML tags
+function stripHtml(html) {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '');
+}
+
+async function getBlogData(url) {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const res = await fetch(`${API_BASE_URL}/blogs/get-blog-by-uuid/${uuid}`, {
+    const res = await fetch(`${API_BASE_URL}/blogs/get-blog-by-url/${url}`, {
       cache: "no-store", // This ensures SSR behavior
       headers: {
         Accept: "application/json",
@@ -44,23 +50,30 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const cleanTitle = stripHtml(blog.page_title);
+  const cleanDescription = stripHtml(blog.Meta_Description);
+
   return {
-    title: blog.title,
-    description: blog.Meta_Description,
+    title: `نصيري | ${cleanTitle}`,
+    description: cleanDescription,
     openGraph: {
-      title: blog.title,
-      description: blog.Meta_Description,
+      title: cleanTitle,
+      description: cleanDescription,
       type: "article",
       publishedTime: blog.created_at,
       modifiedTime: blog.updated_at,
       authors: [blog.author_name],
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: cleanTitle,
+      description: cleanDescription,
+    },
     other: {
       keywords: blog.Meta_Keywords,
     },
-    // metadataBase: new URL(process.env.NEXT_PUBLIC_API_BASE_URL),
     alternates: {
-      canonical: `/Blog/${params.id}`,
+      canonical: `/${params.id}`,
     },
   };
 }
@@ -72,7 +85,7 @@ export default async function BlogPost({ params }) {
     return (
       <div className="pt-24 pb-16 max-w-4xl mx-auto px-4" dir="rtl">
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h1 className="text-2xl font-bold mb-4">عذراً</h1>
+          <p className="text-2xl font-bold mb-4">عذراً</p>
           <p>لم يتم العثور على المقال المطلوب</p>
         </div>
       </div>

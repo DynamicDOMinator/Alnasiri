@@ -1,6 +1,6 @@
 "use client";
 
-import { useState} from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -27,9 +27,12 @@ import {
   PlayCircleIcon,
 } from "@heroicons/react/20/solid";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AuthModal from "./AuthModal";
 import { useAuth } from "../contexts/AuthContext";
 import { AiOutlineLogout } from "react-icons/ai";
+import axios from "axios";
+import { MapPinIcon, ScaleIcon } from "@heroicons/react/24/outline";
 
 // Product data
 const products = [
@@ -109,6 +112,52 @@ export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { isAuthenticated, userName, userType, logout, loading } = useAuth();
+  const [speciality, setSpecialties] = useState([]);
+  const [city, setCity] = useState([]);
+  const router = useRouter();
+  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  useEffect(() => {
+    // Clean up any existing search results from localStorage
+    localStorage.removeItem('searchResults');
+  }, []);
+
+  useEffect(() => {
+    const featchSpecialties = async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/speciality/get-all-speciality`
+        );
+        const speciality = res.data.map((speciality) => speciality.name);
+        setSpecialties(speciality);
+      } catch (error) {}
+    };
+    featchSpecialties();
+
+    const featchCities = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/lawyer/get-all-cities`);
+        const cityNames = res.data.map((city) => city.name);
+        setCity(cityNames);
+      } catch (error) {}
+    };
+    featchCities();
+  }, [BASE_URL]);
+
+  const handleSearch = (searchType, value) => {
+    if (!value) return;
+    
+    const searchParams = new URLSearchParams();
+    if (searchType === 'city') {
+      searchParams.append("city", value.trim());
+    } else if (searchType === 'specialty') {
+      searchParams.append("specialties", value.trim());
+    }
+    
+    if (searchParams.toString()) {
+      router.push(`/Find-Lawyer?${searchParams.toString()}`);
+    }
+  };
 
   // Replace the existing auth logic with context usage
   const AuthSection = () => {
@@ -154,7 +203,7 @@ export default function Example() {
           <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
         </PopoverButton>
 
-        <PopoverPanel className="absolute right-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+        <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
           {userType === "lawyer" && (
             <Link
               href="/Lawyer-dashboard"
@@ -236,96 +285,115 @@ export default function Example() {
 
           <div className="flex items-center gap-10">
             <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse ">
+              {/* Cities Menu */}
+              <Popover className="relative">
+                {({ open, close }) => (
+                  <>
+                    <div 
+                      onMouseEnter={(e) => {
+                        e.preventDefault();
+                        const button = e.currentTarget.querySelector('button');
+                        if (button) button.click();
+                      }}
+                      onMouseLeave={(e) => {
+                        e.preventDefault();
+                        if (!e.currentTarget.contains(e.relatedTarget)) {
+                          close();
+                        }
+                      }}
+                    >
+                      <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
+                        <ChevronDownIcon
+                          aria-hidden="true"
+                          className="size-5 flex-none text-gray-400"
+                        />
+                        محامين حسب الموقع
+                      </PopoverButton>
+
+                      <PopoverPanel
+                        transition
+                        className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
+                      >
+                        <div className="p-4">
+                          <div dir="rtl" className="grid grid-cols-3 gap-2">
+                            {city.map((cityName, index) => (
+                              <div
+                                key={index}
+                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer"
+                                onClick={() => {
+                                  handleSearch('city', cityName);
+                                  close();
+                                }}
+                              >
+                                <span className="block font-semibold text-blue-500 hover:underline">
+                                  {cityName}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverPanel>
+                    </div>
+                  </>
+                )}
+              </Popover>
+
+              {/* Specialties Menu */}
+              <Popover className="relative">
+                {({ open, close }) => (
+                  <>
+                    <div 
+                      onMouseEnter={(e) => {
+                        e.preventDefault();
+                        const button = e.currentTarget.querySelector('button');
+                        if (button) button.click();
+                      }}
+                      onMouseLeave={(e) => {
+                        e.preventDefault();
+                        if (!e.currentTarget.contains(e.relatedTarget)) {
+                          close();
+                        }
+                      }}
+                    >
+                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                        <ChevronDownIcon
+                          aria-hidden="true"
+                          className="size-5 flex-none text-gray-400"
+                        />
+                        محامين حسب مجال الممارسة
+                      </PopoverButton>
+
+                      <PopoverPanel
+                        transition
+                        className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
+                      >
+                        <div className="p-4">
+                          <div className="grid grid-cols-3 gap-2">
+                            {speciality.map((spec, index) => (
+                              <div
+                                key={index}
+                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer"
+                                onClick={() => {
+                                  handleSearch('specialty', spec);
+                                  close();
+                                }}
+                              >
+                                <span className="block font-semibold text-blue-500 hover:underline">
+                                  {spec}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverPanel>
+                    </div>
+                  </>
+                )}
+              </Popover>
+
               {/* Product Menu */}
               <Popover className="relative">
                 <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
-                  <ChevronDownIcon
-                    aria-hidden="true"
-                    className="size-5 flex-none text-gray-400"
-                  />
-                  محامين حسب الموقع
-                </PopoverButton>
-
-                <PopoverPanel
-                  transition
-                  className="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
-                >
-                  <div className="p-4">
-                    {products.map((item) => (
-                      <div
-                        key={item.name}
-                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
-                      >
-                        <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                          <item.icon
-                            aria-hidden="true"
-                            className="size-6 text-gray-600 group-hover:text-indigo-600"
-                          />
-                        </div>
-                        <div className="flex-auto text-right">
-                          <Link
-                            href={item.href}
-                            className="block font-semibold text-gray-900"
-                          >
-                            {item.name}
-                            <span className="absolute inset-0" />
-                          </Link>
-                          <p className="mt-1 text-gray-600">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </PopoverPanel>
-              </Popover>
-
-              {/* Items Menu */}
-              <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
-                  <ChevronDownIcon
-                    aria-hidden="true"
-                    className="size-5 flex-none text-gray-400"
-                  />
-                  محامين حسب مجال الممارسة
-                </PopoverButton>
-
-                <PopoverPanel
-                  transition
-                  className="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
-                >
-                  <div className="p-4">
-                    {items.map((item) => (
-                      <div
-                        key={item.name}
-                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
-                      >
-                        <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                          <item.icon
-                            aria-hidden="true"
-                            className="size-6 text-gray-600 group-hover:text-indigo-600"
-                          />
-                        </div>
-                        <div className="flex-auto text-right">
-                          <Link
-                            href={item.href}
-                            className="block font-semibold text-gray-900"
-                          >
-                            {item.name}
-                            <span className="absolute inset-0" />
-                          </Link>
-                          <p className="mt-1 text-gray-600">
-                            {item.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </PopoverPanel>
-              </Popover>
-
-              <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1   font-semibold text-gray-900 mt-2">
                   <ChevronDownIcon
                     aria-hidden="true"
                     className="size-5 flex-none text-gray-400"
@@ -335,34 +403,27 @@ export default function Example() {
 
                 <PopoverPanel
                   transition
-                  className="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
+                  className="absolute left-0 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
                 >
                   <div className="p-4">
-                    {items.map((item) => (
-                      <div
-                        key={item.name}
-                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
-                      >
-                        <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                          <item.icon
-                            aria-hidden="true"
-                            className="size-6 text-gray-600 group-hover:text-indigo-600"
-                          />
-                        </div>
-                        <div className="flex-auto text-right">
+                    <div className="grid grid-cols-2 gap-4">
+                      {items.map((item) => (
+                        <div
+                          key={item.name}
+                          className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
+                        >
                           <Link
                             href={item.href}
                             className="block font-semibold text-gray-900"
                           >
                             {item.name}
-                            <span className="absolute inset-0" />
                           </Link>
                           <p className="mt-1 text-gray-600">
                             {item.description}
                           </p>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </PopoverPanel>
               </Popover>
@@ -400,31 +461,20 @@ export default function Example() {
                         className="h-5 w-5 flex-shrink-0"
                       />
                     </DisclosureButton>
-                    <DisclosurePanel className="mt-2 space-y-2">
-                      {products.map((item) => (
-                        <div
-                          key={item.name}
-                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
-                        >
-                          <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                            <item.icon
-                              aria-hidden="true"
-                              className="size-6 text-gray-600 group-hover:text-indigo-600"
-                            />
+                    <DisclosurePanel className="mt-2">
+                      <div className="grid grid-cols-2 gap-4">
+                        {city.map((cityName, index) => (
+                          <div
+                            key={index}
+                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
+                            onClick={() => handleSearch('city', cityName)}
+                          >
+                            <span className="block font-semibold text-gray-900">
+                              {cityName}
+                            </span>
                           </div>
-                          <div className="flex-auto text-right">
-                            <Link
-                              href={item.href}
-                              className="block font-semibold text-gray-900"
-                            >
-                              {item.name}
-                            </Link>
-                            <p className="mt-1 text-gray-600">
-                              {item.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </DisclosurePanel>
                   </Disclosure>
 
@@ -437,31 +487,20 @@ export default function Example() {
                         className="h-5 w-5 flex-shrink-0"
                       />
                     </DisclosureButton>
-                    <DisclosurePanel className="mt-2 space-y-2">
-                      {items.map((item) => (
-                        <div
-                          key={item.name}
-                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
-                        >
-                          <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                            <item.icon
-                              aria-hidden="true"
-                              className="size-6 text-gray-600 group-hover:text-indigo-600"
-                            />
+                    <DisclosurePanel className="mt-2">
+                      <div className="grid grid-cols-2 gap-4">
+                        {speciality.map((spec, index) => (
+                          <div
+                            key={index}
+                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
+                            onClick={() => handleSearch('specialty', spec)}
+                          >
+                            <span className="block font-semibold text-gray-900">
+                              {spec}
+                            </span>
                           </div>
-                          <div className="flex-auto text-right">
-                            <Link
-                              href={item.href}
-                              className="block font-semibold text-gray-900"
-                            >
-                              {item.name}
-                            </Link>
-                            <p className="mt-1 text-gray-600">
-                              {item.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </DisclosurePanel>
                   </Disclosure>
 
@@ -474,19 +513,13 @@ export default function Example() {
                         className="h-5 w-5 flex-shrink-0"
                       />
                     </DisclosureButton>
-                    <DisclosurePanel className="mt-2 space-y-2">
-                      {items.map((item) => (
-                        <div
-                          key={item.name}
-                          className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 text-right"
-                        >
-                          <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                            <item.icon
-                              aria-hidden="true"
-                              className="size-6 text-gray-600 group-hover:text-indigo-600"
-                            />
-                          </div>
-                          <div className="flex-auto text-right">
+                    <DisclosurePanel className="mt-2">
+                      <div className="grid grid-cols-2 gap-4">
+                        {items.map((item) => (
+                          <div
+                            key={item.name}
+                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
+                          >
                             <Link
                               href={item.href}
                               className="block font-semibold text-gray-900"
@@ -497,8 +530,8 @@ export default function Example() {
                               {item.description}
                             </p>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </DisclosurePanel>
                   </Disclosure>
                 </div>

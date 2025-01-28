@@ -5,11 +5,12 @@ import { FaRegStar, FaUser } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5";
 import { AiOutlineFileDone } from "react-icons/ai";
 import { FiPhone } from "react-icons/fi";
-import { CiUser } from "react-icons/ci";
+
 import { BsSearch } from "react-icons/bs";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
+import { FaUserTie } from "react-icons/fa6";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -22,8 +23,25 @@ const isValidUrl = (string) => {
   }
 };
 
+const getMapEmbedUrl = (mapUrl) => {
+  try {
+    if (!mapUrl) return null;
+    const coordsMatch = mapUrl.match(/q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (coordsMatch) {
+      const [_, lat, lng] = coordsMatch;
+      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${lat},${lng}&zoom=15`;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error processing map URL:", error);
+    return null;
+  }
+};
+
 const ProfileImage = ({ src, size = 100 }) => {
-  if (!src || !isValidUrl(src)) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!src || !isValidUrl(src) || hasError) {
     return (
       <div
         className={`bg-gray-100 rounded-full flex items-center justify-center`}
@@ -41,10 +59,7 @@ const ProfileImage = ({ src, size = 100 }) => {
         alt="lawyer profile"
         fill
         className="rounded-full object-cover"
-        onError={(e) => {
-          e.target.style.display = "none";
-          e.target.parentElement.innerHTML = `<div class="bg-gray-100 rounded-full flex items-center justify-center w-full h-full"><svg class="text-gray-400" style="font-size: ${size * 0.5}px" viewBox="0 0 448 512"><path fill="currentColor" d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg></div>`;
-        }}
+        onError={() => setHasError(true)}
       />
     </div>
   );
@@ -53,16 +68,13 @@ const ProfileImage = ({ src, size = 100 }) => {
 export default function LawyerProfile() {
   const [lawyer, setLawyer] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [specialties, setSpecialties] = useState([]);
   const params = useParams();
   const router = useRouter();
-
- 
 
   useEffect(() => {
     const fetchLawyerProfile = async () => {
       try {
-        const uuid = params.id; // Extract UUID from the URL
+        const uuid = params.id;
         console.log("Fetching lawyer profile with UUID:", uuid);
         const response = await axios.get(
           `${BASE_URL}/lawyer/getLawyerProfileByUUID/${uuid}`
@@ -85,10 +97,20 @@ export default function LawyerProfile() {
     router.push(`/lawyer-profile/${uuid}`);
   };
 
+  const getFirstSpecialty = () => {
+    try {
+      if (!lawyer?.office?.specialties?.length) return null;
+      return lawyer.office.specialties[0].name;
+    } catch (error) {
+      console.error("Error getting first specialty:", error);
+      return null;
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        Loading...
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-2xl w-28 h-28 border-b-2 border-blue-900 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -99,94 +121,212 @@ export default function LawyerProfile() {
         <div className="bg-gray-100 rounded-full p-6 mb-6">
           <BsSearch className="text-4xl text-gray-400" />
         </div>
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-700 mb-2 text-center">
-          لا يوجد محامي متاح
-        </h3>
-        <p className="text-gray-500 text-center max-w-md">
-          لا يوجد محامي بهذا المعرف. يرجى التحقق من الرابط والمحاولة مرة أخرى.
+        <h2 className="text-xl font-semibold mb-2">
+          لم يتم العثور على المحامي
+        </h2>
+        <p className="text-gray-500">
+          عذراً، لم نتمكن من العثور على المحامي المطلوب.
         </p>
-        <button
-          onClick={() => router.back()}
-          className="mt-6 px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors"
-        >
-          العودة للبحث
-        </button>
       </div>
     );
   }
 
+  const firstSpecialty = getFirstSpecialty();
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Breadcrumb Navigation */}
       <div className="h-[160px] w-full bg-blue-900 pt-20 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 justify-end max-w-7xl mx-auto">
-          <p className="text-white text-lg sm:text-2xl font-bold text-right mt-3">
-            {lawyer.lawyer?.city || "جميع المدن"}
-          </p>
-          <p className="text-white text-lg sm:text-2xl font-bold text-right mt-3">
-            <IoIosArrowBack />
-          </p>
-          <h1 className="text-white text-lg sm:text-2xl font-bold text-right mt-3">
+          {lawyer.city && (
+            <>
+              <p
+                className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                onClick={() => router.push(`/Find-Lawyer?city=${lawyer.city}`)}
+              >
+                {lawyer.city}
+              </p>
+              <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
+                <IoIosArrowBack />
+              </p>
+            </>
+          )}
+          {firstSpecialty && (
+            <>
+              <p
+                className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                onClick={() =>
+                  router.push(`/Find-Lawyer?specialties=${firstSpecialty}`)
+                }
+              >
+                {firstSpecialty}
+              </p>
+              <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
+                <IoIosArrowBack />
+              </p>
+            </>
+          )}
+          <h1
+            className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+            onClick={() => router.push("/Find-Lawyer")}
+          >
             البحث عن محامي
           </h1>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div
           dir="rtl"
-          className="flex flex-col md:flex-row md:items-center md:justify-between bg-white p-4 sm:p-6 rounded-lg shadow-lg"
+          className="flex flex-col md:flex-row md:items-center md:justify-between bg-white border-2 p-4 sm:p-6 rounded-lg shadow-md"
         >
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <div className="shadow-lg rounded-full">
-              <ProfileImage src={lawyer.profile_image_link} size={100} />
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className=" border-2 px-4 py-10">
+              <ProfileImage src={lawyer.profile_image_link} size={120} />
             </div>
-            <div className="text-center sm:text-right">
-              <h2 className="text-lg font-bold">{lawyer.lawyer?.name}</h2>
-              <div className="mt-2 space-y-2">
+            <div>
+              <h2 className="text-2xl font-bold text-center md:text-right">
+                {lawyer.name}
+              </h2>
+              <div className="flex flex-col gap-2 mt-2">
                 <p className="flex items-center justify-center sm:justify-start gap-1">
                   <span>
                     <FaRegStar />
                   </span>
                   {lawyer.reviews_count || 0} تقيما
                 </p>
-                <p className="flex items-center justify-center sm:justify-start gap-1">
+                <p className="flex items-center gap-2 ">
                   <span>
                     <IoLocationSharp />
                   </span>
-                  {lawyer.lawyer?.city}
+                  {lawyer.city}
                 </p>
+
                 <p className="flex items-center justify-center sm:justify-start gap-1">
                   <span>
                     <AiOutlineFileDone />
                   </span>
-                  محامي مصرح له <span>{lawyer.lawyer?.experience || 0}</span>{" "}
-                  سنة
+                  مصرح له منذ
+                  <span>{lawyer.experience || 0}</span> سنة
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 md:mt-0">
-            <div className="bg-blue-900 py-2 px-4 rounded text-center">
-              <p className="text-white">اتصال للمشاورة</p>
-              <div
-                className="flex items-center justify-center text-white"
-                dir="ltr"
+          <div className="mt-4 md:mt-0 flex flex-col gap-3">
+            {lawyer.phone && (
+              <button
+                onClick={() => (window.location.href = `tel:${lawyer.phone}`)}
+                className="bg-blue-900 text-white px-6 py-3 rounded flex items-center justify-center gap-2 hover:bg-blue-800 transition-colors"
               >
-                <FiPhone className="mx-2" />
-                <span>+966</span>
-                <span>{lawyer.call_number || lawyer.lawyer?.phone}</span>
+                <span>0{lawyer.phone}</span>
+                <FiPhone />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {lawyer.office?.bio && (
+          <div className="mt-6 ">
+            <h3 className="text-xl border-r-4 border-blue-900 pr-2 font-semibold mb-7 text-right">
+              <span> {lawyer.name} </span>
+              عن
+            </h3>
+            <div className="bg-white p-6  rounded-lg shadow-lg">
+              <div>
+                <p className="text-lg flex items-center justify-end gap-2 font-semibold mb-4 text-right">
+                  السيره الذاتية
+                  <span className="text-white rounded-full  bg-orange-400 px-3 py-3">
+                    <FaUserTie />
+                  </span>
+                </p>
+                <p className="text-gray-600 text-right leading-relaxed">
+                  {lawyer.office.bio}
+                </p>
               </div>
             </div>
-            <button
-              onClick={() => handleViewProfile(lawyer.lawyer_uuid)}
-              className="flex items-center gap-1 py-2 px-4 border-2 mt-4 w-full justify-center hover:bg-gray-50 transition-colors"
-            >
-              <span>
-                <CiUser />
-              </span>
-              الملف الشخصي
-            </button>
+          </div>
+        )}
+
+        {lawyer.experience && (
+          <div className="mt-6 ">
+            <h3 className="text-xl border-r-4 border-blue-900 pr-2 font-semibold mb-7 text-right">
+              رخصة المحاماه
+            </h3>
+            <div className="bg-white p-6  rounded-lg shadow-lg">
+              <div>
+                <p className="text-lg flex border-b-2 pb-4 items-center justify-end gap-2 font-semibold mb-4 text-right">
+                  سنة <span>{lawyer.experience}</span> محامي صرح له منذ{" "}
+                  <span>
+                    {" "}
+                    <AiOutlineFileDone />{" "}
+                  </span>
+                </p>
+                <p className="flex items-center  flex-row-reverse gap-2 text-gray-600">
+                  <span>
+                    <IoLocationSharp />
+                  </span>
+                  {lawyer.city}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {lawyer.office?.google_map && (
+          <div className="mt-10">
+            <h3 className="text-xl pb-2 border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right">
+              موقع المكتب
+            </h3>
+            <div>
+              <div className="h-[400px] rounded-lg overflow-hidden">
+                <iframe
+                  src={getMapEmbedUrl(lawyer.office.google_map)}
+                  className="w-full h-full"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reviews Section */}
+        <div className="mt-10">
+          <h3 className="text-xl pb-2 border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right">
+            التقييمات
+            <span className="px-1">{lawyer.reviews_count}</span>
+            {lawyer.reviews_count < 3 ? "تقييم" : "تقييمات"}
+          </h3>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            {lawyer.reviews_count > 0 ? (
+              <div>
+                {lawyer.reviews_data.map((review, index) => (
+                  <div key={index} className="mb-4">
+                    {/* Add review display here when you have review data */}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-gray-500">
+                لا توجد تقييمات حتى الآن
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Answers Section */}
+        <div className="mt-10">
+          <h3 className="text-xl pb-2 border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right">
+            التفاعل
+          </h3>
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="text-center flex flex-col text-lg font-semibold">
+              <span className="px-1">{lawyer.answers_count}</span>
+              {lawyer.answers_count < 3 ? "إجابة" : "إجابات"}
+            </p>
           </div>
         </div>
       </div>

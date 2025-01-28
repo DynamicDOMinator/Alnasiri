@@ -11,6 +11,27 @@ function getImageUrl(url) {
   return `/images/${url}`;
 }
 
+// Helper function to generate URL-friendly slugs
+function generateSlug(text) {
+  if (!text) return '';
+  const cleanText = text.toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^\u0621-\u064A0-9a-z\s]/g, '') // Allow Arabic letters, numbers, and English letters
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+  
+  return cleanText.substring(0, 60); // Limit to 60 chars for cleaner URLs
+}
+
+// Helper function to strip HTML tags
+function stripHtml(html) {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '');
+}
+
 // Generate metadata for the blog list page
 export const metadata = {
   title: "المدونة - المقالات القانونية",
@@ -20,12 +41,16 @@ export const metadata = {
     description: "تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات",
     type: "website",
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: "المدونة - المقالات القانونية",
+    description: "تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات",
+  },
   other: {
     keywords: "مقالات قانونية, محامين, قانون, استشارات قانونية",
   },
-  // metadataBase: new URL(process.env.NEXT_PUBLIC_API_BASE_URL),
   alternates: {
-    canonical: "/Blog",
+    canonical: "/",
   },
 };
 
@@ -33,7 +58,7 @@ async function getData() {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const res = await fetch(`${API_BASE_URL}/blogs/get-all-blogs`, {
-      cache: "no-store", // This ensures SSR behavior
+      cache: "no-store",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -41,13 +66,12 @@ async function getData() {
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch data");
+      throw new Error(`Failed to fetch blogs: ${res.status}`);
     }
 
-    const data = await res.json();
-    return data;
+    return await res.json();
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("Error fetching blogs:", error);
     return [];
   }
 }
@@ -63,7 +87,7 @@ export default async function Blog() {
     return (
       <div className="pt-16 pb-16" dir="rtl">
         <div className="bg-blue-900 w-full h-[160px] pt-6 pr-10 text-white">
-          <h1 className="text-2xl font-bold">المدونة</h1>
+          <p className="text-2xl font-bold">المدونة</p>
           <p className="mt-2">
             تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات
           </p>
@@ -80,21 +104,24 @@ export default async function Blog() {
   return (
     <div className="pt-16 pb-16" dir="rtl">
       <div className="bg-blue-900 w-full h-[160px] pt-6 pr-10 text-white">
-        <h1 className="text-2xl font-bold">المدونة</h1>
+        <p className="text-2xl font-bold">المدونة</p>
         <p className="mt-2">
           تصفح أحدث المقالات المتعلقة بالقانون والمحامين والمحاميات
         </p>
       </div>
 
-      <div className="container mx-auto px-4 mt-8">
+      <div className="max-w-6xl mx-auto px-4 mt-8">
         <div className="grid max-w-7xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {activeBlogs.map((blog) => (
-            <Link href={`/Blog/${blog.uuid}`} key={blog.uuid}>
+            <Link 
+              href={`/${blog.url}`}
+              key={blog.uuid}
+            >
               <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col h-[470px]">
                 <div className="relative h-[50%] w-full">
-                  {blog.author_image ? (
+                  {blog.blog_image? (
                     <Image
-                      src={getImageUrl(blog.author_image)}
+                      src={getImageUrl(blog.blog_image)}
                       alt={blog.title}
                       fill
                       className="object-cover"
@@ -106,9 +133,9 @@ export default async function Blog() {
                   )}
                 </div>
                 <div className="p-6 flex flex-col flex-1">
-                  <h2 className=" mb-2 line-clamp-2">{parse(blog.title)}</h2>
+                  <h2 className="mb-2 line-clamp-2">{stripHtml(blog.title)}</h2>
                   <div className="mb-4 line-clamp-3 flex-1">
-                    {parse(blog.description)}
+                    {stripHtml(blog.description)}
                   </div>
                 </div>
               </div>

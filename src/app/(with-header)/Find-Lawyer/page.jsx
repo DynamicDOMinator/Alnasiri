@@ -48,59 +48,45 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
   const [specialties, setSpecialties] = useState([]);
   const [cities, setCities] = useState([]);
   const [visiblePhones, setVisiblePhones] = useState(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage] = useState(10);
   const searchParams = useSearchParams();
   const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const { token } = useAuth();
 
-  const handleShowPhone = (lawyerId) => {
-    try {
-      if (!token) {
-        setIsAuthModalOpen(true);
-        return;
-      }
+  // Auto-show phone numbers for authenticated users
+  useEffect(() => {
+    // Clean up any old search results from localStorage
+    localStorage.removeItem("searchResults");
 
-      // If authenticated, show the phone number
-      setVisiblePhones((prev) => {
-        const newSet = new Set(prev);
-        newSet.add(lawyerId);
-        return newSet;
-      });
-    } catch (error) {
-      console.error("Error handling phone visibility:", error);
-      alert("حدث خطأ. الرجاء المحاولة مرة أخرى");
+    if (token && lawyers.length > 0) {
+      const allLawyerIds = lawyers.map((lawyer) => lawyer.id);
+      setVisiblePhones(new Set(allLawyerIds));
     }
+  }, [lawyers, token]);
+
+  const handleShowPhone = (lawyerId) => {
+    if (!token) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    setVisiblePhones((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(lawyerId);
+      return newSet;
+    });
   };
 
-  useEffect(() => {
-    const feachSpecialties = async () => {
-      try {
-        const response = await axios.get(
-          `${BASE_URL}/speciality/get-all-speciality`
-        );
-        console.log("Specialties data:", response.data);
-        setSpecialties(response.data);
-      } catch (error) {
-        console.error("Error fetching specialties:", error);
-      }
-    };
-
-    feachSpecialties();
-  }, [BASE_URL]);
-
-  useEffect(() => {
-    const feachCities = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/lawyer/get-all-cities`);
-        console.log("Cities data:", response.data);
-        setCities(response.data);
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-      }
-    };
-
-    feachCities();
-  }, [BASE_URL]);
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    // Update URL with new page number
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.set("page", newPage);
+    router.push(`/Find-Lawyer?${currentParams.toString()}`);
+  };
 
   useEffect(() => {
     const fetchLawyers = async () => {
@@ -109,50 +95,84 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
         // Get filter parameters from URL
         const city = searchParams.get("city");
         const specialty = searchParams.get("specialties");
+        const lawyerName = searchParams.get("lawyer_name");
+        const page = searchParams.get("page") || 1;
 
         // Build query parameters
         const queryParams = new URLSearchParams();
-        if (city) queryParams.append("city", city);
-        if (specialty) queryParams.append("specialties", specialty);
+        if (city) {
+          queryParams.append("city", city);
+          queryParams.append("language", "ar");
+        }
+        if (specialty) {
+          queryParams.append("specialties", specialty);
+          queryParams.append("language", "ar");
+        }
+        if (lawyerName) {
+          queryParams.append("lawyer_name", lawyerName);
+          queryParams.append("language", "ar");
+        }
 
-        console.log("Fetching lawyers with params:", {
-          city,
-          specialty,
-          fullUrl: `${BASE_URL}/lawyer/search-lawyer?${queryParams.toString()}`,
-        });
+        // Add pagination parameters
+        queryParams.append("page", page);
+        queryParams.append("per_page", itemsPerPage);
 
-        // Make API call with filters
         const response = await axios.get(
           `${BASE_URL}/lawyer/search-lawyer?${queryParams.toString()}`
         );
 
-        console.log("API Response:", response.data);
-
-        // Handle the response data
-        if (response.data && Array.isArray(response.data)) {
-          console.log(`Found ${response.data.length} lawyers`);
-          setLawyers(response.data);
-        } else if (response.data?.error) {
-          console.log("API returned error:", response.data.error);
-          setLawyers([]);
-        } else {
-          console.log("No lawyers found or invalid response format");
-          setLawyers([]);
+        if (response.data) {
+          if (Array.isArray(response.data.data)) {
+            setLawyers(response.data.data);
+            setTotalPages(Math.ceil(response.data.total / itemsPerPage));
+            setCurrentPage(parseInt(page));
+          } else if (Array.isArray(response.data)) {
+            setLawyers(response.data);
+            setTotalPages(Math.ceil(response.data.length / itemsPerPage));
+            setCurrentPage(parseInt(page));
+          } else {
+            setLawyers([]);
+            setTotalPages(1);
+          }
         }
       } catch (error) {
-        if (error.response?.data?.error) {
-          console.log("API Error:", error.response.data.error);
-        } else {
-          console.error("Error fetching lawyers:", error);
-        }
-        setLawyers([]); // Set empty array on error
+        setLawyers([]);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }
     };
 
     fetchLawyers();
-  }, [searchParams, BASE_URL]); // Add searchParams to dependencies to refetch when filters change
+  }, [searchParams, BASE_URL, itemsPerPage]);
+
+  useEffect(() => {
+    const fetchSpecialties = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/speciality/get-all-speciality`
+        );
+        setSpecialties(response.data);
+      } catch (error) {
+        setSpecialties([]);
+      }
+    };
+
+    fetchSpecialties();
+  }, [BASE_URL]);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/lawyer/get-all-cities`);
+        setCities(response.data);
+      } catch (error) {
+        setCities([]);
+      }
+    };
+
+    fetchCities();
+  }, [BASE_URL]);
 
   const handleViewProfile = (uuid) => {
     router.push(`/lawyer-profile/${uuid}`);
@@ -207,13 +227,42 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
     <div className="min-h-screen">
       <div className="h-[160px] w-full bg-blue-900 pt-20 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 justify-end max-w-7xl mx-auto">
-          <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
-            {searchParams.get("city") || "جميع المدن"}
-          </p>
-          <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
-            <IoIosArrowBack />
-          </p>
-          <h1 className="text-white text-lg sm:text-xl font-bold text-right mt-3">
+          {searchParams.get("city") && (
+            <>
+              <p
+                className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                onClick={() => {
+                  router.push(`/Find-Lawyer?city=${searchParams.get("city")}`);
+                }}
+              >
+                {searchParams.get("city")}
+              </p>
+              <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
+                <IoIosArrowBack />
+              </p>
+            </>
+          )}
+          {searchParams.get("specialties") && (
+            <>
+              <p
+                className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                onClick={() => {
+                  router.push(
+                    `/Find-Lawyer?specialties=${searchParams.get("specialties")}`
+                  );
+                }}
+              >
+                {searchParams.get("specialties")}
+              </p>
+              <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
+                <IoIosArrowBack />
+              </p>
+            </>
+          )}
+          <h1
+            className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+            onClick={() => router.push("/")}
+          >
             البحث عن محامي
           </h1>
         </div>
@@ -221,8 +270,8 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
 
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Show specialties when there's a city parameter */}
-          {searchParams.get("city") && (
+          {/* Always show specialties when there's a city parameter */}
+          {searchParams.get("city") && specialties.length > 0 && (
             <>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 text-right">
                 التخصصات
@@ -245,8 +294,8 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
             </>
           )}
 
-          {/* Show cities when there's a specialties parameter */}
-          {searchParams.get("specialties") && (
+          {/* Always show cities when there's a specialties parameter */}
+          {searchParams.get("specialties") && cities.length > 0 && (
             <>
               <h3 className="text-lg font-semibold text-gray-900 mb-4 mt-8 text-right">
                 المدن
@@ -272,41 +321,49 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
           {/* Show both when no parameters are present */}
           {!searchParams.get("city") && !searchParams.get("specialties") && (
             <>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-right">
-                التخصصات
-              </h3>
-              <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
-                {specialties.map((specialty) => (
-                  <p
-                    key={specialty.id}
-                    className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
-                    onClick={() => {
-                      const url = `/Find-Lawyer?specialties=${encodeURIComponent(specialty.name)}`;
-                      router.push(url);
-                    }}
-                  >
-                    {specialty.name}
-                  </p>
-                ))}
-              </div>
+              {specialties.length > 0 && (
+                <>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 text-right">
+                    التخصصات
+                  </h3>
+                  <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
+                    {specialties.map((specialty) => (
+                      <p
+                        key={specialty.id}
+                        className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
+                        onClick={() => {
+                          const url = `/Find-Lawyer?specialties=${encodeURIComponent(specialty.name)}`;
+                          router.push(url);
+                        }}
+                      >
+                        {specialty.name}
+                      </p>
+                    ))}
+                  </div>
+                </>
+              )}
 
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 mt-8 text-right">
-                المدن
-              </h3>
-              <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
-                {cities.map((city) => (
-                  <p
-                    key={city.id}
-                    className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
-                    onClick={() => {
-                      const url = `/Find-Lawyer?city=${city.name}`;
-                      router.push(url);
-                    }}
-                  >
-                    {city.name}
-                  </p>
-                ))}
-              </div>
+              {cities.length > 0 && (
+                <>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 mt-8 text-right">
+                    المدن
+                  </h3>
+                  <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
+                    {cities.map((city) => (
+                      <p
+                        key={city.id}
+                        className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
+                        onClick={() => {
+                          const url = `/Find-Lawyer?city=${city.name}`;
+                          router.push(url);
+                        }}
+                      >
+                        {city.name}
+                      </p>
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
@@ -353,19 +410,28 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
 
                 <div className="mt-4 md:mt-0">
                   <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => handleShowPhone(lawyer.id)}
-                      className="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition-colors duration-200 flex items-center justify-center gap-2 min-w-[160px]"
-                    >
-                      <FiPhone />
-                      {visiblePhones.has(lawyer.id) ? (
+                    {token ? (
+                      <div className="bg-blue-900 text-white px-4 py-3 rounded flex items-center justify-center gap-2 min-w-[160px]">
+                        <FiPhone />
                         <span dir="ltr">
-                          +966 {lawyer.call_number || lawyer.lawyer?.phone}
+                          0{lawyer.call_number || lawyer.lawyer?.phone}
                         </span>
-                      ) : (
-                        "اظهار رقم الهاتف"
-                      )}
-                    </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleShowPhone(lawyer.id)}
+                        className="bg-blue-900 text-white px-4 py-3 rounded hover:bg-blue-800 transition-colors duration-200 flex items-center justify-center gap-2 min-w-[160px]"
+                      >
+                        <FiPhone />
+                        {visiblePhones.has(lawyer.id) ? (
+                          <span dir="ltr">
+                            0{lawyer.call_number || lawyer.lawyer?.phone}
+                          </span>
+                        ) : (
+                          "اظهار رقم الهاتف"
+                        )}
+                      </button>
+                    )}
                     <button
                       onClick={() => handleViewProfile(lawyer.lawyer?.uuid)}
                       className="bg-gray-100 text-gray-800 px-4 py-2 rounded hover:bg-gray-200 transition-colors duration-200"
@@ -389,11 +455,70 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
               لا يوجد محامين متاحين بهذه المعايير. يرجى تعديل معايير البحث
               والمحاولة مرة أخرى.
             </p>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {lawyers.length > 0 && (
+          <div
+            className="mt-8 flex justify-center gap-2 items-center"
+            dir="rtl"
+          >
             <button
-              onClick={() => window.history.back()}
-              className="mt-6 px-6 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 rounded-lg ${
+                currentPage === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-900 text-white hover:bg-blue-800"
+              }`}
             >
-              العودة للبحث
+              السابق
+            </button>
+
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNumber = index + 1;
+                // Show first page, last page, current page, and one page before and after current
+                if (
+                  pageNumber === 1 ||
+                  pageNumber === totalPages ||
+                  (pageNumber >= currentPage - 1 &&
+                    pageNumber <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`px-4 py-2 rounded-lg ${
+                        currentPage === pageNumber
+                          ? "bg-blue-900 text-white"
+                          : "bg-gray-100 hover:bg-gray-200"
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                } else if (
+                  pageNumber === currentPage - 2 ||
+                  pageNumber === currentPage + 2
+                ) {
+                  return <span key={pageNumber}>...</span>;
+                }
+                return null;
+              })}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 rounded-lg ${
+                currentPage === totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-900 text-white hover:bg-blue-800"
+              }`}
+            >
+              التالي
             </button>
           </div>
         )}
