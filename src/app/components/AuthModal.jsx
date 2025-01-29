@@ -10,9 +10,13 @@ const steps = {
   INITIAL: 1,
   LOGIN: 2,
   REGISTER: 3,
+  FORGOT_PASSWORD: 4,
+  VERIFY_OTP: 5,
+  NEW_PASSWORD: 6,
 };
 
-const OTP_API_URL = process.env.NEXT_PUBLIC_OTP_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function AuthModal({ isOpen, onClose }) {
   const {
     loginUser: handleLogin,
@@ -34,6 +38,11 @@ export default function AuthModal({ isOpen, onClose }) {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [isLoginRequest, setIsLoginRequest] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [forgotPasswordOtp, setForgotPasswordOtp] = useState(["", "", "", ""]);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const resetForm = useCallback(() => {
     if ([steps.INITIAL, steps.LOGIN, steps.REGISTER].includes(currentStep)) {
@@ -173,6 +182,97 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      setError("");
+      
+      const response = await axios.post(`${API_BASE_URL}/password-recovery/send-otp`, {
+        email: forgotPasswordEmail
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.status === "success") {
+        setCurrentStep(steps.VERIFY_OTP);
+      } else {
+        setError(response.data.message || "حدث خطأ ما. يرجى المحاولة مرة أخرى.");
+      }
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      setError(err.response?.data?.message || "حدث خطأ في إرسال رمز التحقق. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = () => {
+    if (forgotPasswordOtp.some(digit => !digit)) {
+      setError("الرجاء إدخال رمز التحقق كاملاً");
+      return;
+    }
+    setError("");
+    setCurrentStep(steps.NEW_PASSWORD);
+  };
+
+  const handlePasswordReset = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      if (newPassword !== confirmPassword) {
+        setError("كلمات المرور غير متطابقة");
+        return;
+      }
+
+      const otp = forgotPasswordOtp.join('');
+      
+      const response = await axios.post(`${API_BASE_URL}/password-recovery/verify-otp`, {
+        email: forgotPasswordEmail,
+        otp: parseInt(otp),
+        password: newPassword,
+        password_confirmation: confirmPassword
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.status === "success") {
+        // Reset all states
+        setForgotPasswordEmail("");
+        setForgotPasswordOtp(["", "", "", ""]);
+        setNewPassword("");
+        setConfirmPassword("");
+        setError("");
+        // Go back to login
+        setCurrentStep(steps.LOGIN);
+      } else {
+        setError(response.data.message || "حدث خطأ ما. يرجى المحاولة مرة أخرى.");
+      }
+    } catch (err) {
+      console.error('Password reset error:', err);
+      setError(err.response?.data?.message || "حدث خطأ في تغيير كلمة المرور. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOtpChange = (index, value) => {
+    const newOtp = [...forgotPasswordOtp];
+    newOtp[index] = value;
+    setForgotPasswordOtp(newOtp);
+
+    // Auto-focus next input
+    if (value && index < 3) {
+      const nextInput = document.querySelector(`input[name=otp-${index + 1}]`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
   const LawyerRegistrationLink = () => (
     <p className="text-sm">
       هل أنت محامي؟
@@ -186,15 +286,27 @@ export default function AuthModal({ isOpen, onClose }) {
     </p>
   );
 
+  const handleClose = () => {
+    setCurrentStep(steps.INITIAL);
+    setForgotPasswordEmail("");
+    setForgotPasswordOtp(["", "", "", ""]);
+    setError("");
+    onClose();
+  };
+
   return (
     <>
       {/* Main Auth Modal */}
-      <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+      <Dialog
+        open={isOpen}
+        onClose={handleClose}
+        className="relative z-50"
+      >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <div className="mx-auto max-w-2xl md:min-w-[500px] rounded-lg bg-white p-6 relative">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="absolute top-2 left-2 text-white bg-red-600 rounded-md hover:text-gray-200"
               aria-label="Close dialog"
             >
@@ -260,16 +372,27 @@ export default function AuthModal({ isOpen, onClose }) {
                 />
 
                 {showPasswordInput && (
-                  <input
-                    dir="rtl"
-                    type="password"
-                    name="password"
-                    placeholder="كلمة المرور"
-                    required
-                    className="w-full p-2 border rounded-md"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                  />
+                  <>
+                    <input
+                      dir="rtl"
+                      type="password"
+                      name="password"
+                      placeholder="كلمة المرور"
+                      required
+                      className="w-full p-2 border rounded-md"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                    />
+                    <div className="text-right">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(steps.FORGOT_PASSWORD)}
+                        className="text-[#3069B4] text-sm hover:underline"
+                      >
+                        هل نسيت كلمة المرور؟
+                      </button>
+                    </div>
+                  </>
                 )}
 
                 {/* Error message display */}
@@ -378,6 +501,143 @@ export default function AuthModal({ isOpen, onClose }) {
                   <LawyerRegistrationLink />
                 </div>
               </form>
+            )}
+
+            {currentStep === steps.FORGOT_PASSWORD && (
+              <form onSubmit={handleForgotPasswordSubmit} className="space-y-4 text-right">
+                <h2 className="text-xl font-bold text-[#FF883EE0]">
+                  استعادة كلمة المرور
+                </h2>
+                <p className="text-sm text-gray-600">
+                  أدخل بريدك الإلكتروني وسنرسل لك رمز التحقق
+                </p>
+
+                <input
+                  dir="rtl"
+                  type="email"
+                  name="email"
+                  placeholder="البريد الإلكتروني"
+                  required
+                  className="w-full p-2 border rounded-md"
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                />
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-right">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full bg-[#3069B4] text-white rounded-lg py-2 disabled:opacity-50"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "...جاري الارسال"  : "إرسال رمز التحقق"}
+                </button>
+              </form>
+            )}
+
+            {currentStep === steps.VERIFY_OTP && (
+              <div className="space-y-6 text-right">
+                <div>
+                  <h2 className="text-xl font-bold text-[#FF883EE0] mb-2">
+                    أدخل رمز التحقق
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    تم إرسال رمز التحقق إلى بريدك الإلكتروني
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex flex-col items-center">
+                    <div className="flex justify-center gap-3 mb-2 dir-rtl">
+                      {[0, 1, 2, 3].map((index) => (
+                        <input
+                          key={index}
+                          type="text"
+                          name={`otp-${index}`}
+                          maxLength={1}
+                          className="w-14 h-14 text-center border-2 border-gray-300 rounded-lg text-xl font-semibold focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
+                          value={forgotPasswordOtp[index]}
+                          onChange={(e) => handleOtpChange(index, e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                              const prevInput = document.querySelector(`input[name=otp-${index - 1}]`);
+                              if (prevInput) prevInput.focus();
+                            }
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-right text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleOtpSubmit}
+                    disabled={forgotPasswordOtp.some(digit => !digit)}
+                    className="w-full bg-[#3069B4] text-white rounded-lg py-3 text-lg font-medium disabled:opacity-50 hover:bg-[#2859a0] transition-colors mt-2"
+                  >
+                    التالي
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {currentStep === steps.NEW_PASSWORD && (
+              <div className="space-y-6 text-right">
+                <div>
+                  <h2 className="text-xl font-bold text-[#FF883EE0] mb-2">
+                    كلمة المرور الجديدة
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    الرجاء إدخال كلمة المرور الجديدة
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <input
+                      dir="rtl"
+                      type="password"
+                      placeholder="كلمة المرور الجديدة"
+                      className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                    <input
+                      dir="rtl"
+                      type="password"
+                      placeholder="تأكيد كلمة المرور"
+                      className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-right text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handlePasswordReset}
+                    disabled={isLoading || !newPassword || !confirmPassword}
+                    className="w-full bg-[#3069B4] text-white rounded-lg py-3 text-lg font-medium disabled:opacity-50 hover:bg-[#2859a0] transition-colors"
+                  >
+                    {isLoading ? "...جاري التغيير" : "تغيير كلمة المرور"}
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
