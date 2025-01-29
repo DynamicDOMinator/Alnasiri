@@ -1,9 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-// import { MdOutlineMailOutline } from "react-icons/md";
-// import { IoIosNotifications } from "react-icons/io";
-// import { FaRegClock } from "react-icons/fa";
 import axios from "axios";
 
 import Link from "next/link";
@@ -205,66 +202,38 @@ export default function QuestionSuccess() {
         {/* search inputs  */}
 
         <div className="relative bg-white pb-4 rounded-lg shadow-lg">
-        <div className="w-[90%] mx-auto my-10 h-3 rounded-lg bg-blue-900"></div>
+          <div className="w-[90%] mx-auto my-10 h-3 rounded-lg bg-blue-900"></div>
 
-        <div className="flex lg:flex-row flex-col gap-4 ">
-          <div className="lg:w-1/2 lg:px-16">
-          {/* search component */}
-          <Search/>
-          {/* end of the component */}
-          </div>
-
-
-
-
-
-          <div className="lg:w-1/2 border-r-2  ">
-          <div className="lg:px-16  h-full w-full relative">
-          <p className="text-xl font-bold text-right px-3 lg:px-0">
-              لم تجد الاجابة التي تحتاجها؟ نحن هنا لمساعدتك
-            </p>
-          
-            
-            <p className="text-gray-600 text-right pt-5 px-3 lg:px-0">المحامون المرخصون متاحون وجاهزون لتقديم المشورة بشأن مجموعة واسعه من المسائل القانونية</p>
-            <div className="lg:absolute bottom-0 right-0  w-[100%]">
-            <Link href="/Askquestion" >
-          
-          <button className="border-2  w-[90%]  py-3 my-5 hover:bg-gray-200 rounded-lg">
-        أسال محامي مجانا
-        </button>
-          </Link>
+          <div className="flex lg:flex-row flex-col gap-4 ">
+            <div className="lg:w-1/2 lg:px-16">
+              {/* search component */}
+              <Search />
+              {/* end of the component */}
             </div>
-          
-          
+
+            <div className="lg:w-1/2 border-r-2  ">
+              <div className="lg:px-16  h-full w-full relative">
+                <p className="text-xl font-bold text-right px-3 lg:px-0">
+                  لم تجد الاجابة التي تحتاجها؟ نحن هنا لمساعدتك
+                </p>
+
+                <p className="text-gray-600 text-right pt-5 px-3 lg:px-0">
+                  المحامون المرخصون متاحون وجاهزون لتقديم المشورة بشأن مجموعة
+                  واسعه من المسائل القانونية
+                </p>
+                <div className="lg:absolute bottom-0 right-0  w-[100%]">
+                  <Link href="/Askquestion">
+                    <button className="border-2  w-[90%]  py-3 my-5 hover:bg-gray-200 rounded-lg">
+                      أسال محامي مجانا
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* search component */}
           </div>
-       
-          </div>
-
-
-
-
-{/* search component */}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </div>
-
-          
-        </div>
-      
       </div>
     </div>
   );

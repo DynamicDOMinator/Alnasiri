@@ -5,12 +5,43 @@ import { FaRegStar, FaUser } from "react-icons/fa";
 import { IoLocationSharp } from "react-icons/io5";
 import { AiOutlineFileDone } from "react-icons/ai";
 import { FiPhone } from "react-icons/fi";
-
+import { BiLike } from "react-icons/bi";
+import { BsQuestionCircle } from "react-icons/bs";
+import { MdOutlineQuestionAnswer } from "react-icons/md";
 import { BsSearch } from "react-icons/bs";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import { FaUserTie } from "react-icons/fa6";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { FaLock } from "react-icons/fa";
+
+// Auth Modal Component
+const AuthModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 max-w-sm w-full relative">
+        <div className="flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+            <FaLock className="text-red-500 text-2xl" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">تنبيه</h3>
+          <p className="text-gray-600 mb-6">يجب تسجيل الدخول لتسليم المراجعة</p>
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200"
+            >
+              موافق
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -68,8 +99,24 @@ const ProfileImage = ({ src, size = 100 }) => {
 export default function LawyerProfile() {
   const [lawyer, setLawyer] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [visibleQAs, setVisibleQAs] = useState(3);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const params = useParams();
   const router = useRouter();
+  const { token } = useAuth();
+
+  const handleAction = (action) => {
+    if (!token) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    if (action === "phone") {
+      window.location.href = `tel:${lawyer.phone}`;
+    } else if (action === "review") {
+      router.push(`/submit-review/${lawyer.uuid}`);
+    }
+  };
 
   useEffect(() => {
     const fetchLawyerProfile = async () => {
@@ -92,10 +139,6 @@ export default function LawyerProfile() {
       fetchLawyerProfile();
     }
   }, [params.id]);
-
-  const handleViewProfile = (uuid) => {
-    router.push(`/lawyer-profile/${uuid}`);
-  };
 
   const getFirstSpecialty = () => {
     try {
@@ -216,7 +259,7 @@ export default function LawyerProfile() {
           <div className="mt-4 md:mt-0 flex flex-col gap-3">
             {lawyer.phone && (
               <button
-                onClick={() => (window.location.href = `tel:${lawyer.phone}`)}
+                onClick={() => handleAction("phone")}
                 className="bg-blue-900 text-white px-6 py-3 rounded flex items-center justify-center gap-2 hover:bg-blue-800 transition-colors"
               >
                 <span>0{lawyer.phone}</span>
@@ -304,8 +347,29 @@ export default function LawyerProfile() {
             {lawyer.reviews_count > 0 ? (
               <div>
                 {lawyer.reviews_data.map((review, index) => (
-                  <div key={index} className="mb-4">
-                    {/* Add review display here when you have review data */}
+                  <div key={index} className="mb-6 p-4 border-2  rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <BiLike
+                          className={`${
+                            review.lawyer_consult === 1
+                              ? "text-green-500 bg-green-100"
+                              : "text-red-500 bg-red-100 rotate-180"
+                          } w-16 px-4 py-2 h-10 rounded-lg`}
+                        />
+                      </div>
+                      <div className=" flex items-center gap-2 text-sm">
+                        <p className="text-gray-500">
+                          {new Date(review.created_at).toLocaleDateString(
+                            "ar-eg"
+                          )}
+                        </p>
+                        <p className="text-lg ">
+                          تم النشر بواسطة {review.user?.name}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 text-right">{review.text}</p>
                   </div>
                 ))}
               </div>
@@ -314,6 +378,14 @@ export default function LawyerProfile() {
                 لا توجد تقييمات حتى الآن
               </p>
             )}
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={() => handleAction("review")}
+                className="bg-blue-900 w-full md:w-auto text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200"
+              >
+                تسليم المراجعة
+              </button>
+            </div>
           </div>
         </div>
 
@@ -328,8 +400,83 @@ export default function LawyerProfile() {
               {lawyer.answers_count < 3 ? "إجابة" : "إجابات"}
             </p>
           </div>
+
+          {/* Questions and Answers Section */}
+          {lawyer.questions_and_answers &&
+            lawyer.questions_and_answers.length > 0 && (
+              <div className="mt-6">
+                <div className="bg-white p-6 rounded-lg shadow-lg space-y-6">
+                  {lawyer.questions_and_answers
+                    .slice(0, visibleQAs)
+                    .map((qa, index) => (
+                      <div key={index} className="border-2 rounded-lg p-4">
+                        {/* Question */}
+                        <div className="mb-4">
+                          <div className="flex items-center flex-row-reverse justify-between mb-2">
+                            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-sm flex items-center gap-2">
+                              {qa.question.question_city} -{" "}
+                              {qa.question.case_specialization}
+                              <IoLocationSharp className="text-blue-800" />
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-500 text-sm">
+                                {new Date(
+                                  qa.question.created_at
+                                ).toLocaleDateString("ar-eg")}
+                              </span>
+                              <BsQuestionCircle className="text-blue-900 text-xl" />
+                            </div>
+                          </div>
+                          <h4 className="text-xl font-semibold mb-2 text-right">
+                            {qa.question.question_title}
+                          </h4>
+                          <p className="text-gray-700 text-right">
+                            {qa.question.question_content}
+                          </p>
+                        </div>
+
+                        {/* Answer */}
+                        <div className="mt-4 border-r-4 border-blue-900 pr-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-gray-500 text-sm">
+                              {new Date(qa.created_at).toLocaleDateString(
+                                "ar-eg"
+                              )}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold">الإجابة</span>
+                              <MdOutlineQuestionAnswer className="text-green-600 text-xl" />
+                            </div>
+                          </div>
+                          <p className="text-gray-700 text-right">
+                            {qa.answer}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+
+                  {/* Show More Button */}
+                  {lawyer.questions_and_answers.length > visibleQAs && (
+                    <div className="flex justify-center mt-6">
+                      <button
+                        onClick={() => setVisibleQAs((prev) => prev + 3)}
+                        className="bg-white border-2 border-blue-900 text-blue-900 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                      >
+                        عرض المزيد
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </div>
   );
 }

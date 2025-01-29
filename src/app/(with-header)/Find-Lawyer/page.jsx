@@ -412,10 +412,10 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
                   <div className="flex flex-col gap-2">
                     {token ? (
                       <div className="bg-blue-900 text-white px-4 py-3 rounded flex items-center justify-center gap-2 min-w-[160px]">
-                        <FiPhone />
                         <span dir="ltr">
                           0{lawyer.call_number || lawyer.lawyer?.phone}
                         </span>
+                        <FiPhone />
                       </div>
                     ) : (
                       <button
