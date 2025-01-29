@@ -131,13 +131,20 @@ export function AuthProvider({ children }) {
         setUserName(user.name);
         setUserType("user");
 
-        router.push("/Askquestion");
-        return { data: response.data };
+        return { success: true, data: response.data };
       }
-      return { data: response.data };
+      return { success: false, error: "Registration failed" };
     } catch (error) {
-      console.error("User registration error:", error);
-      throw error;
+      if (error.response?.status === 422) {
+        return { 
+          success: false, 
+          error: error.response.data.message || "Phone number already exists"
+        };
+      }
+      return { 
+        success: false, 
+        error: error.response?.data?.message || "Registration failed" 
+      };
     } finally {
       setLoading(false);
     }

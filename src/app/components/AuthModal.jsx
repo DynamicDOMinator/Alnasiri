@@ -5,6 +5,7 @@ import { Dialog } from "@headlessui/react";
 import axios from "axios";
 import Link from "next/link";
 import { useAuth } from "../contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 const steps = {
   INITIAL: 1,
@@ -12,18 +13,18 @@ const steps = {
   REGISTER: 3,
   FORGOT_PASSWORD: 4,
   VERIFY_OTP: 5,
-  NEW_PASSWORD: 6,
+  NEW_PASSWORD: 6
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function AuthModal({ isOpen, onClose }) {
   const {
-    loginUser: handleLogin,
-    checkEmail,
+    loginUser,
     registerUser,
     registerLawyer,
   } = useAuth();
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(steps.INITIAL);
   const [loginMethod, setLoginMethod] = useState("email");
   const [formData, setFormData] = useState({
@@ -37,12 +38,13 @@ export default function AuthModal({ isOpen, onClose }) {
   const [isExistingUser, setIsExistingUser] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [isLoginRequest, setIsLoginRequest] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordOtp, setForgotPasswordOtp] = useState(["", "", "", ""]);
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [otpFormData, setOtpFormData] = useState({
+    password: '',
+    password_confirmation: ''
+  });
 
   const resetForm = useCallback(() => {
     if ([steps.INITIAL, steps.LOGIN, steps.REGISTER].includes(currentStep)) {
@@ -68,20 +70,49 @@ export default function AuthModal({ isOpen, onClose }) {
   }, [isOpen, resetForm]);
 
   const handleEmailCheck = async () => {
+    setError("");
+    
+    // Validate email is not empty
+    if (!formData.email || formData.email.trim() === "") {
+      setError("الرجاء إدخال البريد الإلكتروني");
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      if (!formData.email) {
-        setError("الرجاء إدخال البريد الإلكتروني");
-        return;
+      const response = await axios.get(`${API_BASE_URL}/check-email/check-email`, {
+        params: { email: formData.email },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      // If we receive a 200 response with user data, it means the user exists
+      if (response.data.email && response.data.user_type) {
+        setIsExistingUser(true);
+        setCurrentStep(steps.LOGIN);
+        setShowPasswordInput(true);
+        setIsLoginRequest(true);
+      } else {
+        setIsExistingUser(false);
+        setCurrentStep(steps.REGISTER);
+        setShowPasswordInput(false);
+        setIsLoginRequest(false);
       }
-
-      const emailExists = await checkEmail(formData.email);
-
-      setIsExistingUser(emailExists);
-      setCurrentStep(emailExists ? steps.LOGIN : steps.REGISTER);
-      setShowPasswordInput(emailExists);
-      setIsLoginRequest(emailExists);
     } catch (error) {
-      setError("حدث خطأ أثناء التحقق من البريد الإلكتروني");
+      if (error.response?.status === 404 && error.response?.data?.message === "Email does not exist") {
+        setIsExistingUser(false);
+        setCurrentStep(steps.REGISTER);
+        setShowPasswordInput(false);
+        setIsLoginRequest(false);
+      } else {
+        console.error('Email check error:', error);
+        setError("حدث خطأ في التحقق من البريد الإلكتروني");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,7 +130,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
     try {
       if (isLoginRequest && currentStep === steps.LOGIN) {
-        setAuthLoading(true);
+        setIsLoading(true);
         if (!formData.email || !formData.password) {
           setError("الرجاء إدخال البريد الإلكتروني وكلمة المرور");
           return;
@@ -110,7 +141,7 @@ export default function AuthModal({ isOpen, onClose }) {
           password: formData.password,
         };
 
-        const response = await handleLogin(credentials);
+        const response = await loginUser(credentials);
 
         if (response && typeof window !== "undefined") {
           onClose();
@@ -130,13 +161,18 @@ export default function AuthModal({ isOpen, onClose }) {
         setError("حدث خطأ أثناء العملية");
       }
     } finally {
-      setAuthLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleRegister = async () => {
+    if (!formData.name || !formData.email || !formData.password || !formData.acceptTerms) {
+      setError("الرجاء إكمال جميع الحقول المطلوبة");
+      return;
+    }
+
     try {
-      setAuthLoading(true);
+      setIsLoading(true);
       const userData = {
         name: formData.name,
         email: formData.email,
@@ -146,39 +182,25 @@ export default function AuthModal({ isOpen, onClose }) {
 
       const registerResponse = await registerUser(userData);
 
-      if (registerResponse) {
+      if (registerResponse.success) {
         onClose();
-        return;
+        router.push("/Askquestion");
+      } else {
+        setError(registerResponse.error || "حدث خطأ أثناء التسجيل");
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to register");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleLawyerRegister = async () => {
-    try {
-      const userData = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        city: formData.city,
-        experience: formData.experience,
-        license_number: formData.license_number,
-      };
-
-      const registerResponse = await registerLawyer(userData);
-
-      if (registerResponse?.success) {
-        setCurrentStep(steps.OTP);
-        return;
+      console.error("Registration error:", error);
+      if (error.response?.status === 422) {
+        if (error.response.data.message === "Phone number already exists") {
+          setError("رقم الهاتف مستخدم بالفعل");
+        } else {
+          setError(error.response.data.message || "يرجى التحقق من صحة البيانات المدخلة");
+        }
+      } else {
+        setError("حدث خطأ أثناء التسجيل");
       }
-    } catch (error) {
-      setError(error.response?.data?.message || "Failed to register");
     } finally {
-      setAuthLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -209,59 +231,103 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  const handleOtpSubmit = () => {
+  const handleOtpSubmit = async () => {
     if (forgotPasswordOtp.some(digit => !digit)) {
       setError("الرجاء إدخال رمز التحقق كاملاً");
       return;
     }
-    setError("");
-    setCurrentStep(steps.NEW_PASSWORD);
-  };
 
-  const handlePasswordReset = async () => {
     try {
       setIsLoading(true);
       setError("");
 
-      if (newPassword !== confirmPassword) {
-        setError("كلمات المرور غير متطابقة");
-        return;
+      const otp = forgotPasswordOtp.join('');
+      
+      // Just validate the OTP format and move to password step
+      if (otp.length === 4 && /^\d+$/.test(otp)) {
+        setCurrentStep(steps.NEW_PASSWORD);
+        setError("");
+      } else {
+        setError("الرجاء إدخال رمز تحقق صحيح مكون من 4 أرقام");
       }
+    } catch (error) {
+      setError("حدث خطأ في التحقق من الرمز");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!otpFormData.password || !otpFormData.password_confirmation) {
+      setError("الرجاء إدخال كلمة المرور وتأكيدها");
+      return;
+    }
+
+    if (otpFormData.password !== otpFormData.password_confirmation) {
+      setError("كلمات المرور غير متطابقة");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError("");
 
       const otp = forgotPasswordOtp.join('');
       
+      // Send all data in one request
       const response = await axios.post(`${API_BASE_URL}/password-recovery/verify-otp`, {
         email: forgotPasswordEmail,
         otp: parseInt(otp),
-        password: newPassword,
-        password_confirmation: confirmPassword
+        password: otpFormData.password,
+        password_confirmation: otpFormData.password_confirmation
       }, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       });
 
       if (response.data.status === "success") {
-        // Reset all states
-        setForgotPasswordEmail("");
+        // Reset all states and go back to login
+        setOtpFormData({ password: '', password_confirmation: '' });
         setForgotPasswordOtp(["", "", "", ""]);
-        setNewPassword("");
-        setConfirmPassword("");
-        setError("");
-        // Go back to login
+        setForgotPasswordEmail("");
         setCurrentStep(steps.LOGIN);
+        setError("تم تغيير كلمة المرور بنجاح");
       } else {
-        setError(response.data.message || "حدث خطأ ما. يرجى المحاولة مرة أخرى.");
+        const attemptsMatch = response.data.message?.match(/Attempts remaining: (\d+)/);
+        const remainingAttempts = attemptsMatch ? attemptsMatch[1] : null;
+        
+        if (remainingAttempts) {
+          setCurrentStep(steps.VERIFY_OTP); // Go back to OTP step if invalid
+          setError(`رمز التحقق غير صحيح. المحاولات المتبقية: ${remainingAttempts}`);
+        } else {
+          setError(response.data.message || "حدث خطأ في تغيير كلمة المرور");
+        }
       }
-    } catch (err) {
-      console.error('Password reset error:', err);
-      setError(err.response?.data?.message || "حدث خطأ في تغيير كلمة المرور. يرجى المحاولة مرة أخرى.");
+    } catch (error) {
+      console.error('Password reset error:', error.response?.data);
+      if (error.response?.data?.message?.includes("Invalid OTP")) {
+        const attemptsMatch = error.response.data.message.match(/Attempts remaining: (\d+)/);
+        const remainingAttempts = attemptsMatch ? attemptsMatch[1] : null;
+        setCurrentStep(steps.VERIFY_OTP); // Go back to OTP step if invalid
+        setError(remainingAttempts 
+          ? `رمز التحقق غير صحيح. المحاولات المتبقية: ${remainingAttempts}` 
+          : "رمز التحقق غير صحيح");
+      } else {
+        setError(error.response?.data?.message || "حدث خطأ في تغيير كلمة المرور");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleOtpChange = (index, value) => {
+    // Only allow numbers
+    if (value && !/^\d+$/.test(value)) {
+      return;
+    }
+
     const newOtp = [...forgotPasswordOtp];
     newOtp[index] = value;
     setForgotPasswordOtp(newOtp);
@@ -273,23 +339,11 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  const LawyerRegistrationLink = () => (
-    <p className="text-sm">
-      هل أنت محامي؟
-      <Link
-        href="/Register-Lawyer"
-        onClick={onClose}
-        className="text-[#FF883EE0] hover:underline pr-2"
-      >
-        سجل من هنا
-      </Link>
-    </p>
-  );
-
   const handleClose = () => {
     setCurrentStep(steps.INITIAL);
     setForgotPasswordEmail("");
     setForgotPasswordOtp(["", "", "", ""]);
+    setOtpFormData({ password: '', password_confirmation: '' });
     setError("");
     onClose();
   };
@@ -334,23 +388,35 @@ export default function AuthModal({ isOpen, onClose }) {
                 </h2>
                 <p>قم بدخال البريد الإلكتروني الخاص بك</p>
 
-                <input
-                  dir="rtl"
-                  type="email"
-                  name="email"
-                  placeholder="البريد الإلكتروني"
-                  required
-                  className="w-full p-2 border rounded-lg"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  handleEmailCheck();
+                }} className="space-y-4">
+                  <input
+                    dir="rtl"
+                    type="email"
+                    name="email"
+                    placeholder="البريد الإلكتروني"
+                    required
+                    className="w-full p-2 border rounded-lg"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                  />
 
-                <button
-                  onClick={handleEmailCheck}
-                  className="w-full bg-[#3069B4] text-white rounded-lg py-2"
-                >
-                  التالي
-                </button>
+                  {error && (
+                    <div className="text-red-500 text-sm text-right">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full bg-[#3069B4] text-white rounded-lg py-2"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "جاري التحقق..." : "التالي"}
+                  </button>
+                </form>
               </div>
             )}
 
@@ -404,12 +470,12 @@ export default function AuthModal({ isOpen, onClose }) {
 
                 <button
                   type="submit"
-                  disabled={authLoading}
+                  disabled={isLoading}
                   className={`w-full bg-[#3069B4] text-white rounded-lg py-2 relative ${
-                    authLoading ? "opacity-70 cursor-not-allowed" : ""
+                    isLoading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                 >
-                  {authLoading ? (
+                  {isLoading ? (
                     <div className="flex items-center justify-center">
                       <div className="w-5 h-5 border-t-2 border-b-2 border-white rounded-full animate-spin"></div>
                       <span className="mr-2">جاري التحميل...</span>
@@ -420,7 +486,16 @@ export default function AuthModal({ isOpen, onClose }) {
                 </button>
 
                 <div className="text-center space-y-2">
-                  <LawyerRegistrationLink />
+                  <p className="text-sm">
+                    هل أنت محامي؟
+                    <Link
+                      href="/Register-Lawyer"
+                      onClick={onClose}
+                      className="text-[#FF883EE0] hover:underline pr-2"
+                    >
+                      سجل من هنا
+                    </Link>
+                  </p>
                 </div>
               </form>
             )}
@@ -498,7 +573,16 @@ export default function AuthModal({ isOpen, onClose }) {
                 </button>
 
                 <div className="text-center space-y-2">
-                  <LawyerRegistrationLink />
+                  <p className="text-sm">
+                    هل أنت محامي؟
+                    <Link
+                      href="/Register-Lawyer"
+                      onClick={onClose}
+                      className="text-[#FF883EE0] hover:underline pr-2"
+                    >
+                      سجل من هنا
+                    </Link>
+                  </p>
                 </div>
               </form>
             )}
@@ -581,10 +665,10 @@ export default function AuthModal({ isOpen, onClose }) {
 
                   <button
                     onClick={handleOtpSubmit}
-                    disabled={forgotPasswordOtp.some(digit => !digit)}
+                    disabled={isLoading || forgotPasswordOtp.some(digit => !digit)}
                     className="w-full bg-[#3069B4] text-white rounded-lg py-3 text-lg font-medium disabled:opacity-50 hover:bg-[#2859a0] transition-colors mt-2"
                   >
-                    التالي
+                    {isLoading ? "جاري التحقق..." : "التالي"}
                   </button>
                 </div>
               </div>
@@ -608,8 +692,8 @@ export default function AuthModal({ isOpen, onClose }) {
                       type="password"
                       placeholder="كلمة المرور الجديدة"
                       className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      value={otpFormData.password}
+                      onChange={(e) => setOtpFormData({ ...otpFormData, password: e.target.value })}
                       required
                     />
                     <input
@@ -617,8 +701,8 @@ export default function AuthModal({ isOpen, onClose }) {
                       type="password"
                       placeholder="تأكيد كلمة المرور"
                       className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      value={otpFormData.password_confirmation}
+                      onChange={(e) => setOtpFormData({ ...otpFormData, password_confirmation: e.target.value })}
                       required
                     />
                   </div>
@@ -631,10 +715,10 @@ export default function AuthModal({ isOpen, onClose }) {
 
                   <button
                     onClick={handlePasswordReset}
-                    disabled={isLoading || !newPassword || !confirmPassword}
+                    disabled={isLoading || !otpFormData.password || !otpFormData.password_confirmation}
                     className="w-full bg-[#3069B4] text-white rounded-lg py-3 text-lg font-medium disabled:opacity-50 hover:bg-[#2859a0] transition-colors"
                   >
-                    {isLoading ? "...جاري التغيير" : "تغيير كلمة المرور"}
+                    {isLoading ? "جاري التغيير..." : "تغيير كلمة المرور"}
                   </button>
                 </div>
               </div>
