@@ -179,17 +179,17 @@ export default function LawyerProfile() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb Navigation */}
-      <div className="h-[160px] w-full bg-blue-900 pt-20 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2 justify-end max-w-7xl mx-auto">
+      <div className="h-[160px] w-full  pt-20 px-4 sm:px-6 lg:px-8">
+        <div className="flex  flex-wrap-reverse items-center md:gap-2 justify-end max-w-7xl mx-auto">
           {lawyer.city && (
             <>
               <p
-                className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
                 onClick={() => router.push(`/Find-Lawyer?city=${lawyer.city}`)}
               >
                 {lawyer.city}
               </p>
-              <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
+              <p className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3">
                 <IoIosArrowBack />
               </p>
             </>
@@ -197,20 +197,20 @@ export default function LawyerProfile() {
           {firstSpecialty && (
             <>
               <p
-                className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
                 onClick={() =>
                   router.push(`/Find-Lawyer?specialties=${firstSpecialty}`)
                 }
               >
                 {firstSpecialty}
               </p>
-              <p className="text-white text-lg sm:text-xl font-bold text-right mt-3">
+              <p className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3">
                 <IoIosArrowBack />
               </p>
             </>
           )}
           <h1
-            className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+            className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
             onClick={() => router.push("/Find-Lawyer")}
           >
             البحث عن محامي
@@ -358,13 +358,13 @@ export default function LawyerProfile() {
                           } w-16 px-4 py-2 h-10 rounded-lg`}
                         />
                       </div>
-                      <div className=" flex items-center gap-2 text-sm">
-                        <p className="text-gray-500">
+                      <div className=" flex justify-between items-center gap-2 text-sm">
+                        <p className="text-gray-500 hidden lg:block ">
                           {new Date(review.created_at).toLocaleDateString(
                             "ar-eg"
                           )}
                         </p>
-                        <p className="text-lg ">
+                        <p className="text-lg text-right ">
                           تم النشر بواسطة {review.user?.name}
                         </p>
                       </div>

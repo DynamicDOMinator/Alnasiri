@@ -3,124 +3,136 @@ import { FaLocationDot } from "react-icons/fa6";
 import { SlCalender } from "react-icons/sl";
 import { CiMoneyCheck1 } from "react-icons/ci";
 import { LuPhone } from "react-icons/lu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import Link from "next/link";
+import { IoSearchOutline } from "react-icons/io5";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 export default function MyForas() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [opportunities, setOpportunities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const opportunities = [
-    {
-      id: 1,
-      date: "ديسمبر 17",
-      clientName: "أحمد السيد",
-      title: "بحث عن قضية جنائية",
-      description: "البحث عن محامي ذو خبرة في انواع هذة القضاية",
-      location: "الرياض",
-      phone: "+966 575 585",
-      details: {
-        date: "الجمعة 23 يوليو 2024",
-        fullLocation: "البحيرات،مكة المكرمة",
-        price: "150",
-        caseType: "قضية جنائية",
-        requestDetails: "البحث عن محامي ذو خبرة في انواع هذة القضاية",
-        requestNumber: "12345",
-      },
-    },
-    {
-      id: 2,
-      date: "ديسمبر 20",
-      clientName: "محمد عبدالله",
-      title: "استشارة قانونية تجارية",
-      description: "بحاجة إلى استشارة قانونية في عقود الشركات",
-      location: "جدة",
-      phone: "+966 555 1234",
-      details: {
-        date: "الأحد 25 يوليو 2024",
-        fullLocation: "الحمراء، جدة",
-        price: "200",
-        caseType: "استشارة تجارية",
-        requestDetails: "مراجعة عقود تأسيس شركة ومستندات قانونية",
-        requestNumber: "12346",
-      },
-    },
-    {
-      id: 3,
-      date: "ديسمبر 22",
-      clientName: "سارة العمري",
-      title: "قضية أحوال شخصية",
-      description: "بحاجة إلى محامي متخصص في قضايا الأحوال الشخصية",
-      location: "الدمام",
-      phone: "+966 505 9876",
-      details: {
-        date: "الثلاثاء 27 يوليو 2024",
-        fullLocation: "العزيزية، الدمام",
-        price: "300",
-        caseType: "أحوال شخصية",
-        requestDetails: "قضية طلاق وحضانة أطفال",
-        requestNumber: "12347",
-      },
-    },
-  ];
+  useEffect(() => {
+    const fetchMyForas = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`${BASE_URL}/leads-purchace/get-all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.data) {
+          setOpportunities(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching my foras:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMyForas();
+  }, [BASE_URL]);
 
   return (
-    <div className="w-full pb-24 lg:pb-0 max-w-3xl mx-auto relative">
-      {/* Sticky header */}
-      <div className="sticky top-0 w-full max-w-3xl bg-white z-10">
-        <p className="lg:text-right text-center  lg:bg-transparent lg:shadow-none shadow-md lg:pt-16 text-xl md:text-3xl font-bold">
-          فرصي
-        </p>
-        <div className="flex items-center  flex-row-reverse  pb-5">
-          <p className="flex items-center mr-auto gap-1 w-fit px-4 rounded-lg">
-            اجابات <span>5</span>
-          </p>
+    <div className="min-h-screen relative">
+      {isLoading ? (
+        <div className="fixed inset-0 flex justify-center items-center bg-white">
+          <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
         </div>
-      </div>
-
-      {/* Scrollable content */}
-      <div className="flex flex-col gap-2 justify-center items-center px-4 lg:px-0 pb-10">
-        {opportunities.map((item) => (
-          <div
-            key={item.id}
-            className="border-2 border-gray-300 rounded-lg w-full md:px-10 px-3 py-6"
-          >
-            <div className="flex justify-between items-center">
-              <p className="flex items-center">{item.date}</p>
-              <p className="font-semibold ">{item.clientName}</p>
-            </div>
-            <p className="font-semibold  text-right">{item.title}</p>
-            <p className="text-right  text-gray-500">
-              {item.description}
-            </p>
-            <div className="flex flex-col gap-4 items-end pt-2">
-              <p className="flex items-center gap-1">
-                {item.location}
-                <span>
-                  <FaLocationDot />
-                </span>
-              </p>
-              <p className="flex items-center flex-row-reverse gap-1 border-2 border-green-200 rounded-lg py-1 px-5">
-                {item.phone}
-                <span>
-                  <LuPhone className="text-green-400 text-2xl" />
-                </span>
-              </p>
-            </div>
-            <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between ">
-              <button
-                onClick={() => {
-                  setSelectedItem(item);
-                  setIsModalOpen(true);
-                }}
-                className="bg-blue-500 w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-blue-600"
-              >
-                عرض التفاصيل
-              </button>
+      ) : (
+        <div
+          dir="rtl"
+          className="lg:max-w-3xl  lg:mt-8 md:max-w-xl px-3 mb-32 lg:px-0 md:px-0 mx-auto relative"
+        >
+          <div className="sticky top-0 bg-white pb-2">
+            <div className="pt-10">
+              <div className="flex lg:flex-col items-right relative">
+                <h1 className="text-3xl font-bold text-right  mb-4">فرصي</h1>
+              </div>
             </div>
           </div>
-        ))}
-      </div>
 
+          {/* Loading State */}
+          {opportunities.length > 0 ? (
+            opportunities.map((item) => (
+              <div
+                key={item.id}
+                className="border-2 border-gray-300 rounded-lg w-full md:px-10 px-3 py-6 mb-4"
+              >
+                <div className="flex flex-row-reverse justify-between items-center">
+                  <p className="flex items-center">
+                    {new Date(item.lead.created_at).toLocaleDateString(
+                      "ar-EG",
+                      { month: "long", day: "numeric" }
+                    )}
+                  </p>
+                  <p className="font-semibold ">{item.lead.user.name}</p>
+                </div>
+                <p className="font-semibold text-right">
+                  بحث عن {item.lead.case_specialization}
+                </p>
+                <p className="text-right text-gray-500">
+                  {item.lead.question_content.length > 50
+                    ? `${item.lead.question_content.substring(0, 50)}...`
+                    : item.lead.question_content}
+                </p>
+                <div className="flex flex-col gap-4 items-start pt-2">
+                  <p className="flex flex-row-reverse items-center gap-1">
+                    {item.lead.question_city}
+                    <span>
+                      <FaLocationDot />
+                    </span>
+                  </p>
+                  <a
+                    href={`tel:${item.lead.user.phone}`}
+                    className="flex items-center mb-5 lg:mb-0 flex-row-reverse gap-1 border-2 border-green-200 rounded-lg py-1 px-5 hover:bg-green-50 transition-colors"
+                  >
+                    {item.lead.user.phone}
+                    <span>
+                      <LuPhone className="text-green-400 text-2xl" />
+                    </span>
+                  </a>
+                </div>
+                <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between ">
+                  <button
+                    onClick={() => {
+                      setSelectedItem(item);
+                      setIsModalOpen(true);
+                    }}
+                    className="bg-blue-500 mr-auto w-full md:w-auto text-white py-2 px-6 rounded-md hover:bg-blue-600"
+                  >
+                    عرض التفاصيل
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full py-20 text-center">
+              <div className="bg-gray-100 p-5 rounded-full mb-4">
+                <IoSearchOutline className="text-4xl text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">
+                لا توجد فرص حتى الآن
+              </h3>
+              <p className="text-gray-500 mb-6">
+                لم تقم بشراء أي فرص قانونية بعد
+              </p>
+              <Link
+                href="/Lawyer-dashboard"
+                className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                استكشف الفرص المتاحة
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
       {/* Modal */}
       {isModalOpen && selectedItem && (
         <div className="fixed z-[60] inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -140,38 +152,45 @@ export default function MyForas() {
 
               <div className="flex flex-col gap-2">
                 <p className="flex items-center gap-2 justify-end">
-                  {selectedItem.details.date}{" "}
+                  {new Date(selectedItem.lead.created_at).toLocaleDateString(
+                    "ar-EG",
+                    {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )}
                   <span>
                     <SlCalender />
                   </span>
                 </p>
 
                 <p className="flex items-center gap-1 justify-end">
-                  {selectedItem.details.fullLocation}{" "}
+                  {selectedItem.lead.question_city}
                   <span>
                     <FaLocationDot />
                   </span>
                 </p>
 
-                <p className="flex flex-row-reverse items-center gap-1">
-                  <CiMoneyCheck1 />
-                  {selectedItem.details.price}
-                  <span>ر.س</span>
-                </p>
+                <a
+                  href={`tel:${selectedItem.lead.user.phone}`}
+                  className="flex ml-auto items-center gap-1 border-2 border-green-200 rounded-lg py-1 px-5 hover:bg-green-50 transition-colors w-fit "
+                >
+                  <LuPhone className="text-green-400 text-2xl" />
+                  {selectedItem.lead.user.phone}
+                </a>
               </div>
+              {selectedItem.lead.question_title && (
+                <div className="pt-6 border-t-2">
+                  <p className="font-semibold">السؤال</p>
+                  <p>{selectedItem.lead.question_title}</p>
+                </div>
+              )}
 
               <div className="pt-6 border-t-2">
-                <p className="font-semibold">ما نوع القضايا التي تحتاجها؟</p>
-                <p>{selectedItem.details.caseType}</p>
-              </div>
-
-              <div className="pt-6 border-t-2">
-                <p className="font-semibold">ما هي تفاصيل الطلب الخاص بك؟</p>
-                <p>{selectedItem.details.requestDetails}</p>
-              </div>
-              <div className="pt-3 border-t-2">
-                <p className="font-semibold">رقم الطلب؟</p>
-                <p>{selectedItem.details.requestNumber}</p>
+                <p className="font-semibold">تفاصيل السؤال</p>
+                <p>{selectedItem.lead.question_content}</p>
               </div>
             </div>
           </div>
