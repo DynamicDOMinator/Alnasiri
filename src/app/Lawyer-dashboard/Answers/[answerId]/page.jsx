@@ -1,28 +1,58 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { GoLaw } from "react-icons/go";
-
+import axios from "axios";
 
 export default function AnswersDetails() {
   const router = useRouter();
   const params = useParams();
   const [isEditing, setIsEditing] = useState(false);
-  const [answer, setAnswer] = useState(
-    "بناءً على المعلومات المقدمة في قضيتك الجنائية، أود أن أوضح أن هذا النوع من القضايا يتطلب دراسة متأنية لكافة الأدلة والملابسات. سأقوم بمساعدتك في إعداد دفاع قوي يستند إلى القوانين والسوابق القضائية ذات الصلة. من المهم جمع كافة المستندات والأدلة التي تدعم موقفك القانوني. سنعمل معاً على تحليل جميع جوانب القضية وتطوير استراتيجية دفاع فعالة تهدف إلى حماية حقوقك وتحقيق أفضل نتيجة ممكنة. أقترح أن نحدد موعداً للاستشارة عن بعد لمناقشة تفاصيل القضية بشكل أكثر تفصيلاً والإجابة على جميع استفساراتك."
-  );
+  const [answerData, setAnswerData] = useState(null);
+  const [questionData, setQuestionData] = useState(null);
 
-  // Extended mock data with all required fields
-  const question = {
-    id: params.id,
-    date: { month: "ديسمبر", day: "17" },
-    name: "أحمد السيد",
-    title: "بحث عن قضية جنائة",
-    description: "البحث عن محامي ذو خبرة في انواع هذة القضاية",
+  useEffect(() => {
+    const fetchAnswerDetails = async () => {
+      const Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+      try {
+        const token = localStorage.getItem("token");
+        const { data } = await axios.get(
+          `${Base_URL}/answers/get-answers-by-lawyer`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (data.message === "success get answers") {
+          // Find the specific answer using the UUID from params
+          const answer = data.data.find((a) => a.uuid === params.answerId);
+          if (answer) {
+            setAnswerData(answer);
+            // Find the corresponding question
+            const question = data.questions.find(
+              (q) => q.question_uuid === answer.question_uuid
+            );
+            setQuestionData(question);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching answer details:", error);
+      }
+    };
+
+    if (params.answerId) {
+      fetchAnswerDetails();
+    }
+  }, [params.answerId]);
+
+  // Keeping the mock data for fields we don't have yet
+  const mockData = {
     location: "الرياض",
     deliveryDate: "17 ديسمبر 2023",
     appointmentPreference: "استشارة عن بعد",
@@ -43,8 +73,12 @@ export default function AnswersDetails() {
     // router.push("/Lawyer-dashboard/MyAnswers");
   };
 
+  if (!answerData || !questionData) {
+    return <div className="text-center py-10">جاري التحميل...</div>;
+  }
+
   return (
-    <div>
+    <div className="px-5 lg:px-0">
       <div dir="rtl" className="lg:max-w-3xl mx-auto  relative ">
         <div className="sticky top-0 bg-white z-30 pb-2">
           <div className="pt-10">
@@ -65,12 +99,12 @@ export default function AnswersDetails() {
         <div className="border-2  border-gray-300 px-10 py-7 mt-10 rounded-lg relative">
           <ul className="mt-2">
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {question.name}
+              {questionData.user_name || "المستخدم"}
               <span className="w-4 h-4 bg-green-600 rounded-full"></span>
             </li>
 
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {question.location}
+              {mockData.location}
               <span>
                 <FaLocationDot />
               </span>
@@ -83,57 +117,82 @@ export default function AnswersDetails() {
             </li>
           </ul>
           <div className="absolute top-4 left-3  ">
-            <p>{question.deliveryDate} </p>
+            <p>
+              {new Date(answerData.created_at).toLocaleDateString("ar-EG", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}{" "}
+            </p>
           </div>
         </div>
 
-        {question.questions.map((item, index) => (
-          <div
-            className="pt-7 border-2 mb-10 border-gray-300 px-10 py-7 mt-10 rounded-lg"
-            key={index}
-          >
+        <div className="pt-7 border-2 mb-10 border-gray-300 px-10 py-7 mt-10 rounded-lg">
+          {questionData.question_title && (
             <div>
-              <h3 className="font-bold">{item.question}</h3>
-              <p>{item.answer}</p>
+              <p className="font-bold">السؤال</p>
+              <h3 className="font-bold pt-2">{questionData.question_title}</h3>
             </div>
+          )}
+          <div>
             <div className="mt-5">
-              <h3 className="font-bold">ما هي تفاصيل الطلب الخاص بك ؟</h3>
-              <p>للحصول علي براءة</p>
-            </div>
-            <div className="mt-5">
-              <h3 className="font-bold">رقم الطلب ؟</h3>
-              <p>1221212</p>
+              <p className="font-bold">الاجابة</p>
+              <p className="pt-2">{questionData.question_content}</p>
             </div>
           </div>
-        ))}
+        </div>
       </div>
 
-      <div dir="rtl" className="sticky lg:max-w-3xl mx-auto bottom-0 bg-slate-100 pb-5 px-10">
-        <h4 className="font-bold py-5">اجابتك</h4>
-        <p className="flex gap-1 items-center">
-          الاجابة <span className="text-red-500">*</span>
-        </p>
-        {isEditing ? (
-          <textarea
-            className="w-full h-20 resize-none min-h-32 border-2 border-gray-300 rounded-lg p-2 focus:outline-blue-500"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-          />
-        ) : (
-          <div className="w-full min-h-32 border-2 border-gray-300 rounded-lg p-2">
-            {answer}
+      <div
+        dir="rtl"
+        className="sticky mb-32 lg:mb-0 lg:max-w-3xl mx-auto bottom-0 bg-white shadow-lg border-t-2 pb-5 px-4 md:px-10"
+      >
+        <div className="max-w-3xl mx-auto">
+          <div className="flex  flex-col items-start gap-2 py-4">
+            <h4 className="font-bold text-lg">اجابتك</h4>
+            <p className="flex gap-1 items-center text-sm text-gray-600">
+              الاجابة <span className="text-red-500">*</span>
+            </p>
           </div>
-        )}
-        <div className="flex justify-end gap-3 mt-5">
-          <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
-            حذف
-          </button>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded-lg"
-            onClick={isEditing ? handleSubmitAnswer : () => setIsEditing(true)}
-          >
-            {isEditing ? "تسليم الاجابة" : "تعديل الاجابة"}
-          </button>
+
+          {isEditing ? (
+            <div className="space-y-4 ">
+              <textarea
+                className="w-full min-h-[120px] md:min-h-[150px] p-4 text-right resize-none border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                value={answerData.answer}
+                onChange={(e) =>
+                  setAnswerData({ ...answerData, answer: e.target.value })
+                }
+                placeholder="...اكتب اجابتك هنا"
+              />
+              <div className="flex justify-end flex-row-reverse gap-3">
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={handleSubmitAnswer}
+                  className="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  حفظ
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="w-full min-h-[120px] md:min-h-[150px] p-4 text-right bg-gray-50 rounded-lg border-2 border-gray-200">
+                <p className="text-gray-700 whitespace-pre-wrap">{answerData.answer}</p>
+              </div>
+              <button
+                onClick={() => setIsEditing(true)}
+                className="absolute top-4 left-4 text-blue-500 hover:text-blue-600 transition-colors"
+              >
+                تعديل
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

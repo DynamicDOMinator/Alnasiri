@@ -11,6 +11,7 @@ export default function Sidebar() {
   const [userName, setUserName] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [balance, setBalance] = useState(0);
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
@@ -33,6 +34,25 @@ export default function Sidebar() {
     };
 
     fetchLawyerOffice();
+  }, [API_BASE_URL]);
+
+  useEffect(() => {
+    const fetchLawyerBalance = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/wallet/get-balance`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setBalance(response.data.balance);
+      } catch (error) {
+        return null;
+      } finally {
+        setIsImageLoading(false);
+      }
+    };
+
+    fetchLawyerBalance();
   }, [API_BASE_URL]);
 
   const handleImageLoad = () => {
@@ -175,7 +195,14 @@ export default function Sidebar() {
             }`}
             href="/Lawyer-dashboard/Wallet"
           >
-            <p className="w-full text-right">رصيدي</p>
+            <div className="w-full flex-row-reverse flex justify-start  items-center gap-1">
+            <p className=" text-right">
+              رصيدي
+            </p>
+              <p className="pr-1">{balance} </p>
+              <p>ر.س</p>
+            </div>
+           
             <Image
               src="/images/icon6.png"
               alt="balance"

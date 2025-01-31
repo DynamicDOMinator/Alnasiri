@@ -5,6 +5,7 @@ import axios from "axios";
 import React from "react";
 import { FaCamera, FaUser } from "react-icons/fa";
 import Image from "next/image";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const loadGoogleMapsScript = (() => {
   let isLoaded = false;
@@ -777,9 +778,9 @@ export default function Profile() {
   return (
     <div className="container mx-auto px-4 pb-8">
       {isLoading ? (
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
+         <div className="fixed inset-0 flex justify-center items-center bg-white">
+         <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
+       </div>
       ) : (
         <>
           {/* Notification */}

@@ -133,8 +133,11 @@ export default function Foras() {
               </p>
               <p className="font-semibold ">{lead.user.name}</p>
             </div>
-            <p className="text-right font-semibold">{lead.question_title}</p>
-            <p className="text-right text-gray-500">{lead.question_content}</p>
+            {lead.question_title && (
+               <p className="text-right font-semibold break-words whitespace-normal">{lead.question_title.length > 50 ? `...${lead.question_title.substring(0, 50)}` : lead.question_title}</p>
+            )}
+           
+            <p className="text-right text-gray-500 break-words whitespace-normal overflow-hidden">{lead.question_content.length > 50 ? `...${lead.question_content.substring(0, 50)}` : lead.question_content}</p>
             <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-2 text-white">
               {[lead.day_name, lead.sell_status, lead.case_specialization].filter(Boolean).map((tag, index) => (
                 <p
