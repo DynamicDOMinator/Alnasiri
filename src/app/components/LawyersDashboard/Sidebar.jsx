@@ -213,13 +213,17 @@ export default function Sidebar() {
           </Link>
         </div>
         {/* Modified settings section */}
-        <div className="absolute flex items-center gap-4 w-full justify-end pr-5 bottom-5">
+       
+        <div className="absolute flex hover:bg-gray-100 py-2 items-center gap-4 w-full justify-end pr-5 bottom-5">
+          <Link href="/Lawyer-dashboard/Settings">
           <div>
             <p className="text-sm font-semibold">{userName}</p>
             <p className="text-sm text-right">الاعدادات</p>
           </div>
+          </Link>
           <div>
-            {isImageLoading ? (
+           
+          {isImageLoading ? (
               <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                 <svg
                   className="animate-spin h-5 w-5 text-gray-500"

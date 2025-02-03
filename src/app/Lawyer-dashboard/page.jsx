@@ -20,7 +20,7 @@ export default function Foras() {
     if (saved) {
       const parsedLeads = JSON.parse(saved);
       // Filter out null values and ensure unique IDs
-      const cleanLeads = [...new Set(parsedLeads.filter(id => id !== null))];
+      const cleanLeads = [...new Set(parsedLeads.filter((id) => id !== null))];
       setSeenLeads(cleanLeads);
       // Update localStorage with clean data
       localStorage.setItem("seenLeads", JSON.stringify(cleanLeads));
@@ -30,7 +30,9 @@ export default function Foras() {
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/lawyer/get-all-lawyer-chances`);
+        const response = await axios.get(
+          `${BASE_URL}/lawyer/get-all-lawyer-chances`
+        );
         setLeads(response.data);
       } catch (err) {
         console.log(err);
@@ -129,34 +131,47 @@ export default function Foras() {
             )}
             <div className="flex justify-between mt-4 items-center pt-2">
               <p className="flex items-center">
-                {new Date(lead.created_at).toLocaleDateString('ar-EG', { month: 'long', day: 'numeric' })}
+                {new Date(lead.created_at).toLocaleDateString("ar-EG", {
+                  month: "long",
+                  day: "numeric",
+                })}
               </p>
               <p className="font-semibold ">{lead.user.name}</p>
             </div>
             {lead.question_title && (
-               <p className="text-right font-semibold break-words whitespace-normal">{lead.question_title.length > 50 ? `...${lead.question_title.substring(0, 50)}` : lead.question_title}</p>
+              <p className="text-right font-semibold break-words whitespace-normal">
+                {lead.question_title.length > 50
+                  ? `...${lead.question_title.substring(0, 50)}`
+                  : lead.question_title}
+              </p>
             )}
-           
-            <p className="text-right text-gray-500 break-words whitespace-normal overflow-hidden">{lead.question_content.length > 50 ? `...${lead.question_content.substring(0, 50)}` : lead.question_content}</p>
+
+            <p className="text-right text-gray-500 break-words whitespace-normal overflow-hidden">
+              {lead.question_content.length > 50
+                ? `...${lead.question_content.substring(0, 50)}`
+                : lead.question_content}
+            </p>
             <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-2 text-white">
-              {[lead.day_name, lead.sell_status, lead.case_specialization].filter(Boolean).map((tag, index) => (
-                <p
-                  key={index}
-                  className={`py-1 px-6 rounded-md ${
-                    tag === "عاجل"
-                      ? "bg-red-500"
-                      : tag === "حصري"
-                        ? "bg-green-700"
-                        : "bg-gray-300 text-black"
-                  }`}
-                >
-                  {tag}
-                </p>
-              ))}
+              {[lead.day_name, lead.sell_status, lead.case_specialization]
+                .filter(Boolean)
+                .map((tag, index) => (
+                  <p
+                    key={index}
+                    className={`py-1 px-6 rounded-md ${
+                      tag === "عاجل"
+                        ? "bg-red-500"
+                        : tag === "حصري"
+                          ? "bg-green-700"
+                          : "bg-gray-300 text-black"
+                    }`}
+                  >
+                    {tag}
+                  </p>
+                ))}
               <LuPhone className="text-black text-2xl" />
             </div>
             <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-2">
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleLeadClick(lead.uuid);
