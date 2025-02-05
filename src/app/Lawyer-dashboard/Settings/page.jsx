@@ -9,9 +9,8 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { AiOutlineLogout } from "react-icons/ai";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { IoMail } from "react-icons/io5";
-import { TbLockPassword } from "react-icons/tb";
-import { IoMdPhonePortrait } from "react-icons/io";
+
+import { ImProfile } from "react-icons/im";
 
 export default function Settings() {
   const [userName, setUserName] = useState("");
@@ -48,16 +47,35 @@ export default function Settings() {
         <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-10">
           <div>
             <div className="flex gap-1 items-center justify-end">
-              <h2 className="text-lg font-semibold"> اعدادات الحساب</h2>
-              <CiSettings />
+              <h2 className="text-lg font-semibold">ملعومات الملف الشخصي</h2>
+              <ImProfile />
+
             </div>
             <div className="text-right">
-              <p className="text-gray-500">قم بتعديل صفحة الملف الشخصي</p>
+              <p className="text-gray-500">قم بتعديل صفحة الملف الشخصي الخاص بك</p>
             </div>
           </div>
           <IoIosArrowBack />
         </div>
       </Link>
+
+
+
+      <Link href="/Lawyer-dashboard/account-settings">
+        <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-10">
+          <div>
+            <div className="flex gap-1 items-center justify-end">
+              <h2 className="text-lg font-semibold"> اعدادات الحساب</h2>
+              <CiSettings />
+            </div>
+            <div className="text-right">
+              <p className="text-gray-500">قم بتعديل صفحة الملف الشخصي, الاسم, البريد الالكتروني,رقم الهاتف , وتغيير كلمة المرور</p>
+            </div>
+          </div>
+          <IoIosArrowBack />
+        </div>
+      </Link>
+
 
       <Link href="/Lawyer-dashboard/Wallet">
         <div className="flex  items-center lg:hover:bg-gray-100 lg:py-2 lg:px-2 border-b pb-5 justify-between flex-row-reverse mt-8">
@@ -92,54 +110,6 @@ export default function Settings() {
         </div>
       </Link>
 
-      <Link href="/Lawyer-dashboard/Profile">
-        <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
-          <div>
-            <div className="flex gap-1 items-center justify-end">
-              <h2 className="text-lg font-semibold"> رقم الهاتف الجوال</h2>
-
-              <IoMdPhonePortrait />
-            </div>
-          </div>
-          <IoIosArrowBack />
-        </div>
-      </Link>
-
-      <Link href="/Lawyer-dashboard/Profile">
-        <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
-          <div>
-            <div className="flex gap-1 items-center justify-end">
-              <h2 className="text-lg font-semibold">
-                {" "}
-                تغيير البريد الالكتروني
-              </h2>
-              <IoMail />
-            </div>
-            <div className="text-right">
-              <p className="text-gray-500">
-                لتحديث بياناتك الخاصة يرجي تعديل البريد الالكتروني
-              </p>
-            </div>
-          </div>
-          <IoIosArrowBack />
-        </div>
-      </Link>
-
-      <Link href="/Lawyer-dashboard/changePassword">
-        <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
-          <div>
-            <div className="flex gap-1 items-center justify-end">
-              <h2 className="text-lg font-semibold"> تغير كلمة المرور</h2>
-              <TbLockPassword />
-            </div>
-            <div className="text-right">
-              <p className="text-gray-500">تحديث كلمة المرور</p>
-            </div>
-          </div>
-
-          <IoIosArrowBack />
-        </div>
-      </Link>
 
       <Link href="/Lawyer-dashboard/Profile">
         <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
@@ -153,7 +123,7 @@ export default function Settings() {
         </div>
       </Link>
 
-      <Link href="/Lawyer-dashboard/Profile">
+      <Link href="/Lawyer-dashboard/conditions">
         <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
           <div>
             <div className="flex gap-1 items-center justify-end">
