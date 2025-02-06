@@ -143,35 +143,32 @@ export default function FreeQuestions() {
                 )}
                 <div className="flex  justify-between items-center">
                   <p className="flex items-center">
-                    {formatDate(item.user.created_at)}
+                    {item.created_at ? formatDate(item.created_at) : 'تاريخ غير متوفر'}
                   </p>
-                  <p className="font-semibold">{item.user.name}</p>
+                  <p className="font-semibold">{item.user ? item.user.name : item.name || 'مستخدم غير معروف'}</p>
                 </div>
                 
                 {item.type === "question" ? (
                   <>
-                    <p className="font-semibold text-right">{item.question_title}</p>
+                    <p className="font-semibold text-right">{item.question_title || 'بدون عنوان'}</p>
                     <p className="text-right text-gray-500">
-                      {item.question_content.length > 50
-                        ? `${item.question_content.substring(0, 50)}...`
-                        : item.question_content}
+                      {item.question_content ? (
+                        item.question_content.length > 50
+                          ? `${item.question_content.substring(0, 50)}...`
+                          : item.question_content
+                      ) : item.details || 'لا يوجد محتوى'}
                     </p>
-                    <div className="flex flex-col gap-4 items-end pt-2">
-                      <p className="flex  items-center gap-1">
-                        {item.question_city}
-                        <span>
-                          <FaLocationDot />
-                        </span>
-                      </p>
-                      <a
-                        href={`tel:${item.user.phone}`}
-                        className="flex items-center mb-5 lg:mb-0 flex-row-reverse gap-1 border-2 border-green-200 rounded-lg py-1 px-5 hover:bg-green-50 transition-colors"
-                      >
-                        {item.user.phone}
-                        <span>
-                          <LuPhone className="text-green-400 text-2xl" />
-                        </span>
-                      </a>
+                    <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-2 text-white">
+                      <div className="flex items-center gap-2 bg-gray-500 px-3 py-1 rounded-full">
+                        <FaLocationDot />
+                        <span>{item.question_city || item.city || 'المدينة غير محددة'}</span>
+                      </div>
+                      {item.contact_method === "phone" && (
+                        <div className="flex items-center gap-2 bg-gray-500 px-3 py-1 rounded-full">
+                          <LuPhone />
+                          <span>{item.user ? item.user.phone : item.phone || 'رقم الهاتف غير متوفر'}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center md:flex-row flex-col-reverse gap-5 justify-between pt-10">
                       <button 
@@ -190,11 +187,13 @@ export default function FreeQuestions() {
                   </>
                 ) : (
                   <>
-                    <p className="font-semibold text-right">بحث عن {item.case_specialization}</p>
+                    <p className="font-semibold text-right">بحث عن {item.case_specialization || 'غير محدد'}</p>
                     <p className="text-right text-gray-500">
-                      {item.question_content.length > 50
-                        ? `${item.question_content.substring(0, 50)}...`
-                        : item.question_content}
+                      {item.question_content ? (
+                        item.question_content.length > 50
+                          ? `${item.question_content.substring(0, 50)}...`
+                          : item.question_content
+                      ) : item.details || 'لا يوجد محتوى'}
                     </p>
                     <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-2 text-white">
                       {[

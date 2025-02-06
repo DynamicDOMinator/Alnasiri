@@ -144,7 +144,7 @@ export default function Example() {
     featchCities();
   }, [BASE_URL]);
 
-  const handleSearch = (searchType, value) => {
+  const handleSearch = (searchType, value, close) => {
     if (!value) return;
     
     const searchParams = new URLSearchParams();
@@ -156,6 +156,7 @@ export default function Example() {
     
     if (searchParams.toString()) {
       router.push(`/Find-Lawyer?${searchParams.toString()}`);
+      if (close) close();
     }
   };
 
@@ -188,60 +189,71 @@ export default function Example() {
 
     return (
       <Popover className="relative">
-        <PopoverButton
-          className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
-            userType === "lawyer"
-              ? "bg-[#16498C] text-white border-[#16498C]"
-              : "text-gray-700 hover:text-gray-900"
-          }`}
-        >
-          {userType === "lawyer" ? (
-            <span className="text-sm font-medium">لوحة التحكم</span>
-          ) : (
-            <span className="text-sm font-medium">{userName}</span>
-          )}
-          <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-        </PopoverButton>
-
-        <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-          {userType === "lawyer" && (
-            <Link
-              href="/Lawyer-dashboard"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+        {({ open, close }) => (
+          <>
+            <PopoverButton
+              className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+                userType === "lawyer"
+                  ? "bg-[#16498C] text-white border-[#16498C]"
+                  : "text-gray-700 hover:text-gray-900"
+              }`}
             >
-              لوحة التحكم
-            </Link>
-          )}
-          {userType === "user" && (
-            <>
-              <Link
-                href="/notifications"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+              {userType === "lawyer" ? (
+                <span className="text-sm font-medium">لوحة التحكم</span>
+              ) : (
+                <span className="text-sm font-medium">{userName}</span>
+              )}
+              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+            </PopoverButton>
+
+            <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+              {userType === "lawyer" && (
+                <Link
+                  href="/Lawyer-dashboard"
+                  onClick={() => close()}
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                >
+                  لوحة التحكم
+                </Link>
+              )}
+              {userType === "user" && (
+                <>
+                  <Link
+                    href="/notifications"
+                    onClick={() => close()}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                  >
+                    الاشعارات
+                  </Link>
+                  <Link
+                    href="/my-questions"
+                    onClick={() => close()}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                  >
+                    اسالتي
+                  </Link>
+                  <Link
+                    href="/profile-settings"
+                    onClick={() => close()}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                  >
+                    الاعدادات
+                  </Link>
+                </>
+              )}
+              <button
+                onClick={() => {
+                  close();
+                  logout();
+                }}
+                className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
               >
-                الاشعارات
-              </Link>
-              <Link
-                href="/my-questions"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-              >
-                اسالتي
-              </Link>
-              <Link
-                href="/profile-settings"
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-              >
-                الاعدادات
-              </Link>
-            </>
-          )}
-          <button
-            onClick={logout}
-            className=" justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-          > <span><AiOutlineLogout />
-</span>
-            تسجيل خروج
-          </button>
-        </PopoverPanel>
+                <span><AiOutlineLogout /></span>
+                تسجيل خروج
+              </button>
+            </PopoverPanel>
+          </>
+        )}
       </Popover>
     );
   };
@@ -310,10 +322,7 @@ export default function Example() {
                         محامين حسب الموقع
                       </PopoverButton>
 
-                      <PopoverPanel
-                        transition
-                        className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
-                      >
+                      <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in">
                         <div className="p-4">
                           <div dir="rtl" className="grid grid-cols-3 gap-2">
                             {city.map((cityName, index) => (
@@ -363,10 +372,7 @@ export default function Example() {
                         محامين حسب مجال الممارسة
                       </PopoverButton>
 
-                      <PopoverPanel
-                        transition
-                        className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
-                      >
+                      <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in">
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
                             {speciality.map((spec, index) => (
@@ -393,39 +399,47 @@ export default function Example() {
 
               {/* Product Menu */}
               <Popover className="relative">
-                <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
-                  <ChevronDownIcon
-                    aria-hidden="true"
-                    className="size-5 flex-none text-gray-400"
-                  />
-                  المواضيع القانونية اسألة وجواب
-                </PopoverButton>
+                {({ open, close }) => (
+                  <>
+                    <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="size-5 flex-none text-gray-400"
+                      />
+                      المواضيع القانونية اسألة وجواب
+                    </PopoverButton>
 
-                <PopoverPanel
-                  transition
-                  className="absolute left-0 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
-                >
-                  <div className="p-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      {items.map((item) => (
-                        <div
-                          key={item.name}
-                          className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
-                        >
-                          <Link
-                            href={item.href}
-                            className="block font-semibold text-gray-900"
-                          >
-                            {item.name}
-                          </Link>
-                          <p className="mt-1 text-gray-600">
-                            {item.description}
-                          </p>
+                    <PopoverPanel
+                      transition
+                      className="absolute left-0 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
+                    >
+                      <div className="p-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          {items.map((item) => (
+                            <div
+                              key={item.name}
+                              className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
+                            >
+                              <Link
+                                href={item.href}
+                                onClick={() => {
+                                  close();
+                                  router.push(item.href);
+                                }}
+                                className="block font-semibold text-gray-900"
+                              >
+                                {item.name}
+                              </Link>
+                              <p className="mt-1 text-gray-600">
+                                {item.description}
+                              </p>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </PopoverPanel>
+                      </div>
+                    </PopoverPanel>
+                  </>
+                )}
               </Popover>
             </PopoverGroup>
           </div>
@@ -467,7 +481,10 @@ export default function Example() {
                           <div
                             key={index}
                             className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
-                            onClick={() => handleSearch('city', cityName)}
+                            onClick={() => {
+                              handleSearch('city', cityName);
+                              setMobileMenuOpen(false);
+                            }}
                           >
                             <span className="block font-semibold text-gray-900">
                               {cityName}
@@ -493,7 +510,10 @@ export default function Example() {
                           <div
                             key={index}
                             className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
-                            onClick={() => handleSearch('specialty', spec)}
+                            onClick={() => {
+                              handleSearch('specialty', spec);
+                              setMobileMenuOpen(false);
+                            }}
                           >
                             <span className="block font-semibold text-gray-900">
                               {spec}
@@ -522,6 +542,7 @@ export default function Example() {
                           >
                             <Link
                               href={item.href}
+                              onClick={() => setMobileMenuOpen(false)}
                               className="block font-semibold text-gray-900"
                             >
                               {item.name}

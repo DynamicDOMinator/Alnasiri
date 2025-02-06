@@ -86,7 +86,7 @@ export default function MyAnswers() {
                       year: "numeric",
                     })}
                   </p>
-                  <p className="font-semibold">{question.user_name || "المستخدم"}</p>
+                  <p className="font-semibold">{answer.user_name || "المستخدم"}</p>
                 </div>
                 {question.question_title && (
                   <p className="text-right font-semibold break-words whitespace-normal">

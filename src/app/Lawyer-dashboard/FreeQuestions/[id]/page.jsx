@@ -29,8 +29,8 @@ export default function QuestionDetails() {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (response.data) {
-          setQuestion(response.data);
+        if (response.data && response.data.question) {
+          setQuestion(response.data.question);
         }
       } catch (error) {
         console.error('Error fetching question details:', error);
@@ -109,18 +109,18 @@ export default function QuestionDetails() {
         <div className="border-2 border-gray-300 px-10 py-7 mt-10 rounded-lg relative">
           <ul className="mt-2">
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {/* {question.user.name} */}
+              {question?.user?.name || "مستخدم غير معروف"}
               <span className="w-4 h-4 bg-green-600 rounded-full"></span>
             </li>
 
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {question.question_city}
+              {question?.question_city || "المدينة غير محددة"}
               <span>
                 <FaLocationDot />
               </span>
             </li>
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {question.case_specialization}
+              {question?.case_specialization || "التخصص غير محدد"}
               <span>
                 <GoLaw />
               </span>

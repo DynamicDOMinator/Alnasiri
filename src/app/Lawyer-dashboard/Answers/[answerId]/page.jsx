@@ -99,7 +99,7 @@ export default function AnswersDetails() {
         <div className="border-2  border-gray-300 px-10 py-7 mt-10 rounded-lg relative">
           <ul className="mt-2">
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {questionData.user_name || "المستخدم"}
+              {answerData?.user_name || "المستخدم"}
               <span className="w-4 h-4 bg-green-600 rounded-full"></span>
             </li>
 
