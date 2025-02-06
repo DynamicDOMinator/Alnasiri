@@ -14,7 +14,7 @@ function SearchBar({ onSearch, placeholder }) {
     const value = e.target.value;
     setQuery(value);
   };
-
+  // test
   return (
     <form onSubmit={handleSubmit} className="w-full relative">
       <input
