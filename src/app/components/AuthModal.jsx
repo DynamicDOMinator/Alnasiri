@@ -13,17 +13,13 @@ const steps = {
   REGISTER: 3,
   FORGOT_PASSWORD: 4,
   VERIFY_OTP: 5,
-  NEW_PASSWORD: 6
+  NEW_PASSWORD: 6,
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function AuthModal({ isOpen, onClose }) {
-  const {
-    loginUser,
-    registerUser,
-    registerLawyer,
-  } = useAuth();
+  const { loginUser, registerUser, registerLawyer } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(steps.INITIAL);
   const [loginMethod, setLoginMethod] = useState("email");
@@ -42,8 +38,8 @@ export default function AuthModal({ isOpen, onClose }) {
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordOtp, setForgotPasswordOtp] = useState(["", "", "", ""]);
   const [otpFormData, setOtpFormData] = useState({
-    password: '',
-    password_confirmation: ''
+    password: "",
+    password_confirmation: "",
   });
 
   const resetForm = useCallback(() => {
@@ -71,7 +67,7 @@ export default function AuthModal({ isOpen, onClose }) {
 
   const handleEmailCheck = async () => {
     setError("");
-    
+
     // Validate email is not empty
     if (!formData.email || formData.email.trim() === "") {
       setError("الرجاء إدخال البريد الإلكتروني");
@@ -81,13 +77,16 @@ export default function AuthModal({ isOpen, onClose }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/check-email/check-email`, {
-        params: { email: formData.email },
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
+      const response = await axios.get(
+        `${API_BASE_URL}/check-email/check-email`,
+        {
+          params: { email: formData.email },
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
 
       // If we receive a 200 response with user data, it means the user exists
       if (response.data.email && response.data.user_type) {
@@ -102,13 +101,16 @@ export default function AuthModal({ isOpen, onClose }) {
         setIsLoginRequest(false);
       }
     } catch (error) {
-      if (error.response?.status === 404 && error.response?.data?.message === "Email does not exist") {
+      if (
+        error.response?.status === 404 &&
+        error.response?.data?.message === "Email does not exist"
+      ) {
         setIsExistingUser(false);
         setCurrentStep(steps.REGISTER);
         setShowPasswordInput(false);
         setIsLoginRequest(false);
       } else {
-        console.error('Email check error:', error);
+        console.error("Email check error:", error);
         setError("حدث خطأ في التحقق من البريد الإلكتروني");
       }
     } finally {
@@ -118,6 +120,19 @@ export default function AuthModal({ isOpen, onClose }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // Special handling for name field to only allow Arabic characters
+    if (name === "name") {
+      // Arabic letters and spaces only
+      const arabicOnly = value.replace(/[^\u0600-\u06FF\s]/g, "");
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: arabicOnly,
+      }));
+      return;
+    }
+
+    // Normal handling for other fields
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -166,7 +181,34 @@ export default function AuthModal({ isOpen, onClose }) {
   };
 
   const handleRegister = async () => {
-    if (!formData.name || !formData.email || !formData.password || !formData.acceptTerms) {
+    // Add validation for Arabic name
+    const arabicNameRegex = /^[\u0600-\u06FF\s]+$/;
+    if (!arabicNameRegex.test(formData.name)) {
+      setError("الرجاء إدخال الاسم باللغة العربية فقط");
+      return;
+    }
+
+    // Add validation for phone number
+    if (formData.phone.length > 9) {
+      setError("رقم الجوال يجب أن لا يتجاوز 9 أرقام");
+      return;
+    }
+
+    // Add password validation
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{9,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError(
+        "كلمة المرور يجب أن تحتوي على: ٩ أحرف على الأقل، وحرف كبير، وحرف صغير، وأرقام"
+      );
+      return;
+    }
+
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.acceptTerms
+    ) {
       setError("الرجاء إكمال جميع الحقول المطلوبة");
       return;
     }
@@ -194,7 +236,9 @@ export default function AuthModal({ isOpen, onClose }) {
         if (error.response.data.message === "Phone number already exists") {
           setError("رقم الهاتف مستخدم بالفعل");
         } else {
-          setError(error.response.data.message || "يرجى التحقق من صحة البيانات المدخلة");
+          setError(
+            error.response.data.message || "يرجى التحقق من صحة البيانات المدخلة"
+          );
         }
       } else {
         setError("حدث خطأ أثناء التسجيل");
@@ -209,30 +253,39 @@ export default function AuthModal({ isOpen, onClose }) {
     try {
       setIsLoading(true);
       setError("");
-      
-      const response = await axios.post(`${API_BASE_URL}/password-recovery/send-otp`, {
-        email: forgotPasswordEmail
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
+
+      const response = await axios.post(
+        `${API_BASE_URL}/password-recovery/send-otp`,
+        {
+          email: forgotPasswordEmail,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
 
       if (response.data.status === "success") {
         setCurrentStep(steps.VERIFY_OTP);
       } else {
-        setError(response.data.message || "حدث خطأ ما. يرجى المحاولة مرة أخرى.");
+        setError(
+          response.data.message || "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+        );
       }
     } catch (err) {
-      console.error('Forgot password error:', err);
-      setError(err.response?.data?.message || "حدث خطأ في إرسال رمز التحقق. يرجى المحاولة مرة أخرى.");
+      console.error("Forgot password error:", err);
+      setError(
+        err.response?.data?.message ||
+          "حدث خطأ في إرسال رمز التحقق. يرجى المحاولة مرة أخرى."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleOtpSubmit = async () => {
-    if (forgotPasswordOtp.some(digit => !digit)) {
+    if (forgotPasswordOtp.some((digit) => !digit)) {
       setError("الرجاء إدخال رمز التحقق كاملاً");
       return;
     }
@@ -241,8 +294,8 @@ export default function AuthModal({ isOpen, onClose }) {
       setIsLoading(true);
       setError("");
 
-      const otp = forgotPasswordOtp.join('');
-      
+      const otp = forgotPasswordOtp.join("");
+
       // Just validate the OTP format and move to password step
       if (otp.length === 4 && /^\d+$/.test(otp)) {
         setCurrentStep(steps.NEW_PASSWORD);
@@ -272,50 +325,64 @@ export default function AuthModal({ isOpen, onClose }) {
       setIsLoading(true);
       setError("");
 
-      const otp = forgotPasswordOtp.join('');
-      
+      const otp = forgotPasswordOtp.join("");
+
       // Send all data in one request
-      const response = await axios.post(`${API_BASE_URL}/password-recovery/verify-otp`, {
-        email: forgotPasswordEmail,
-        otp: parseInt(otp),
-        password: otpFormData.password,
-        password_confirmation: otpFormData.password_confirmation
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      const response = await axios.post(
+        `${API_BASE_URL}/password-recovery/verify-otp`,
+        {
+          email: forgotPasswordEmail,
+          otp: parseInt(otp),
+          password: otpFormData.password,
+          password_confirmation: otpFormData.password_confirmation,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
         }
-      });
+      );
 
       if (response.data.status === "success") {
         // Reset all states and go back to login
-        setOtpFormData({ password: '', password_confirmation: '' });
+        setOtpFormData({ password: "", password_confirmation: "" });
         setForgotPasswordOtp(["", "", "", ""]);
         setForgotPasswordEmail("");
         setCurrentStep(steps.LOGIN);
         setError("تم تغيير كلمة المرور بنجاح");
       } else {
-        const attemptsMatch = response.data.message?.match(/Attempts remaining: (\d+)/);
+        const attemptsMatch = response.data.message?.match(
+          /Attempts remaining: (\d+)/
+        );
         const remainingAttempts = attemptsMatch ? attemptsMatch[1] : null;
-        
+
         if (remainingAttempts) {
           setCurrentStep(steps.VERIFY_OTP); // Go back to OTP step if invalid
-          setError(`رمز التحقق غير صحيح. المحاولات المتبقية: ${remainingAttempts}`);
+          setError(
+            `رمز التحقق غير صحيح. المحاولات المتبقية: ${remainingAttempts}`
+          );
         } else {
           setError(response.data.message || "حدث خطأ في تغيير كلمة المرور");
         }
       }
     } catch (error) {
-      console.error('Password reset error:', error.response?.data);
+      console.error("Password reset error:", error.response?.data);
       if (error.response?.data?.message?.includes("Invalid OTP")) {
-        const attemptsMatch = error.response.data.message.match(/Attempts remaining: (\d+)/);
+        const attemptsMatch = error.response.data.message.match(
+          /Attempts remaining: (\d+)/
+        );
         const remainingAttempts = attemptsMatch ? attemptsMatch[1] : null;
         setCurrentStep(steps.VERIFY_OTP); // Go back to OTP step if invalid
-        setError(remainingAttempts 
-          ? `رمز التحقق غير صحيح. المحاولات المتبقية: ${remainingAttempts}` 
-          : "رمز التحقق غير صحيح");
+        setError(
+          remainingAttempts
+            ? `رمز التحقق غير صحيح. المحاولات المتبقية: ${remainingAttempts}`
+            : "رمز التحقق غير صحيح"
+        );
       } else {
-        setError(error.response?.data?.message || "حدث خطأ في تغيير كلمة المرور");
+        setError(
+          error.response?.data?.message || "حدث خطأ في تغيير كلمة المرور"
+        );
       }
     } finally {
       setIsLoading(false);
@@ -343,7 +410,7 @@ export default function AuthModal({ isOpen, onClose }) {
     setCurrentStep(steps.INITIAL);
     setForgotPasswordEmail("");
     setForgotPasswordOtp(["", "", "", ""]);
-    setOtpFormData({ password: '', password_confirmation: '' });
+    setOtpFormData({ password: "", password_confirmation: "" });
     setError("");
     onClose();
   };
@@ -351,11 +418,7 @@ export default function AuthModal({ isOpen, onClose }) {
   return (
     <>
       {/* Main Auth Modal */}
-      <Dialog
-        open={isOpen}
-        onClose={handleClose}
-        className="relative z-50"
-      >
+      <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <div className="mx-auto max-w-2xl md:min-w-[500px] rounded-lg bg-white p-6 relative">
@@ -388,10 +451,13 @@ export default function AuthModal({ isOpen, onClose }) {
                 </h2>
                 <p>قم بدخال البريد الإلكتروني الخاص بك</p>
 
-                <form onSubmit={(e) => {
-                  e.preventDefault();
-                  handleEmailCheck();
-                }} className="space-y-4">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleEmailCheck();
+                  }}
+                  className="space-y-4"
+                >
                   <input
                     dir="rtl"
                     type="email"
@@ -513,19 +579,33 @@ export default function AuthModal({ isOpen, onClose }) {
                   dir="rtl"
                   type="text"
                   name="name"
-                  placeholder="الاسم"
+                  placeholder="الاسم باللغة العربية"
                   required
                   className="w-full p-2 border rounded-md"
                   value={formData.name}
                   onChange={handleInputChange}
+                  // Optional: prevent paste of non-Arabic text
+                  onPaste={(e) => {
+                    e.preventDefault();
+                    const pastedText = e.clipboardData.getData("text");
+                    const arabicOnly = pastedText.replace(
+                      /[^\u0600-\u06FF\s]/g,
+                      ""
+                    );
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      name: arabicOnly,
+                    }));
+                  }}
                 />
 
                 <input
                   dir="rtl"
                   type="tel"
                   name="phone"
-                  placeholder="رقم الجوال"
+                  placeholder="رقم الجوال (9 أرقام كحد أقصى)"
                   required
+                  maxLength={9}
                   className="w-full p-2 border rounded-md"
                   value={formData.phone}
                   onChange={handleInputChange}
@@ -535,7 +615,7 @@ export default function AuthModal({ isOpen, onClose }) {
                   dir="rtl"
                   type="password"
                   name="password"
-                  placeholder="كلمة المرور"
+                  placeholder="كلمة المرور (٩ أحرف، حرف كبير، حرف صغير، وأرقام)"
                   required
                   className="w-full p-2 border rounded-md"
                   value={formData.password}
@@ -588,7 +668,10 @@ export default function AuthModal({ isOpen, onClose }) {
             )}
 
             {currentStep === steps.FORGOT_PASSWORD && (
-              <form onSubmit={handleForgotPasswordSubmit} className="space-y-4 text-right">
+              <form
+                onSubmit={handleForgotPasswordSubmit}
+                className="space-y-4 text-right"
+              >
                 <h2 className="text-xl font-bold text-[#FF883EE0]">
                   استعادة كلمة المرور
                 </h2>
@@ -618,7 +701,7 @@ export default function AuthModal({ isOpen, onClose }) {
                   className="w-full bg-[#3069B4] text-white rounded-lg py-2 disabled:opacity-50"
                   disabled={isLoading}
                 >
-                  {isLoading ? "...جاري الارسال"  : "إرسال رمز التحقق"}
+                  {isLoading ? "...جاري الارسال" : "إرسال رمز التحقق"}
                 </button>
               </form>
             )}
@@ -645,10 +728,18 @@ export default function AuthModal({ isOpen, onClose }) {
                           maxLength={1}
                           className="w-14 h-14 text-center border-2 border-gray-300 rounded-lg text-xl font-semibold focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
                           value={forgotPasswordOtp[index]}
-                          onChange={(e) => handleOtpChange(index, e.target.value)}
+                          onChange={(e) =>
+                            handleOtpChange(index, e.target.value)
+                          }
                           onKeyDown={(e) => {
-                            if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                              const prevInput = document.querySelector(`input[name=otp-${index - 1}]`);
+                            if (
+                              e.key === "Backspace" &&
+                              !e.target.value &&
+                              index > 0
+                            ) {
+                              const prevInput = document.querySelector(
+                                `input[name=otp-${index - 1}]`
+                              );
                               if (prevInput) prevInput.focus();
                             }
                           }}
@@ -665,7 +756,9 @@ export default function AuthModal({ isOpen, onClose }) {
 
                   <button
                     onClick={handleOtpSubmit}
-                    disabled={isLoading || forgotPasswordOtp.some(digit => !digit)}
+                    disabled={
+                      isLoading || forgotPasswordOtp.some((digit) => !digit)
+                    }
                     className="w-full bg-[#3069B4] text-white rounded-lg py-3 text-lg font-medium disabled:opacity-50 hover:bg-[#2859a0] transition-colors mt-2"
                   >
                     {isLoading ? "جاري التحقق..." : "التالي"}
@@ -693,7 +786,12 @@ export default function AuthModal({ isOpen, onClose }) {
                       placeholder="كلمة المرور الجديدة"
                       className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
                       value={otpFormData.password}
-                      onChange={(e) => setOtpFormData({ ...otpFormData, password: e.target.value })}
+                      onChange={(e) =>
+                        setOtpFormData({
+                          ...otpFormData,
+                          password: e.target.value,
+                        })
+                      }
                       required
                     />
                     <input
@@ -702,7 +800,12 @@ export default function AuthModal({ isOpen, onClose }) {
                       placeholder="تأكيد كلمة المرور"
                       className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-[#3069B4] focus:ring-1 focus:ring-[#3069B4] transition-colors"
                       value={otpFormData.password_confirmation}
-                      onChange={(e) => setOtpFormData({ ...otpFormData, password_confirmation: e.target.value })}
+                      onChange={(e) =>
+                        setOtpFormData({
+                          ...otpFormData,
+                          password_confirmation: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -715,7 +818,11 @@ export default function AuthModal({ isOpen, onClose }) {
 
                   <button
                     onClick={handlePasswordReset}
-                    disabled={isLoading || !otpFormData.password || !otpFormData.password_confirmation}
+                    disabled={
+                      isLoading ||
+                      !otpFormData.password ||
+                      !otpFormData.password_confirmation
+                    }
                     className="w-full bg-[#3069B4] text-white rounded-lg py-3 text-lg font-medium disabled:opacity-50 hover:bg-[#2859a0] transition-colors"
                   >
                     {isLoading ? "جاري التغيير..." : "تغيير كلمة المرور"}
