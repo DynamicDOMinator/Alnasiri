@@ -119,7 +119,7 @@ export default function Example() {
 
   useEffect(() => {
     // Clean up any existing search results from localStorage
-    localStorage.removeItem('searchResults');
+    localStorage.removeItem("searchResults");
   }, []);
 
   useEffect(() => {
@@ -146,14 +146,14 @@ export default function Example() {
 
   const handleSearch = (searchType, value, close) => {
     if (!value) return;
-    
+
     const searchParams = new URLSearchParams();
-    if (searchType === 'city') {
+    if (searchType === "city") {
       searchParams.append("city", value.trim());
-    } else if (searchType === 'specialty') {
+    } else if (searchType === "specialty") {
       searchParams.append("specialties", value.trim());
     }
-    
+
     if (searchParams.toString()) {
       router.push(`/Find-Lawyer?${searchParams.toString()}`);
       if (close) close();
@@ -248,7 +248,9 @@ export default function Example() {
                 }}
                 className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
               >
-                <span><AiOutlineLogout /></span>
+                <span>
+                  <AiOutlineLogout />
+                </span>
                 تسجيل خروج
               </button>
             </PopoverPanel>
@@ -299,101 +301,77 @@ export default function Example() {
             <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse ">
               {/* Cities Menu */}
               <Popover className="relative">
-                {({ open, close }) => (
-                  <>
-                    <div 
-                      onMouseEnter={(e) => {
-                        e.preventDefault();
-                        const button = e.currentTarget.querySelector('button');
-                        if (button) button.click();
-                      }}
-                      onMouseLeave={(e) => {
-                        e.preventDefault();
-                        if (!e.currentTarget.contains(e.relatedTarget)) {
-                          close();
-                        }
-                      }}
-                    >
-                      <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
-                        <ChevronDownIcon
-                          aria-hidden="true"
-                          className="size-5 flex-none text-gray-400"
-                        />
-                        محامين حسب الموقع
-                      </PopoverButton>
+                {({ open }) => (
+                  <div
+                    onMouseEnter={(e) => {
+                      const button = e.currentTarget.querySelector("button");
+                      if (button && !open) button.click();
+                    }}
+                  >
+                    <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="size-5 flex-none text-gray-400"
+                      />
+                      محامين حسب الموقع
+                    </PopoverButton>
 
-                      <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in">
-                        <div className="p-4">
-                          <div dir="rtl" className="grid grid-cols-3 gap-2">
-                            {city.map((cityName, index) => (
-                              <div
-                                key={index}
-                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer"
-                                onClick={() => {
-                                  handleSearch('city', cityName);
-                                  close();
-                                }}
-                              >
-                                <span className="block font-semibold text-blue-500 hover:underline">
-                                  {cityName}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
+                    <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
+                      <div className="p-4">
+                        <div dir="rtl" className="grid grid-cols-3 gap-2">
+                          {city.map((cityName, index) => (
+                            <div
+                              key={index}
+                              className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
+                              onClick={() => handleSearch("city", cityName)}
+                            >
+                              <span className="block font-semibold text-blue-500 hover:underline">
+                                {cityName}
+                              </span>
+                            </div>
+                          ))}
                         </div>
-                      </PopoverPanel>
-                    </div>
-                  </>
+                      </div>
+                    </PopoverPanel>
+                  </div>
                 )}
               </Popover>
 
               {/* Specialties Menu */}
               <Popover className="relative">
-                {({ open, close }) => (
-                  <>
-                    <div 
-                      onMouseEnter={(e) => {
-                        e.preventDefault();
-                        const button = e.currentTarget.querySelector('button');
-                        if (button) button.click();
-                      }}
-                      onMouseLeave={(e) => {
-                        e.preventDefault();
-                        if (!e.currentTarget.contains(e.relatedTarget)) {
-                          close();
-                        }
-                      }}
-                    >
-                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
-                        <ChevronDownIcon
-                          aria-hidden="true"
-                          className="size-5 flex-none text-gray-400"
-                        />
-                        محامين حسب مجال الممارسة
-                      </PopoverButton>
+                {({ open }) => (
+                  <div
+                    onMouseEnter={(e) => {
+                      const button = e.currentTarget.querySelector("button");
+                      if (button && !open) button.click();
+                    }}
+                  >
+                    <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="size-5 flex-none text-gray-400"
+                      />
+                      محامين حسب مجال الممارسة
+                    </PopoverButton>
 
-                      <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in">
-                        <div className="p-4">
-                          <div className="grid grid-cols-3 gap-2">
-                            {speciality.map((spec, index) => (
-                              <div
-                                key={index}
-                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer"
-                                onClick={() => {
-                                  handleSearch('specialty', spec);
-                                  close();
-                                }}
-                              >
-                                <span className="block font-semibold text-blue-500 hover:underline">
-                                  {spec}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
+                    <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
+                      <div className="p-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {speciality.map((spec, index) => (
+                            <div
+                              key={index}
+                              className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
+                              onClick={() => handleSearch("specialty", spec)}
+                            >
+                              <span className="block font-semibold text-blue-500 hover:underline">
+                                {spec}
+                              </span>
+                            </div>
+                          ))}
                         </div>
-                      </PopoverPanel>
-                    </div>
-                  </>
+                      </div>
+                    </PopoverPanel>
+                  </div>
                 )}
               </Popover>
 
@@ -482,7 +460,7 @@ export default function Example() {
                             key={index}
                             className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
                             onClick={() => {
-                              handleSearch('city', cityName);
+                              handleSearch("city", cityName);
                               setMobileMenuOpen(false);
                             }}
                           >
@@ -511,7 +489,7 @@ export default function Example() {
                             key={index}
                             className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
                             onClick={() => {
-                              handleSearch('specialty', spec);
+                              handleSearch("specialty", spec);
                               setMobileMenuOpen(false);
                             }}
                           >

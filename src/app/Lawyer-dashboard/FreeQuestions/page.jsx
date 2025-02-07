@@ -159,10 +159,7 @@ export default function FreeQuestions() {
                       ) : item.details || 'لا يوجد محتوى'}
                     </p>
                     <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-2 text-white">
-                      <div className="flex items-center gap-2 bg-gray-500 px-3 py-1 rounded-full">
-                        <FaLocationDot />
-                        <span>{item.question_city || item.city || 'المدينة غير محددة'}</span>
-                      </div>
+                      
                       {item.contact_method === "phone" && (
                         <div className="flex items-center gap-2 bg-gray-500 px-3 py-1 rounded-full">
                           <LuPhone />

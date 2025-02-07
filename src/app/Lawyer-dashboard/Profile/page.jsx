@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 import axios from "axios";
 import React from "react";
@@ -60,6 +61,8 @@ export default function Profile() {
     specialties: [],
     google_map: "",
     profile_img: null,
+    call_number: "",
+    whatsapp_number: "",
   });
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [showMap, setShowMap] = useState(false);
@@ -72,6 +75,9 @@ export default function Profile() {
   ]);
   const [isLoading, setIsLoading] = useState(true);
   const [cities, setCities] = useState([]);
+  const [lawyerUuid, setLawyerUuid] = useState(null);
+
+  const router = useRouter();
 
   // Fetch categories once on mount
   useEffect(() => {
@@ -123,6 +129,9 @@ export default function Profile() {
 
         const { lawyer_office, user, profile_image_link } = response.data;
 
+        // Store the UUID
+        setLawyerUuid(user.uuid);
+
         // Set both current URL and preview
         if (profile_image_link) {
           setCurrentImageUrl(profile_image_link);
@@ -161,6 +170,14 @@ export default function Profile() {
                 : lawyer_office?.google_map,
             bio: lawyer_office?.bio === null ? "" : lawyer_office?.bio,
             profile_img: null,
+            call_number:
+              lawyer_office?.call_number === null
+                ? ""
+                : lawyer_office?.call_number,
+            whatsapp_number:
+              lawyer_office?.whatsapp_number === null
+                ? ""
+                : lawyer_office?.whatsapp_number,
           }));
         } else {
           // If no specialties, just update other form data
@@ -178,6 +195,8 @@ export default function Profile() {
                 : lawyer_office?.google_map,
             bio: lawyer_office?.bio === null ? "" : lawyer_office?.bio,
             profile_img: null,
+            call_number: "",
+            whatsapp_number: "",
           }));
         }
 
@@ -208,8 +227,10 @@ export default function Profile() {
     const fetchCitiesData = async () => {
       try {
         const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-        const response = await axios.get(`${API_BASE_URL}/lawyer/get-all-cities`);
-        const cityNames = response.data.map(city => city.name); // Extract city names
+        const response = await axios.get(
+          `${API_BASE_URL}/lawyer/get-all-cities`
+        );
+        const cityNames = response.data.map((city) => city.name); // Extract city names
         setCities(cityNames);
       } catch (error) {
         console.error("Error fetching cities:", error);
@@ -259,6 +280,8 @@ export default function Profile() {
       formDataToSend.append("city", formData.city);
       formDataToSend.append("google_map", formData.google_map);
       formDataToSend.append("law_office", formData.law_office);
+      formDataToSend.append("call_number", formData.call_number);
+      formDataToSend.append("whatsapp_number", formData.whatsapp_number);
 
       // Only append profile_img if a new image is selected
       if (formData.profile_img instanceof File) {
@@ -775,12 +798,23 @@ export default function Profile() {
     ]);
   };
 
+  const handleViewProfile = () => {
+    if (lawyerUuid) {
+      router.push(`/lawyer-profile/${lawyerUuid}`);
+    } else {
+      setNotificationMessage("حدث خطأ في الوصول إلى الصفحة الشخصية");
+      setNotificationType("error");
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 pb-8">
       {isLoading ? (
-         <div className="fixed inset-0 flex justify-center items-center bg-white">
-         <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
-       </div>
+        <div className="fixed inset-0 flex justify-center items-center bg-white">
+          <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
+        </div>
       ) : (
         <>
           {/* Notification */}
@@ -796,11 +830,20 @@ export default function Profile() {
             </div>
           )}
 
-          {/* Header */}
+          {/* Header - Add button here */}
           <div className="mb-8 lg:max-w-4xl lg:pt-16 pt-10 bg-white mx-auto z-30 sticky top-0">
-            <h1 className="lg:text-3xl pb-2 text-center lg:text-right font-bold text-gray-800">
-              معلومات صفحتي الشخصية
-            </h1>
+            <div className="flex flex-col md:flex-row-reverse justify-center  md:justify-between items-center">
+              <h1 className="lg:text-3xl pb-2 text-gray-800 font-bold">
+                معلومات صفحتي الشخصية
+              </h1>
+              <button
+                onClick={handleViewProfile}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm flex items-center gap-2"
+              >
+                عرض الصفحة الشخصية
+                <FaUser size={14} />
+              </button>
+            </div>
           </div>
 
           {/* Profile Form */}
@@ -839,6 +882,16 @@ export default function Profile() {
                   <FaCamera size={20} />
                 </label>
               )}
+            </div>
+
+            {/* Add floating button for mobile */}
+            <div className="lg:hidden fixed bottom-6 right-6 z-50">
+              <button
+                onClick={handleViewProfile}
+                className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
+              >
+                <FaUser size={20} />
+              </button>
             </div>
 
             {/* Bio Section */}
@@ -886,8 +939,8 @@ export default function Profile() {
                     <option value="" disabled>
                       اختر مدينة
                     </option>
-                    {cities.map((city) => (
-                      <option key={city} value={city}>
+                    {cities.map((city, index) => (
+                      <option key={`city-${index}`} value={city}>
                         {city}
                       </option>
                     ))}
@@ -1026,6 +1079,63 @@ export default function Profile() {
                       );
                     })}
                   </div>
+                )}
+              </div>
+
+              {/* Phone Numbers Section */}
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <span className="block text-gray-700 font-medium mb-2">
+                  رقم المكتب:
+                </span>
+                {isEditing ? (
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      966+
+                    </span>
+                    <input
+                      type="tel"
+                      name="call_number"
+                      maxLength={9}
+                      value={formData.call_number || ""}
+                      onChange={handleChange}
+                      className="w-full border-2 p-2 pl-16 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                      placeholder="5XXXXXXXX"
+                    />
+                  </div>
+                ) : (
+                  <p className="block p-2">
+                    {formData.call_number
+                      ? `05${formData.call_number}`
+                      : "لا يوجد"}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <span className="block text-gray-700 font-medium mb-2">
+                  رقم الواتساب:
+                </span>
+                {isEditing ? (
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                      966+
+                    </span>
+                    <input
+                      type="tel"
+                      name="whatsapp_number"
+                      maxLength={9}
+                      value={formData.whatsapp_number || ""}
+                      onChange={handleChange}
+                      className="w-full border-2 p-2 pl-16 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                      placeholder="5XXXXXXXX"
+                    />
+                  </div>
+                ) : (
+                  <p className="block p-2">
+                    {formData.whatsapp_number
+                      ? `05${formData.whatsapp_number}`
+                      : "لا يوجد"}
+                  </p>
                 )}
               </div>
 
