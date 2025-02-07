@@ -13,11 +13,8 @@ import {
   PopoverPanel,
 } from "@headlessui/react";
 import {
-  ArrowPathIcon,
   Bars3Icon,
-  ChartPieIcon,
   CursorArrowRaysIcon,
-  FingerPrintIcon,
   SquaresPlusIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -32,41 +29,6 @@ import AuthModal from "./AuthModal";
 import { useAuth } from "../contexts/AuthContext";
 import { AiOutlineLogout } from "react-icons/ai";
 import axios from "axios";
-import { MapPinIcon, ScaleIcon } from "@heroicons/react/24/outline";
-
-// Product data
-const products = [
-  {
-    name: "Analytics",
-    description: "Get a better understanding of your traffic",
-    href: "/analytics",
-    icon: ChartPieIcon,
-  },
-  {
-    name: "Engagement",
-    description: "Speak directly to your customers",
-    href: "/engagement",
-    icon: CursorArrowRaysIcon,
-  },
-  {
-    name: "Security",
-    description: "Your customers' data will be safe and secure",
-    href: "/security",
-    icon: FingerPrintIcon,
-  },
-  {
-    name: "Integrations",
-    description: "Connect with third-party tools",
-    href: "/integrations",
-    icon: SquaresPlusIcon,
-  },
-  {
-    name: "Automations",
-    description: "Build strategic funnels that will convert",
-    href: "/automations",
-    icon: ArrowPathIcon,
-  },
-];
 
 // Items data
 const items = [
@@ -96,18 +58,6 @@ const items = [
   },
 ];
 
-const callsToAction = [
-  { name: "Watch demo", href: "/demo", icon: PlayCircleIcon },
-  { name: "Contact sales", href: "/contact", icon: PhoneIcon },
-];
-
-// Spinner component
-const Spinner = () => (
-  <div className="flex items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
-  </div>
-);
-
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -118,7 +68,6 @@ export default function Example() {
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
-    // Clean up any existing search results from localStorage
     localStorage.removeItem("searchResults");
   }, []);
 
@@ -301,84 +250,110 @@ export default function Example() {
             <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse ">
               {/* Cities Menu */}
               <Popover className="relative">
-                {({ open }) => (
-                  <div
-                    onMouseEnter={(e) => {
-                      const button = e.currentTarget.querySelector("button");
-                      if (button && !open) button.click();
-                    }}
-                  >
-                    <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
-                      <ChevronDownIcon
-                        aria-hidden="true"
-                        className="size-5 flex-none text-gray-400"
-                      />
-                      محامين حسب الموقع
-                    </PopoverButton>
+                {({ open, close }) => (
+                  <>
+                    <div
+                      onMouseEnter={(e) => {
+                        const button = e.currentTarget.querySelector("button");
+                        if (button && !open) button.click();
+                      }}
+                    >
+                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                        <ChevronDownIcon
+                          aria-hidden="true"
+                          className="size-5 flex-none text-gray-400"
+                        />
+                        محامين حسب الموقع
+                      </PopoverButton>
+                    </div>
 
-                    <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
-                      <div className="p-4">
-                        <div dir="rtl" className="grid grid-cols-3 gap-2">
-                          {city.map((cityName, index) => (
-                            <div
-                              key={index}
-                              className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
-                              onClick={() => handleSearch("city", cityName)}
-                            >
-                              <span className="block font-semibold text-blue-500 hover:underline">
-                                {cityName}
-                              </span>
-                            </div>
-                          ))}
+                    {open && (
+                      <PopoverPanel
+                        className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5"
+                        onMouseLeave={() => close()}
+                      >
+                        <div className="p-4">
+                          <div dir="rtl" className="grid grid-cols-3 gap-2">
+                            {city.map((cityName, index) => (
+                              <div
+                                key={index}
+                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
+                                onClick={() =>
+                                  handleSearch("city", cityName, close)
+                                }
+                              >
+                                <span className="block font-semibold text-blue-500 hover:underline">
+                                  {cityName}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </PopoverPanel>
-                  </div>
+                      </PopoverPanel>
+                    )}
+                  </>
                 )}
               </Popover>
 
-              {/* Specialties Menu */}
+              {/* Speciality Menu */}
               <Popover className="relative">
-                {({ open }) => (
-                  <div
-                    onMouseEnter={(e) => {
-                      const button = e.currentTarget.querySelector("button");
-                      if (button && !open) button.click();
-                    }}
-                  >
-                    <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
-                      <ChevronDownIcon
-                        aria-hidden="true"
-                        className="size-5 flex-none text-gray-400"
-                      />
-                      محامين حسب مجال الممارسة
-                    </PopoverButton>
+                {({ open, close }) => (
+                  <>
+                    <div
+                      onMouseEnter={(e) => {
+                        const button = e.currentTarget.querySelector("button");
+                        if (button && !open) button.click();
+                      }}
+                    >
+                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                        <ChevronDownIcon
+                          aria-hidden="true"
+                          className="size-5 flex-none text-gray-400"
+                        />
+                        محامين حسب مجال الممارسة
+                      </PopoverButton>
+                    </div>
 
-                    <PopoverPanel className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5">
-                      <div className="p-4">
-                        <div className="grid grid-cols-3 gap-2">
-                          {speciality.map((spec, index) => (
-                            <div
-                              key={index}
-                              className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
-                              onClick={() => handleSearch("specialty", spec)}
-                            >
-                              <span className="block font-semibold text-blue-500 hover:underline">
-                                {spec}
-                              </span>
-                            </div>
-                          ))}
+                    {open && (
+                      <PopoverPanel
+                        className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5"
+                        onMouseLeave={() => close()}
+                      >
+                        <div className="p-4">
+                          <div className="grid grid-cols-3 gap-2">
+                            {speciality.map((spec, index) => (
+                              <div
+                                key={index}
+                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
+                                onClick={() =>
+                                  handleSearch("specialty", spec, close)
+                                }
+                              >
+                                <span className="block font-semibold text-blue-500 hover:underline">
+                                  {spec}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </PopoverPanel>
-                  </div>
+                      </PopoverPanel>
+                    )}
+                  </>
                 )}
               </Popover>
 
               {/* Product Menu */}
               <Popover className="relative">
                 {({ open, close }) => (
-                  <>
+                  <div
+                    onMouseEnter={(e) => {
+                      const button = e.currentTarget.querySelector("button");
+                      if (button && !open) button.click();
+                    }}
+                    onMouseLeave={() => {
+                      if (open) close();
+                    }}
+                  >
                     <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
                       <ChevronDownIcon
                         aria-hidden="true"
@@ -416,7 +391,7 @@ export default function Example() {
                         </div>
                       </div>
                     </PopoverPanel>
-                  </>
+                  </div>
                 )}
               </Popover>
             </PopoverGroup>
