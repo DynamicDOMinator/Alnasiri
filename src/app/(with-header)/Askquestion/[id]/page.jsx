@@ -37,41 +37,19 @@ export default function QuestionSuccess() {
         }
 
         const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-        try {
-          // First try the chances endpoint
-          const chanceResponse = await axios.get(
-            `${apiUrl}/lawyer/get-lawyer-chances-by-uuid/${params.id}`
-          );
+        const response = await axios.get(
+          `${apiUrl}/leads/get-lead-or-question-by-uuid/${params.id}`
+        );
 
-          if (
-            chanceResponse.data &&
-            Object.keys(chanceResponse.data).length > 0
-          ) {
-            const chanceData = Array.isArray(chanceResponse.data)
-              ? chanceResponse.data[0]
-              : chanceResponse.data;
-            console.log("Setting chance data:", chanceData);
-            setQuestionDetails(chanceData);
-          } else {
-            throw new Error("No chance data found");
-          }
-        } catch (chanceError) {
-          const questionResponse = await axios.get(
-            `${apiUrl}/question/get-question-by-uuid/${params.id}`
-          );
-
-          if (questionResponse.data) {
-            const questionData = Array.isArray(questionResponse.data)
-              ? questionResponse.data[0]
-              : questionResponse.data;
-            console.log("Setting question data:", questionData);
-            setQuestionDetails(questionData);
-          } else {
-            throw new Error("No question data found");
-          }
+        if (response.data?.question || response.data?.lawyerChance) {
+          const questionData = response.data.question || response.data.lawyerChance;
+          console.log("Setting data:", questionData);
+          setQuestionDetails(questionData);
+        } else {
+          throw new Error("No data found");
         }
       } catch (error) {
-        console.error("Final error:", error);
+        console.error("Error:", error);
         setError(error.response?.data?.error || "حدث خطأ أثناء تحميل السؤال");
       } finally {
         setLoading(false);

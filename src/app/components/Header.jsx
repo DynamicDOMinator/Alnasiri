@@ -12,51 +12,14 @@ import {
   PopoverGroup,
   PopoverPanel,
 } from "@headlessui/react";
-import {
-  Bars3Icon,
-  CursorArrowRaysIcon,
-  SquaresPlusIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import {
-  ChevronDownIcon,
-  PhoneIcon,
-  PlayCircleIcon,
-} from "@heroicons/react/20/solid";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AuthModal from "./AuthModal";
 import { useAuth } from "../contexts/AuthContext";
 import { AiOutlineLogout } from "react-icons/ai";
 import axios from "axios";
-
-// Items data
-const items = [
-  {
-    name: "Documentation",
-    description: "Access our comprehensive documentation",
-    href: "/documentation",
-    icon: SquaresPlusIcon,
-  },
-  {
-    name: "Support",
-    description: "Get help from our support team",
-    href: "/support",
-    icon: PhoneIcon,
-  },
-  {
-    name: "Community",
-    description: "Join discussions and share ideas",
-    href: "/community",
-    icon: CursorArrowRaysIcon,
-  },
-  {
-    name: "Blog",
-    description: "Read our latest articles and updates",
-    href: "/blog",
-    icon: PlayCircleIcon,
-  },
-];
 
 export default function Example() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -273,7 +236,7 @@ export default function Example() {
                         onMouseLeave={() => close()}
                       >
                         <div className="p-4">
-                          <div dir="rtl" className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-3 gap-2">
                             {city.map((cityName, index) => (
                               <div
                                 key={index}
@@ -345,53 +308,61 @@ export default function Example() {
               {/* Product Menu */}
               <Popover className="relative">
                 {({ open, close }) => (
-                  <div
-                    onMouseEnter={(e) => {
-                      const button = e.currentTarget.querySelector("button");
-                      if (button && !open) button.click();
-                    }}
-                    onMouseLeave={() => {
-                      if (open) close();
-                    }}
-                  >
-                    <PopoverButton className="flex outline-none items-center gap-x-1  font-semibold text-gray-900 mt-2">
-                      <ChevronDownIcon
-                        aria-hidden="true"
-                        className="size-5 flex-none text-gray-400"
-                      />
-                      المواضيع القانونية اسألة وجواب
-                    </PopoverButton>
-
-                    <PopoverPanel
-                      transition
-                      className="absolute left-0 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
+                  <>
+                    <div
+                      onMouseEnter={(e) => {
+                        const button = e.currentTarget.querySelector("button");
+                        if (button && !open) button.click();
+                      }}
                     >
-                      <div className="p-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          {items.map((item) => (
-                            <div
-                              key={item.name}
-                              className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
-                            >
-                              <Link
-                                href={item.href}
+                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                        <ChevronDownIcon
+                          aria-hidden="true"
+                          className="size-5 flex-none text-gray-400"
+                        />
+                        المواضيع القانونية اسألة وجواب
+                      </PopoverButton>
+                    </div>
+
+                    {open && (
+                      <PopoverPanel
+                        className="absolute right-0 rtl top-full z-10 mt-3 w-[600px] overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5"
+                        onMouseLeave={() => close()}
+                      >
+                        <div className="p-4">
+                          <div className="grid grid-cols-3 gap-2">
+                            {speciality.map((spec, index) => (
+                              <div
+                                key={index}
+                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
                                 onClick={() => {
                                   close();
-                                  router.push(item.href);
+                                  router.push(
+                                    `/legal-advice?speciality=${encodeURIComponent(spec)}`
+                                  );
                                 }}
-                                className="block font-semibold text-gray-900"
                               >
-                                {item.name}
-                              </Link>
-                              <p className="mt-1 text-gray-600">
-                                {item.description}
-                              </p>
-                            </div>
-                          ))}
+                                <span className="block font-semibold text-blue-500 hover:underline">
+                                  {spec}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex justify-end mt-4">
+                            <button
+                              className="bg-blue-700 text-white px-4 py-2 rounded-lg"
+                              onClick={() => {
+                                close();
+                                router.push("/legal-advice");
+                              }}
+                            >
+                              تصفح المواضيع القانونية
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    </PopoverPanel>
-                  </div>
+                      </PopoverPanel>
+                    )}
+                  </>
                 )}
               </Popover>
             </PopoverGroup>
@@ -462,15 +433,21 @@ export default function Example() {
                         {speciality.map((spec, index) => (
                           <div
                             key={index}
-                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
-                            onClick={() => {
-                              handleSearch("specialty", spec);
-                              setMobileMenuOpen(false);
-                            }}
+                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
                           >
-                            <span className="block font-semibold text-gray-900">
+                            <Link
+                              href={`/question/search-question/${spec}`}
+                              onClick={() => {
+                                handleSearch("specialty", spec);
+                                setMobileMenuOpen(false);
+                              }}
+                              className="block font-semibold text-gray-900"
+                            >
                               {spec}
-                            </span>
+                            </Link>
+                            <p className="mt-1 text-gray-600">
+                              استشارات في {spec}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -488,20 +465,20 @@ export default function Example() {
                     </DisclosureButton>
                     <DisclosurePanel className="mt-2">
                       <div className="grid grid-cols-2 gap-4">
-                        {items.map((item) => (
+                        {speciality.map((spec, index) => (
                           <div
-                            key={item.name}
+                            key={index}
                             className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
                           >
                             <Link
-                              href={item.href}
+                              href={`/question/search-question/${spec}`}
                               onClick={() => setMobileMenuOpen(false)}
                               className="block font-semibold text-gray-900"
                             >
-                              {item.name}
+                              {spec}
                             </Link>
                             <p className="mt-1 text-gray-600">
-                              {item.description}
+                              استشارات في {spec}
                             </p>
                           </div>
                         ))}

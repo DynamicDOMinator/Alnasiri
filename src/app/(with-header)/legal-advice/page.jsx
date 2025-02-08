@@ -1,140 +1,195 @@
-"use client";
-import { useState } from "react";
+import SearchBar from "./SearchBar";
+import Link from "next/link";
 
-// SearchBar Component
-function SearchBar({ onSearch, placeholder }) {
-  const [query, setQuery] = useState("");
+// Make the getQuestions function async
+async function getQuestions(specialty = null, page = 1) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch(query);
-  };
+    // For specialty search
+    if (specialty) {
+      const response = await fetch(
+        `${baseUrl}/question/search-question/${encodeURIComponent(specialty)}?page=${page}`,
+        {
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  const handleChange = (e) => {
-    const value = e.target.value;
-    setQuery(value);
-  };
-  // test
-  return (
-    <form onSubmit={handleSubmit} className="w-full relative">
-      <input
-        type="text"
-        value={query}
-        onChange={handleChange}
-        placeholder={placeholder}
-        className="w-full px-6 py-3 pr-12 text-right rounded-lg border border-gray-300 
-                 focus:outline-none focus:ring-2 focus:ring-gray-800 focus:border-transparent
-                 placeholder-gray-400 bg-white text-gray-900"
-        dir="rtl"
-      />
-      <button
-        type="submit"
-        className="absolute left-2 top-1/2 -translate-y-1/2 px-4 py-1.5 
-                 bg-gray-800 text-white rounded-lg hover:bg-gray-700 
-                 transition-colors duration-200"
-      >
-        بحث
-      </button>
-    </form>
-  );
+      if (!response.ok) {
+        if (response.status === 404) {
+          return { data: [] }; // Return empty array for no results
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      return { data: data.questions || [] };
+    }
+
+    // For all questions
+    const response = await fetch(
+      `${baseUrl}/question/get-all-questions-with-answers?page=${page}`,
+      {
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("All questions data:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    return {
+      data: [],
+      current_page: 1,
+      last_page: 1,
+      links: [],
+    };
+  }
 }
 
 // QuestionCard Component
-function QuestionCard({ title, date }) {
-  return (
-    <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-200 bg-white">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-start">
-          <div className="text-sm text-gray-500">
-            <div className="font-medium">Q&A</div>
-            <div className="mt-1">{date}</div>
-          </div>
-          <h3 className="text-lg font-medium text-right flex-1 mr-4">
-            {title}
-          </h3>
-        </div>
-        <div className="text-right">
-          <button className="text-sm text-gray-500 hover:text-gray-700">
-            اقرأ إجابات كاملة وناقش
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function LegalAdvicePage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const dummyQuestions = [
-    {
-      id: 1,
-      title:
-        "إذا كان لدي قرض سيارة مشترك وتقدمت طلب إفلاس، هل سيؤثر ذلك على الضمان الخاص بالشخص الآخر أو يظهر في تقريره الائتماني؟",
-      date: "السعودية | الرياض | 21 ديسمبر 2024",
-    },
-    {
-      id: 2,
-      title:
-        "إذا كان لدي قرض سيارة مشترك وتقدمت طلب إفلاس، هل سيؤثر ذلك على الضمان الخاص بالشخص الآخر أو يظهر في تقريره الائتماني؟",
-      date: "السعودية | الرياض | 21 ديسمبر 2024",
-    },
-    {
-      id: 3,
-      title:
-        "إذا كان لدي قرض سيارة مشترك وتقدمت طلب إفلاس، هل سيؤثر ذلك على الضمان الخاص بالشخص الآخر أو يظهر في تقريره الائتماني؟",
-      date: "السعودية | الرياض | 21 ديسمبر 2024",
-    },
-  ];
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    // Implement search functionality
+function QuestionCard({ uuid, title, date }) {
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "التاريخ غير متوفر"; // Return a default message if date is invalid
+      }
+      return date.toLocaleDateString("ar-SA", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "التاريخ غير متوفر";
+    }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="relative h-[300px] bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg mb-8">
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-4">
-          <h1 className="text-3xl font-bold mb-4">
-            النصائح القانونية - عنوان رئيسي
+    <Link href={`/question/${uuid}`}>
+      <div className="border border-gray-200 rounded-lg mt-4 p-4 md:p-6 hover:shadow-md transition-all duration-200 bg-white cursor-pointer">
+        <div className="flex flex-col gap-3 md:gap-4">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-start space-y-2 md:space-y-0">
+            <div className="text-sm text-gray-500 order-2  md:order-1">
+              <div className="font-medium">Q&A</div>
+              <div className="mt-1">{formatDate(date)}</div>
+            </div>
+            <h3 className="text-base md:text-lg font-medium text-right flex-1 md:mr-4 order-1 md:order-2">
+              {title}
+            </h3>
+          </div>
+          <div className="text-right">
+            <span className="text-xs md:text-sm text-gray-500 hover:text-gray-700">
+              اقرأ إجابات كاملة وناقش
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// Main page component
+export default async function LegalAdvicePage({ searchParams }) {
+  // Get the specialty and page from URL params
+  const specialty = searchParams?.speciality
+    ? decodeURIComponent(searchParams.speciality)
+    : null;
+  const page = searchParams?.page || 1;
+
+  const questionsData = await getQuestions(specialty, page);
+
+  return (
+    <div className="mt-4 md:mt-8 py-4 md:py-8">
+      <div className="relative h-[400px] bg-[url('/images/law-bg.png')] bg-cover bg-center mb-4 md:mb-8">
+        <div className="absolute inset-0 flex flex-col items-center md:items-end px-4 md:pr-20 justify-center text-white bg-black/30 text-center">
+          <h1 className="text-2xl md:text-3xl mt-8 md:mt-0 font-bold mb-2 md:mb-4">
+            النصائح القانونية - {specialty || "جميع الاسئلة"}
           </h1>
-          <p className="text-lg mb-8">
+          <p className="text-base md:text-lg md:text-right text-center mb-4 md:mb-8 max-w-[90%] md:max-w-2xl">
             النصائح هي وسيلة قانونية للمساعدة في الإجابات التي لم يتمكنوا قادرين
             على العثور عليها مسبقاً
           </p>
-          <div className="w-full max-w-2xl">
-            <SearchBar onSearch={handleSearch} placeholder="ابحث في الأسئلة" />
+          <div className="w-full max-w-[90%] md:max-w-2xl">
+            <SearchBar placeholder="ابحث في الأسئلة" />
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold mb-6 text-right">
-          أسئلة حول الإفلاس!
+      <div className="max-w-7xl mx-auto rounded-lg shadow-lg p-4 md:p-6 px-4 md:px-6 lg:px-8">
+        <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-right">
+          {specialty || "جميع الاسئلة"}
         </h2>
-        <div className="space-y-4">
-          {dummyQuestions.map((question) => (
-            <QuestionCard
-              key={question.id}
-              title={question.title}
-              date={question.date}
-            />
-          ))}
+
+        {(!questionsData.data || questionsData.data.length === 0) && (
+          <div className="text-center text-gray-500 py-6 md:py-8">
+            <p className="text-lg md:text-xl">لا توجد نتائج للبحث</p>
+            <Link href="/Askquestion">
+              <button className="bg-blue-800 mt-5 text-white px-4 py-2 rounded-md">
+                أسال محامي لمساعدتك مجاناً
+              </button>
+            </Link>
+          </div>
+        )}
+
+        <div className="space-y-3 md:space-y-4">
+          {questionsData.data &&
+            questionsData.data.map((question) => (
+              <QuestionCard
+                key={question.uuid}
+                uuid={question.uuid}
+                title={question.question_title}
+                date={question.created_at}
+              />
+            ))}
         </div>
 
-        <div className="flex justify-center items-center space-x-2 mt-8 rtl:space-x-reverse">
-          <button className="px-4 py-2 bg-gray-800 text-white rounded">
-            1
-          </button>
-          <button className="px-4 py-2 hover:bg-gray-100 rounded">2</button>
-          <button className="px-4 py-2 hover:bg-gray-100 rounded">3</button>
-          <button className="px-4 py-2 hover:bg-gray-100 rounded">4</button>
-          <button className="px-4 py-2 hover:bg-gray-100 rounded">5</button>
-          <button className="px-4 py-2 hover:bg-gray-100 rounded">6</button>
-          <button className="px-4 py-2 hover:bg-gray-100 rounded">7</button>
-          <span>...</span>
-          <button className="px-4 py-2 hover:bg-gray-100 rounded">10</button>
-        </div>
+        {questionsData.data && questionsData.data.length > 0 && !specialty && (
+          <div className="flex flex-wrap justify-center items-center gap-2 mt-6 md:mt-8">
+            {questionsData.links?.map((link, index) => {
+              if (
+                link.label === "pagination.previous" ||
+                link.label === "pagination.next"
+              ) {
+                return null;
+              }
+
+              const pageNumber = link.label;
+              const href = {
+                pathname: "/legal-advice",
+                query: { page: pageNumber },
+              };
+
+              return (
+                <Link
+                  key={index}
+                  href={href}
+                  className={`px-3 md:px-4 py-1.5 md:py-2 text-sm md:text-base rounded ${
+                    link.active
+                      ? "bg-gray-800 text-white"
+                      : "bg-white hover:bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {pageNumber}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
