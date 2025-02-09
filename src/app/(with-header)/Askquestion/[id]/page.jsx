@@ -30,7 +30,7 @@ export default function QuestionSuccess() {
         setLoading(true);
 
         if (questionData && currentQuestionId === params.id) {
-          console.log("Using cached question data:", questionData);
+        
           setQuestionDetails(questionData);
           setLoading(false);
           return;
@@ -43,13 +43,13 @@ export default function QuestionSuccess() {
 
         if (response.data?.question || response.data?.lawyerChance) {
           const questionData = response.data.question || response.data.lawyerChance;
-          console.log("Setting data:", questionData);
+        
           setQuestionDetails(questionData);
         } else {
           throw new Error("No data found");
         }
       } catch (error) {
-        console.error("Error:", error);
+      
         setError(error.response?.data?.error || "حدث خطأ أثناء تحميل السؤال");
       } finally {
         setLoading(false);

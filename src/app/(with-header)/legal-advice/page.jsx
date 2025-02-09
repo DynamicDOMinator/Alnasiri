@@ -2,9 +2,29 @@ import SearchBar from "./SearchBar";
 import Link from "next/link";
 
 // Make the getQuestions function async
-async function getQuestions(specialty = null, page = 1) {
+async function getQuestions(specialty = null, page = 1, searchQuery = null) {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+    // For search query
+    if (searchQuery) {
+      const response = await fetch(
+        `${baseUrl}/question/search-question-by-title/${encodeURIComponent(searchQuery)}`,
+        {
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { data: data.questions || [] };
+    }
 
     // For specialty search
     if (specialty) {
@@ -46,7 +66,7 @@ async function getQuestions(specialty = null, page = 1) {
     }
 
     const data = await response.json();
-    console.log("All questions data:", data);
+
     return data;
   } catch (error) {
     console.error("Error fetching questions:", error);
@@ -60,7 +80,7 @@ async function getQuestions(specialty = null, page = 1) {
 }
 
 // QuestionCard Component
-function QuestionCard({ uuid, title, date }) {
+function QuestionCard({ uuid, title, date, answersCount }) {
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
@@ -84,18 +104,17 @@ function QuestionCard({ uuid, title, date }) {
       <div className="border border-gray-200 rounded-lg mt-4 p-4 md:p-6 hover:shadow-md transition-all duration-200 bg-white cursor-pointer">
         <div className="flex flex-col gap-3 md:gap-4">
           <div className="flex flex-col md:flex-row md:justify-between md:items-start space-y-2 md:space-y-0">
-            <div className="text-sm text-gray-500 order-2  md:order-1">
-              <div className="font-medium">Q&A</div>
-              <div className="mt-1">{formatDate(date)}</div>
+            <div className="text-sm text-gray-500 order-2 md:order-1">
+              <p className="font-medium">Q&A</p>
+              <p className="mt-1">{formatDate(date)}</p>
+             
             </div>
             <h3 className="text-base md:text-lg font-medium text-right flex-1 md:mr-4 order-1 md:order-2">
               {title}
             </h3>
           </div>
-          <div className="text-right">
-            <span className="text-xs md:text-sm text-gray-500 hover:text-gray-700">
-              اقرأ إجابات كاملة وناقش
-            </span>
+          <div className="text-right text-sm text-gray-500">
+            <p className="mt-1"> عدد الإجابات: {answersCount}</p>
           </div>
         </div>
       </div>
@@ -105,13 +124,14 @@ function QuestionCard({ uuid, title, date }) {
 
 // Main page component
 export default async function LegalAdvicePage({ searchParams }) {
-  // Get the specialty and page from URL params
   const specialty = searchParams?.speciality
-    ? decodeURIComponent(searchParams.speciality)
+    ? await Promise.resolve(decodeURIComponent(searchParams.speciality))
     : null;
-  const page = searchParams?.page || 1;
+  const page = await Promise.resolve(searchParams?.page || 1);
+  const isNotFound = searchParams?.notFound === "true";
+  const searchQuery = searchParams?.search;
 
-  const questionsData = await getQuestions(specialty, page);
+  const questionsData = await getQuestions(specialty, page, searchQuery);
 
   return (
     <div className="mt-4 md:mt-8 py-4 md:py-8">
@@ -135,9 +155,15 @@ export default async function LegalAdvicePage({ searchParams }) {
           {specialty || "جميع الاسئلة"}
         </h2>
 
-        {(!questionsData.data || questionsData.data.length === 0) && (
+        {(!questionsData.data ||
+          questionsData.data.length === 0 ||
+          isNotFound) && (
           <div className="text-center text-gray-500 py-6 md:py-8">
-            <p className="text-lg md:text-xl">لا توجد نتائج للبحث</p>
+            <p className="text-lg md:text-xl">
+              {searchQuery
+                ? `لم يتم العثور على نتائج للبحث: "${searchQuery}"`
+                : "لا توجد نتائج للبحث"}
+            </p>
             <Link href="/Askquestion">
               <button className="bg-blue-800 mt-5 text-white px-4 py-2 rounded-md">
                 أسال محامي لمساعدتك مجاناً
@@ -154,6 +180,7 @@ export default async function LegalAdvicePage({ searchParams }) {
                 uuid={question.uuid}
                 title={question.question_title}
                 date={question.created_at}
+                answersCount={question.answers_count}
               />
             ))}
         </div>
