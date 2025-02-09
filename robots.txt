@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block access to specific folders
+# Disallow: /private/
+# Disallow: /temp/
+
+# Block specific files
+# Disallow: /file.html 
