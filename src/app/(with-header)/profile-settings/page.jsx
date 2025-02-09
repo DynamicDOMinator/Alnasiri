@@ -1,8 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TiEdit } from "react-icons/ti";
+import axios from "axios";
+import { useAuth } from "@/app/contexts/AuthContext";
+import ForgotPasswordModal from "@/app/components/ForgotPasswordModal";
 
 export default function ProfileSettings() {
+  const { logout } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,41 +17,318 @@ export default function ProfileSettings() {
   });
 
   const [editingField, setEditingField] = useState(null);
+  const [editedValues, setEditedValues] = useState({});
+  const [tempNotificationStatus, setTempNotificationStatus] = useState(false);
+  const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  let token = "";
+
+  if (typeof window !== "undefined") {
+    token = window.localStorage.getItem("token");
+  }
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/user/get-profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setFormData({
+          name: response.data.data.name || "",
+          email: response.data.data.email || "",
+          phone: response.data.data.phone || "",
+          oldPassword: "",
+          newPassword: "",
+          confirmNewPassword: "",
+        });
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    fetchUserData();
+  }, [BASE_URL, token]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission here
   };
 
   const handleEditClick = (fieldName) => {
-    setEditingField(editingField === fieldName ? null : fieldName);
+    if (editingField === fieldName) {
+      setEditingField(null);
+      setEditedValues({});
+    } else {
+      setEditingField(fieldName);
+      setEditedValues({ ...editedValues, [fieldName]: "" });
+    }
   };
 
-  const handleSaveField = (fieldName) => {
-    // Here you can add logic to save the specific field
-    setEditingField(null);
+  // Add validation functions
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return {
+        isValid: false,
+        message:
+          "كلمة المرور يجب أن تحتوي على الأقل 8 أحرف، حرف كبير، حرف صغير، ورقم",
+      };
+    }
+    return { isValid: true };
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return {
+        isValid: false,
+        message: "البريد الإلكتروني غير صالح",
+      };
+    }
+    return { isValid: true };
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^5\d{8}$/; // Starts with 5 followed by exactly 8 digits
+
+    if (!phoneRegex.test(phone)) {
+      return {
+        isValid: false,
+        message: "رقم الجوال يجب أن يبدأ ب 5 ويتكون من 9 أرقام",
+      };
+    }
+    return { isValid: true };
+  };
+
+  const [validationError, setValidationError] = useState("");
+
+  const handleSaveField = async (fieldName) => {
+    try {
+      setValidationError(""); // Clear any previous validation errors
+
+      if (fieldName === "phone") {
+        const phoneValidation = validatePhone(editedValues[fieldName]);
+        if (!phoneValidation.isValid) {
+          setMessage({
+            type: "error",
+            text: phoneValidation.message,
+          });
+          return;
+        }
+      }
+
+      if (fieldName === "email") {
+        const emailValidation = validateEmail(editedValues[fieldName]);
+        if (!emailValidation.isValid) {
+          setMessage({
+            type: "error",
+            text: emailValidation.message,
+          });
+          return;
+        }
+
+        const response = await axios.post(
+          `${BASE_URL}/change-data/change-email`,
+          { email: editedValues[fieldName] },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200 || response.data.success) {
+          setMessage({
+            type: "success",
+            text: "تم تحديث البريد الإلكتروني بنجاح",
+          });
+
+          setTimeout(() => {
+            setMessage({ type: "", text: "" });
+            logout();
+          }, 2000);
+        }
+      }
+
+      if (fieldName === "password") {
+        // Validate passwords match
+        if (editedValues.new_password !== editedValues.confirm_password) {
+          setValidationError("كلمات المرور غير متطابقة");
+          setMessage({
+            type: "error",
+            text: "كلمات المرور غير متطابقة",
+          });
+          return;
+        }
+
+        // Validate password strength
+        const passwordValidation = validatePassword(editedValues.new_password);
+        if (!passwordValidation.isValid) {
+          setValidationError(passwordValidation.message);
+          setMessage({
+            type: "error",
+            text: passwordValidation.message,
+          });
+          return;
+        }
+
+        const response = await axios.post(
+          `${BASE_URL}/change-data/change-password`,
+          {
+            old_password: editedValues.old_password,
+            password: editedValues.new_password,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200 || response.data.success) {
+          setMessage({
+            type: "success",
+            text: "تم تحديث كلمة المرور بنجاح",
+          });
+
+          setTimeout(() => {
+            setMessage({ type: "", text: "" });
+            logout();
+          }, 2000);
+        }
+      }
+
+      setEditingField(null);
+      setEditedValues({});
+      setValidationError("");
+    } catch (error) {
+      console.error("Error details:", error.response || error);
+      setMessage({
+        type: "error",
+        text: error.response?.data?.message || "حدث خطأ أثناء التحديث",
+      });
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingField(null);
+    setEditedValues({});
   };
+
+  // Add helper text for password requirements
+  const renderPasswordHelperText = () => (
+    <div className="text-sm text-red-500 mt-1 text-right">
+      كلمة المرور يجب أن تحتوي على:
+      <ul className="list-disc list-inside mr-4 space-y-1">
+        <li>8 أحرف على الأقل</li>
+        <li>حرف كبير واحد على الأقل</li>
+        <li>حرف صغير واحد على الأقل</li>
+        <li>رقم واحد على الأقل</li>
+      </ul>
+    </div>
+  );
+
+  const [notificationStatus, setNotificationStatus] = useState(false);
+
+  // Fetch notification status on component mount
+  useEffect(() => {
+    const fetchNotificationStatus = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/stop-notification/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setNotificationStatus(response.data.notification_status === 1);
+      } catch (error) {
+        console.error("Error fetching notification status:", error);
+      }
+    };
+
+    if (token) {
+      fetchNotificationStatus();
+    }
+  }, [token, BASE_URL]);
+
+  // Update the notification toggle handler
+  const handleNotificationToggle = () => {
+    setEditingField("notifications");
+    setTempNotificationStatus(!notificationStatus);
+  };
+
+  // Add new handler for saving notification status
+  const handleSaveNotifications = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/stop-notification/start-stop`,
+        {
+          notification_status: tempNotificationStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.message) {
+        setNotificationStatus(tempNotificationStatus);
+        setMessage({
+          type: "success",
+          text: "تم تحديث حالة الإشعارات بنجاح",
+        });
+
+        setTimeout(() => {
+          setMessage({ type: "", text: "" });
+        }, 2000);
+      }
+      setEditingField(null);
+    } catch (error) {
+      console.error("Error updating notification status:", error);
+      setMessage({
+        type: "error",
+        text: "حدث خطأ أثناء تحديث حالة الإشعارات",
+      });
+    }
+  };
+
+  // Add handler for canceling notification edit
+  const handleCancelNotifications = () => {
+    setEditingField(null);
+    setTempNotificationStatus(notificationStatus);
+  };
+
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
 
   const renderField = (fieldName, label, type = "text") => {
     const isEditing = editingField === fieldName;
-    
+    const isPassword = fieldName === "password";
+    const isPhone = fieldName === "phone";
+
     return (
-      <div className="space-y-2 ">
+      <div className="space-y-2">
         <div className="relative py-2">
           <div className="relative">
+            {/* Regular fields (including password) */}
             <input
               id={fieldName}
               type={type}
               dir="rtl"
-              value={formData[fieldName]}
-              onChange={(e) => setFormData({ ...formData, [fieldName]: e.target.value })}
-              className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+              value={
+                isPassword
+                  ? "********"
+                  : isPhone
+                    ? ` 05${formData[fieldName]}`
+                    : formData[fieldName]
+              }
+              readOnly
+              className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 bg-gray-100"
             />
-            <label 
+            <label
               className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600"
               htmlFor={fieldName}
             >
@@ -61,22 +342,154 @@ export default function ProfileSettings() {
               <TiEdit className="w-6 h-6" />
             </button>
           </div>
+
+            {/* Add Forgot Password link for password field */}
+            {fieldName === "password" && !isEditing && (
+              <button
+                type="button"
+                onClick={() => setIsForgotPasswordModalOpen(true)}
+                className="text-blue-700 text-right w-full pt-2 hover:underline"
+              >
+                هل نسيت كلمة المرور ؟
+              </button>
+            )}
+
+          {/* Edit mode */}
           {isEditing && (
-            <div className="flex justify-end gap-2 mt-2">
-              <button
-                type="button"
-                onClick={handleCancelEdit}
-                className="px-4 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm"
-              >
-                الغاء
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSaveField(fieldName)}
-                className="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-              >
-                حفظ
-              </button>
+            <div className="mt-4">
+              {isPassword ? (
+                // Password change fields
+                <div className="space-y-4">
+                  {/* Current Password Input */}
+                  <div className="relative">
+                    <input
+                      id="old-password"
+                      type="password"
+                      dir="rtl"
+                      value={editedValues.old_password || ""}
+                      onChange={(e) =>
+                        setEditedValues({
+                          ...editedValues,
+                          old_password: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                      placeholder="ادخل كلمة المرور الحالية"
+                    />
+                    <label className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600">
+                      كلمة المرور الحالية
+                    </label>
+                  </div>
+
+                  {/* New Password Input */}
+                  <div className="relative">
+                    <input
+                      id="new-password"
+                      type="password"
+                      dir="rtl"
+                      value={editedValues.new_password || ""}
+                      onChange={(e) =>
+                        setEditedValues({
+                          ...editedValues,
+                          new_password: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                      placeholder="ادخل كلمة المرور الجديدة"
+                    />
+                    <label className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600">
+                      كلمة المرور الجديدة
+                    </label>
+                  </div>
+
+                  {/* Confirm New Password Input */}
+                  <div className="relative">
+                    <input
+                      id="confirm-password"
+                      type="password"
+                      dir="rtl"
+                      value={editedValues.confirm_password || ""}
+                      onChange={(e) =>
+                        setEditedValues({
+                          ...editedValues,
+                          confirm_password: e.target.value,
+                        })
+                      }
+                      className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                      placeholder="تأكيد كلمة المرور الجديدة"
+                    />
+                    <label className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600">
+                      تأكيد كلمة المرور
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  {isPhone && (
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                      +966
+                    </span>
+                  )}
+                  <input
+                    id={`${fieldName}-edit`}
+                    type={type}
+                    dir={isPhone ? "ltr" : "rtl"}
+                    value={editedValues[fieldName] || ""}
+                    onChange={(e) => {
+                      if (isPhone) {
+                        const value = e.target.value.replace(/\D/g, "");
+                        if (value.length <= 9) {
+                          setEditedValues({
+                            ...editedValues,
+                            [fieldName]: value,
+                          });
+                        }
+                      } else {
+                        setEditedValues({
+                          ...editedValues,
+                          [fieldName]: e.target.value,
+                        });
+                      }
+                    }}
+                    className={`w-full px-4 py-2 ${isPhone ? "text-left" : "text-right"} border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 ${
+                      isPhone ? "pl-16" : ""
+                    }`}
+                    placeholder={`ادخل ${label} الجديد`}
+                  />
+                  <label
+                    className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600"
+                    htmlFor={`${fieldName}-edit`}
+                  >
+                    {`${label} الجديد`}
+                  </label>
+                </div>
+              )}
+
+              {/* Only show password requirements when there's a validation error */}
+              {isEditing &&
+                isPassword &&
+                validationError &&
+                renderPasswordHelperText()}
+
+              {/* Only show save/cancel buttons when editing */}
+              {isEditing && (
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="px-4 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm"
+                  >
+                    الغاء
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSaveField(fieldName)}
+                    className="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    حفظ
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -84,36 +497,80 @@ export default function ProfileSettings() {
     );
   };
 
+  const [message, setMessage] = useState({ type: "", text: "" });
+
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
+    <div className="container mx-auto p-6 max-w-2xl my-14 min-h-screen">
+      {message.text && (
+        <div
+          className={`mb-4 p-4 rounded-md text-center ${
+            message.type === "success"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
+
       <h1 className="text-2xl font-bold mb-8 text-right">اعدادات الحساب</h1>
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
           {renderField("name", "الاسم")}
           {renderField("email", "البريد الالكتروني", "email")}
           {renderField("phone", "رقم الجوال", "tel")}
-          {renderField("oldPassword", "كلمة المرور القديمة", "password")}
-          {renderField("newPassword", "كلمة المرور الجديدة", "password")}
-          {renderField("confirmNewPassword", "اعادة كتابة كلمة المرور الجديدة", "password")}
-        </div>
+          {renderField("password", "كلمة المرور", "password")}
 
-        <div className="flex justify-end gap-4 mt-8">
-        
-          <button
-            type="button"
-            className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
-          >
-            الغاء
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            حفظ
-          </button>
+          {/* Notification Checkbox */}
+          <div className="space-y-4">
+            <div className="flex items-center flex-row-reverse justify-start space-x-3 space-x-reverse">
+              <input
+                type="checkbox"
+                id="notifications"
+                checked={
+                  editingField === "notifications"
+                    ? tempNotificationStatus
+                    : notificationStatus
+                }
+                onChange={handleNotificationToggle}
+                className="w-6 h-6  accent-blue-500 focus:outline-none  "
+              />
+              <label
+                htmlFor="notifications"
+                className="text-sm font-medium text-gray-700 cursor-pointer"
+              >
+                الغاء الاشعارات علي البريد الالكتروني
+              </label>
+            </div>
+
+            {/* Add Save/Cancel buttons for notifications */}
+            {editingField === "notifications" && (
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={handleCancelNotifications}
+                  className="px-4 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm"
+                >
+                  الغاء
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveNotifications}
+                  className="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                >
+                  حفظ
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </form>
+
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordModalOpen}
+        onClose={() => setIsForgotPasswordModalOpen(false)}
+      />
     </div>
   );
 }

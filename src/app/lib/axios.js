@@ -10,13 +10,12 @@ const axiosInstance = axios.create({
   },
 });
 
-// Add response interceptor
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle 401 errors (unauthorized)
+   
     if (error.response?.status === 401) {
-      // Could trigger logout or refresh token here
+   
     }
     return Promise.reject(error);
   }

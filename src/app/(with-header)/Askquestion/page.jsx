@@ -34,7 +34,6 @@ export default function ClientForm() {
         );
         const speciality = res.data.map((speciality) => speciality.name);
         setSpecialties(speciality);
-        console.log(speciality);
       } catch (error) {
         console.log("التخصصات غير متاحه", error);
       }
@@ -131,14 +130,9 @@ export default function ClientForm() {
           : {}),
       };
 
-      console.log("Request Data:", requestData);
-
       const apiUrl = hireLawyer
         ? `${BASE_URL}/lawyer/create-lawyer-chance`
         : `${BASE_URL}/question/create`;
-
-      console.log("API URL:", apiUrl);
-      console.log("Token:", token);
 
       const response = await axios.post(apiUrl, requestData, {
         headers: {
