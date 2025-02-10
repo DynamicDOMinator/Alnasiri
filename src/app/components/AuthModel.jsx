@@ -135,7 +135,12 @@ export default function AuthModel({ isOpen, onClose }) {
   const handleRegister = async () => {
     try {
       // Enhanced validation
-      if (!name.trim() || !email.trim() || !phone.trim() || !registerPassword.trim()) {
+      if (
+        !name.trim() ||
+        !email.trim() ||
+        !phone.trim() ||
+        !registerPassword.trim()
+      ) {
         setError("جميع الحقول مطلوبة");
         return;
       }
@@ -271,8 +276,10 @@ export default function AuthModel({ isOpen, onClose }) {
           );
         }
       } else {
-        // Use context method for OTP verification
-        const result = await verifyOTP(otpString);
+        // Changed: Pass the OTP in the correct format
+        const result = await verifyOTP({
+          otp: otpString,
+        });
 
         if (result.success) {
           // Clear form states
@@ -374,7 +381,6 @@ export default function AuthModel({ isOpen, onClose }) {
                       className="w-14 h-14 text-center text-xl font-semibold border  border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all"
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
-
                     />
                   ))}
                 </div>
@@ -392,14 +398,12 @@ export default function AuthModel({ isOpen, onClose }) {
                   >
                     التالي
                   </button>
-
                 ) : (
                   <button
-                        onClick={handleVerifyOtp}
+                    onClick={handleVerifyOtp}
                     className="w-full bg-blue-800 hover:bg-blue-700 transition-colors text-white rounded-lg py-3 font-medium mt-6"
                   >
                     تأكيد
-
                   </button>
                 )}
               </div>
@@ -419,7 +423,6 @@ export default function AuthModel({ isOpen, onClose }) {
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-
                     dir="rtl"
                   />
                   <input
@@ -427,7 +430,6 @@ export default function AuthModel({ isOpen, onClose }) {
                     placeholder="تأكيد كلمة المرور"
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                     value={newPasswordConfirmation}
-
                     onChange={(e) => setNewPasswordConfirmation(e.target.value)}
                     dir="rtl"
                   />
@@ -484,7 +486,6 @@ export default function AuthModel({ isOpen, onClose }) {
                   تأكيد
                 </button>
               </div>
-
             )}
             {error && (
               <p className="text-red-500 text-sm text-right mb-4 bg-red-50 p-3 rounded-lg">
@@ -503,7 +504,6 @@ export default function AuthModel({ isOpen, onClose }) {
                   placeholder="البريد الإلكتروني"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={email}
-
                   onChange={(e) => {
                     console.log("Email changed:", e.target.value);
                     setEmail(e.target.value);
@@ -528,7 +528,6 @@ export default function AuthModel({ isOpen, onClose }) {
                         placeholder="كلمة المرور"
                         className="w-full p-3 border mt-4 border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                         value={password}
-
                         onChange={(e) => setPassword(e.target.value)}
                         dir="rtl"
                       />
@@ -554,7 +553,6 @@ export default function AuthModel({ isOpen, onClose }) {
                 >
                   التالي
                 </button>
-
               </div>
             )}
             {step === "register" && (
@@ -566,7 +564,7 @@ export default function AuthModel({ isOpen, onClose }) {
                   value={name}
                   onChange={(e) => {
                     const value = e.target.value;
-                    if (value === '' || validateArabicName(value)) {
+                    if (value === "" || validateArabicName(value)) {
                       setName(value);
                     }
                   }}
@@ -579,7 +577,6 @@ export default function AuthModel({ isOpen, onClose }) {
                     className="w-full p-3 pl-16 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-left [&::placeholder]:text-right"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-
                     dir="ltr"
                   />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
@@ -592,7 +589,6 @@ export default function AuthModel({ isOpen, onClose }) {
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
-
                   dir="rtl"
                 />
                 <input
@@ -600,16 +596,14 @@ export default function AuthModel({ isOpen, onClose }) {
                   placeholder="تأكيد كلمة المرور"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={confirmPassword}
-
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   dir="rtl"
                 />
                 <button
-                    onClick={handleRegister}
+                  onClick={handleRegister}
                   className="w-full bg-blue-800 hover:bg-blue-700 transition-colors text-white rounded-lg py-3 font-medium"
                 >
                   التالي
-
                 </button>
               </div>
             )}

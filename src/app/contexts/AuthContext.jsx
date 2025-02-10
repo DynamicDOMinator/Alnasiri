@@ -108,8 +108,7 @@ export function AuthProvider({ children }) {
       const response = await axios.post(
         `${API_BASE_URL}/lawyer/verify-otp`,
         {
-         
-          otp,
+          otp: otp,
         },
         {
           headers: {
