@@ -48,7 +48,7 @@ const validators = {
 
 function LawyersRegister() {
   // Add auth context
-  const { register, isAuthenticated } = useAuth();
+  const { register, isAuthenticated, verifyOTP } = useAuth();
 
   // Consolidate all initial state into a single object for better organization
   const initialFormData = {
@@ -88,6 +88,8 @@ function LawyersRegister() {
     categories: [],
     registrationSuccessful: false,
     errorMessage: "",
+    showOtpDialog: false,
+    tempUserData: null,
   });
 
   // Add useEffect to handle authentication changes
@@ -170,7 +172,6 @@ function LawyersRegister() {
         if (!value) return true;
         return validators.isArabicText(value);
       },
-      phone: () => /^[+\d]{0,13}$/.test(value),
       licenseNumber: () => /^\d{0,6}$/.test(value),
       // Remove email from validation rules during typing
       // Email will be validated during form submission instead
@@ -299,7 +300,7 @@ function LawyersRegister() {
     return isValid;
   };
 
-  // Update handleNext to include final validation
+  // Update handleNext to better handle errors
   const handleNext = async () => {
     if (state.activeStep === 0) {
       if (validateStep(state.activeStep)) {
@@ -308,8 +309,10 @@ function LawyersRegister() {
 
           const fullName =
             `${state.formData.firstName} ${state.formData.middleName} ${state.formData.lastName}`.trim();
-          const phoneNumber = state.formData.personalId.replace(/\D/g, "");
-          const formattedPhone = `+966${phoneNumber.slice(-9)}`;
+          let formattedPhone = state.formData.personalId;
+          if (!formattedPhone.startsWith("+")) {
+            formattedPhone = `+${formattedPhone}`;
+          }
 
           const registerData = {
             name: fullName,
@@ -326,27 +329,51 @@ function LawyersRegister() {
             return;
           }
 
-          const result = await register(registerData, "lawyer");
+          const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+          const response = await axios.post(
+            `${API_BASE_URL}/lawyer/register`,
+            registerData,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
 
-          if (result.data && result.data.token) {
+          // Check for successful registration and OTP sent
+          if (
+            response.data?.message ===
+            "User registered successfully AND OTP SENT"
+          ) {
             setState((prev) => ({
               ...prev,
-              activeStep: 1,
               isLoading: false,
-              registrationSuccessful: true,
+              showOtpDialog: true,
+              tempUserData: response.data.data,
+              errorMessage: "",
             }));
-            toast.success("تم التسجيل بنجاح!");
+            toast.success("تم إرسال رمز التحقق بنجاح");
           } else {
-            throw new Error("Registration response missing token");
+            throw new Error("Unexpected registration response");
           }
         } catch (error) {
-          const errorMessage =
-            error.response?.data?.message || "حدث خطأ أثناء التسجيل";
+          console.error("Registration error:", error);
+          let errorMessage = "حدث خطأ أثناء التسجيل";
+
+          if (error.response?.data) {
+            errorMessage = error.response.data.message || errorMessage;
+          }
+
+          setState((prev) => ({
+            ...prev,
+            isLoading: false,
+            errorMessage: errorMessage,
+          }));
           toast.error(errorMessage);
-          setState((prev) => ({ ...prev, isLoading: false }));
         }
       } else {
-        toast.error("يرجى تصحيح الأخطاء قبل المتابعة.");
+        toast.error("يرجى تصحيح الأخطاء قبل المتابعة");
       }
     } else if (state.activeStep === 1) {
       try {
@@ -401,6 +428,107 @@ function LawyersRegister() {
         setState((prev) => ({ ...prev, isLoading: false }));
       }
     }
+  };
+
+  // Update handleVerifyOtp function
+  const handleVerifyOtp = async (otpString) => {
+    try {
+      setState((prev) => ({ ...prev, isLoading: true }));
+
+      // Use the verifyOTP function from AuthContext
+      const result = await verifyOTP({
+        phone: state.tempUserData.phone,
+        otp: otpString,
+      });
+
+      if (result.success) {
+        setState((prev) => ({
+          ...prev,
+          activeStep: 1, // Move to lawyer office step
+          showOtpDialog: false,
+          registrationSuccessful: true,
+        }));
+
+        toast.success("تم التحقق بنجاح!");
+      } else {
+        throw new Error("Invalid OTP verification response");
+      }
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      const errorMessage =
+        error.response?.data?.message || "خطأ في التحقق من الرمز";
+      toast.error(errorMessage);
+    } finally {
+      setState((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  // Update OTP Dialog component
+  const OtpDialog = () => {
+    const [otp, setOtp] = useState(["", "", "", ""]);
+    const [localError, setLocalError] = useState("");
+
+    const handleOtpChange = (index, value) => {
+      if (!/^\d*$/.test(value)) return; // Only allow digits
+
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+
+      // Auto-focus next input
+      if (value && index < 3) {
+        document.getElementById(`otp-${index + 1}`)?.focus();
+      }
+    };
+
+    const handleKeyDown = (index, e) => {
+      // Handle backspace
+      if (e.key === "Backspace" && !otp[index] && index > 0) {
+        document.getElementById(`otp-${index - 1}`)?.focus();
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="w-full max-w-[500px] rounded-xl bg-white p-8 relative shadow-2xl">
+          <h2 className="text-2xl text-[#FF883EE0] font-bold text-right mb-6">
+            إدخال رمز التحقق
+          </h2>
+
+          {state.tempUserData && (
+            <p dir="rtl" className="text-gray-600 text-sm text-center mb-6">
+              تم إرسال رمز التحقق إلى الرقم{" "}
+              <span dir="ltr" className="font-medium">
+                {state.tempUserData.phone}
+              </span>
+            </p>
+          )}
+
+          <div className="flex justify-center gap-4 mb-6">
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                id={`otp-${index}`}
+                type="text"
+                maxLength="1"
+                value={digit}
+                onChange={(e) => handleOtpChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="w-14 h-14 text-center text-xl font-semibold border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF883EE0]"
+                autoComplete="off"
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => handleVerifyOtp(otp.join(""))}
+            className="w-full bg-[#FF883EE0] text-white rounded-lg py-3 font-medium hover:bg-[#E57733]"
+          >
+            تأكيد
+          </button>
+        </div>
+      </div>
+    );
   };
 
   // fassffsdfsffs
@@ -665,22 +793,6 @@ function LawyersRegister() {
                 )}
               </div>
 
-              {/* Experience Years - Hidden but still calculated */}
-              {/* <div className="order-6 relative">
-                <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
-                  سنوات الخبرة <span className="text-red-500">*مطلوب</span>
-                </label>
-                <input
-                  type="text"
-                  name="experienceYears"
-                  value={state.formData.experienceYears || ""}
-                  readOnly
-                  dir="rtl"
-                  className="w-full p-3 border border-gray-300 rounded-md bg-gray-50 cursor-default focus:outline-none"
-                  placeholder="سيتم الحساب تلقائياً"
-                />
-              </div> */}
-
               {/* Personal ID */}
               <div className="order-7 relative flex flex-col">
                 <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
@@ -696,12 +808,11 @@ function LawyersRegister() {
                   onChange={handleInputChange}
                   required
                   dir="rtl"
-                  maxLength="9" // Limit to 9 digits
                   className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4 pl-12
                     ${state.errors.personalId ? "border-red-500" : "border-gray-300"}`}
-                  placeholder="5XXXXXXXX" // Indicate that only digits should be entered
-                  style={{ paddingLeft: "2.5rem" }} // Adjust padding to ensure text is not hidden behind the span
-                  autoComplete="off" // Prevent browser autocomplete
+                  placeholder="5XXXXXXXX"
+                  style={{ paddingLeft: "2.5rem" }}
+                  autoComplete="off"
                 />
                 {state.errors.personalId && (
                   <p className="text-red-500 text-sm mt-1 text-right">
@@ -805,7 +916,6 @@ function LawyersRegister() {
                   type="tel"
                   name="phone"
                   value={state.formData.phone}
-                  maxLength={9}
                   onChange={handleInputChange}
                   dir="rtl"
                   className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
@@ -892,7 +1002,9 @@ function LawyersRegister() {
                       <select
                         key={`select-${selection.id}`}
                         value={selection.value}
-                        onChange={(e) => handleSpecialtyChange(selection.id, e.target.value)}
+                        onChange={(e) =>
+                          handleSpecialtyChange(selection.id, e.target.value)
+                        }
                         dir="rtl"
                         className={`w-full p-2 border rounded-md ${
                           selection.isRequired && !selection.value
@@ -1009,93 +1121,38 @@ function LawyersRegister() {
                   : "bg-white"
             }`}
           >
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-sm sm:text-base font-semibold text-black">
-                {step.label}
-              </span>
-              <div
-                className={
-                  state.activeStep === 2 && index === 2
-                    ? "text-green-500"
-                    : state.activeStep === index
-                      ? "text-[#FF883E]"
-                      : "text-black"
-                }
-              >
-                {step.icon}
-              </div>
+            <div className="flex items-center justify-center">
+              {step.icon}
+              <span>{step.label}</span>
             </div>
           </div>
         ))}
       </div>
-      {renderStepContent(state.activeStep)}
-      {/* Error Message Display */}
-      {state.errorMessage && (
-        <div className="fixed bottom-4 left-4 right-4 bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-lg z-40">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-red-500"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="mr-3">
-              <p className="text-sm text-red-700" dir="rtl">
-                {state.errorMessage}
-              </p>
-            </div>
-            <button
-              onClick={() => updateState({ errorMessage: "" })}
-              className="mr-auto text-red-500 hover:text-red-700"
-            >
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-      {/* Loading spinner */}
-      {state.isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-5 rounded-lg flex flex-col items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#E57733E0] border-t-transparent"></div>
-            <p className="mt-3 text-gray-700">جاري التحميل...</p>
-          </div>
-        </div>
-      )}
-      {/* Button section */}
-      <div className="flex justify-end mt-8">
+
+      {/* Form content */}
+      <div className="mt-8">{renderStepContent(state.activeStep)}</div>
+
+      {/* Navigation buttons */}
+      <div className="mt-8 flex justify-between">
+        {state.activeStep > 0 && (
+          <button
+            onClick={handleBack}
+            className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            السابق
+          </button>
+        )}
         <button
-          onClick={state.activeStep === 0 ? handleSubmit : handleNext}
+          onClick={handleNext}
           disabled={state.isLoading}
-          className={`px-6 py-3 bg-[#E57733E0] text-white rounded-md hover:bg-orange-500 w-full sm:w-auto ${
-            state.isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className="px-6 py-2 bg-[#FF883EE0] text-white rounded-md hover:bg-[#E57733] disabled:opacity-50"
         >
-          {state.isLoading
-            ? "جاري التحميل..."
-            : state.activeStep === 0
-              ? "التالي"
-              : "تأكيد"}
+          {state.isLoading ? "جاري التحميل..." : "التالي"}
         </button>
       </div>
-      {state.submitError && (
-        <p className="text-red-500 text-sm mt-2 text-center">
-          {state.submitError}
-        </p>
-      )}
+
+      {/* OTP Dialog */}
+      {state.showOtpDialog && <OtpDialog />}
     </div>
   );
 }

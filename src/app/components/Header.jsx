@@ -16,18 +16,18 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import AuthModal from "./AuthModal";
+import AuthModel from "./AuthModel";
 import { useAuth } from "../contexts/AuthContext";
 import { AiOutlineLogout } from "react-icons/ai";
 import axios from "axios";
 
-export default function Example() {
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModelOpen, setAuthModelOpen] = useState(false);
+  const router = useRouter();
   const { isAuthenticated, userName, userType, logout, loading } = useAuth();
   const [speciality, setSpecialties] = useState([]);
   const [city, setCity] = useState([]);
-  const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
@@ -56,6 +56,10 @@ export default function Example() {
     featchCities();
   }, [BASE_URL]);
 
+  useEffect(() => {
+    console.log("Auth state changed:", { isAuthenticated, userName, userType });
+  }, [isAuthenticated, userName, userType]);
+
   const handleSearch = (searchType, value, close) => {
     if (!value) return;
 
@@ -72,104 +76,13 @@ export default function Example() {
     }
   };
 
-  // Replace the existing auth logic with context usage
-  const AuthSection = () => {
-    if (!isAuthenticated) {
-      return (
-        <button
-          onClick={() => setAuthModalOpen(true)}
-          className="bg-primary border-primary bg-[#16498C] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center"
-        >
-          تسجيل دخول
-          <span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="size-4"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </span>
-        </button>
-      );
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error:", error);
     }
-
-    return (
-      <Popover className="relative">
-        {({ open, close }) => (
-          <>
-            <PopoverButton
-              className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
-                userType === "lawyer"
-                  ? "bg-[#16498C] text-white border-[#16498C]"
-                  : "text-gray-700 hover:text-gray-900"
-              }`}
-            >
-              {userType === "lawyer" ? (
-                <span className="text-sm font-medium">لوحة التحكم</span>
-              ) : (
-                <span className="text-sm font-medium">{userName}</span>
-              )}
-              <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-            </PopoverButton>
-
-            <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-              {userType === "lawyer" && (
-                <Link
-                  href="/Lawyer-dashboard"
-                  onClick={() => close()}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                >
-                  لوحة التحكم
-                </Link>
-              )}
-              {userType === "user" && (
-                <>
-                  <Link
-                    href="/notifications"
-                    onClick={() => close()}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                  >
-                    الاشعارات
-                  </Link>
-                  <Link
-                    href="/my-questions"
-                    onClick={() => close()}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                  >
-                    اسالتي
-                  </Link>
-                  <Link
-                    href="/profile-settings"
-                    onClick={() => close()}
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                  >
-                    الاعدادات
-                  </Link>
-                </>
-              )}
-              <button
-                onClick={() => {
-                  close();
-                  logout();
-                }}
-                className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-              >
-                <span>
-                  <AiOutlineLogout />
-                </span>
-                تسجيل خروج
-              </button>
-            </PopoverPanel>
-          </>
-        )}
-      </Popover>
-    );
   };
 
   if (loading) {
@@ -194,7 +107,101 @@ export default function Example() {
         >
           <div className="flex flex-1">
             <div>
-              <AuthSection />
+              {isAuthenticated ? (
+                <Popover className="relative">
+                  <PopoverButton
+                    className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+                      userType === "lawyer"
+                        ? "bg-[#16498C] text-white border-[#16498C]"
+                        : "text-gray-700 hover:text-gray-900"
+                    }`}
+                  >
+                    {userType === "lawyer" ? (
+                      <span className="text-sm font-medium">لوحة التحكم</span>
+                    ) : (
+                      <span className="text-sm font-medium">{userName}</span>
+                    )}
+                    <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+                  </PopoverButton>
+
+                  <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                    {userType === "lawyer" && (
+                      <Link
+                        href="/Lawyer-dashboard"
+                        onClick={() => {
+                          handleLogout();
+                        }}
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                      >
+                        لوحة التحكم
+                      </Link>
+                    )}
+                    {userType === "user" && (
+                      <>
+                        <Link
+                          href="/notifications"
+                          onClick={() => {
+                            handleLogout();
+                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                        >
+                          الاشعارات
+                        </Link>
+                        <Link
+                          href="/my-questions"
+                          onClick={() => {
+                            handleLogout();
+                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                        >
+                          اسالتي
+                        </Link>
+                        <Link
+                          href="/profile-settings"
+                          onClick={() => {
+                            handleLogout();
+                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                        >
+                          الاعدادات
+                        </Link>
+                      </>
+                    )}
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                      }}
+                      className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                    >
+                      <span>
+                        <AiOutlineLogout />
+                      </span>
+                      تسجيل خروج
+                    </button>
+                  </PopoverPanel>
+                </Popover>
+              ) : (
+                <button
+                  onClick={() => setAuthModelOpen(true)}
+                  className="bg-primary border-primary bg-[#16498C] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center"
+                >
+                  تسجيل دخول
+                  <span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-4"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -378,7 +385,103 @@ export default function Example() {
           <div className="fixed inset-0 z-10" />
           <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
-              <AuthSection />
+              <div>
+                {isAuthenticated ? (
+                  <Popover className="relative">
+                    <PopoverButton
+                      className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+                        userType === "lawyer"
+                          ? "bg-[#16498C] text-white border-[#16498C]"
+                          : "text-gray-700 hover:text-gray-900"
+                      }`}
+                    >
+                      {userType === "lawyer" ? (
+                        <span className="text-sm font-medium">لوحة التحكم</span>
+                      ) : (
+                        <span className="text-sm font-medium">{userName}</span>
+                      )}
+                      <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
+                    </PopoverButton>
+
+                    <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                      {userType === "lawyer" && (
+                        <Link
+                          href="/Lawyer-dashboard"
+                          onClick={() => {
+                            handleLogout();
+                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                        >
+                          لوحة التحكم
+                        </Link>
+                      )}
+                      {userType === "user" && (
+                        <>
+                          <Link
+                            href="/notifications"
+                            onClick={() => {
+                              handleLogout();
+                            }}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                          >
+                            الاشعارات
+                          </Link>
+                          <Link
+                            href="/my-questions"
+                            onClick={() => {
+                              handleLogout();
+                            }}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                          >
+                            اسالتي
+                          </Link>
+                          <Link
+                            href="/profile-settings"
+                            onClick={() => {
+                              handleLogout();
+                            }}
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                          >
+                            الاعدادات
+                          </Link>
+                        </>
+                      )}
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                        }}
+                        className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                      >
+                        <span>
+                          <AiOutlineLogout />
+                        </span>
+                        تسجيل خروج
+                      </button>
+                    </PopoverPanel>
+                  </Popover>
+                ) : (
+                  <button
+                    onClick={() => setAuthModelOpen(true)}
+                    className="bg-primary border-primary bg-[#16498C] text-white gap-2 rounded-md inline-flex items-center justify-center py-3 px-4 text-center"
+                  >
+                    تسجيل دخول
+                    <span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-4"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  </button>
+                )}
+              </div>
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="-m-2.5 rounded-md p-2.5 text-gray-700"
@@ -399,7 +502,7 @@ export default function Example() {
                         className="h-5 w-5 flex-shrink-0"
                       />
                     </DisclosureButton>
-                    <DisclosurePanel className="mt-2">
+                    <DisclosurePanel className="mt-2 ">
                       <div className="grid grid-cols-2 gap-4">
                         {city.map((cityName, index) => (
                           <div
@@ -491,10 +594,9 @@ export default function Example() {
           </DialogPanel>
         </Dialog>
       </header>
-
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
+      <AuthModel
+        isOpen={authModelOpen}
+        onClose={() => setAuthModelOpen(false)}
       />
     </>
   );

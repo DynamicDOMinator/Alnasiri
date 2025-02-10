@@ -14,56 +14,40 @@ export function AuthProvider({ children }) {
   const [userType, setUserType] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Check for existing auth data on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
       const storedUserName = localStorage.getItem("userName");
       const storedUserType = localStorage.getItem("userType");
 
-      setToken(storedToken);
-      setUserName(storedUserName);
-      setUserType(storedUserType);
-      setLoading(false);
+      if (storedToken && storedUserName && storedUserType) {
+        setToken(storedToken);
+        setUserName(storedUserName);
+        setUserType(storedUserType);
+      }
     }
+    setLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (userName) {
-        localStorage.setItem("userName", userName);
-      } else {
-        localStorage.removeItem("userName");
-      }
-    }
-  }, [userName]);
+  const handleLogout = async () => {
+    // Clear context state
+    setToken(null);
+    setUserName(null);
+    setUserType(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (userType) {
-        localStorage.setItem("userType", userType);
-      } else {
-        localStorage.removeItem("userType");
-      }
-    }
-  }, [userType]);
-
-  const handleLogout = () => {
+    // Clear localStorage
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
       localStorage.removeItem("userName");
       localStorage.removeItem("userType");
-      localStorage.removeItem("profileImage");
-
-      setToken(null);
-      setUserName(null);
-      setUserType(null);
-      router.push("/");
     }
   };
 
   const handleLogin = async (credentials) => {
     try {
       setLoading(true);
+
       const response = await axios.post(`${API_BASE_URL}/login`, credentials, {
         headers: {
           "Content-Type": "application/json",
@@ -72,35 +56,93 @@ export function AuthProvider({ children }) {
       });
 
       if (response.data) {
+        if (
+          response.data.message &&
+          response.data.message.includes("OTP SENT")
+        ) {
+          return {
+            success: true,
+            requiresOTP: true,
+            userData: response.data.data,
+          };
+        }
+
+        // Direct login case
         const { user, token: newToken } = response.data;
 
-        if (!user || !newToken) {
-          throw new Error("No user data or token received");
-        }
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", newToken);
-          localStorage.setItem("userName", user.name);
-          localStorage.setItem("userType", user.user_type);
-        }
-
+        // Update context state
         setToken(newToken);
         setUserName(user.name);
         setUserType(user.user_type);
 
         if (user.user_type === "user") {
           router.push("/Askquestion");
-        } else if (user.user_type === "lawyer") {
-          router.push("/Lawyer-dashboard");
+        } else {
+          router.push("/lawyer/dashboard");
         }
 
-        return response.data;
+        // Persist in localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", newToken);
+          localStorage.setItem("userName", user.name);
+          localStorage.setItem("userType", user.user_type);
+        }
+
+        return {
+          success: true,
+          requiresOTP: false,
+          userData: user,
+          token: newToken,
+        };
       }
     } catch (error) {
       console.error("Login error details:", error.response?.data);
       throw error;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const verifyOTP = async ({ phone, otp }) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/lawyer/verify-otp`,
+        {
+         
+          otp,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (response.data?.token) {
+        // Update context state
+        setToken(response.data.token);
+        setUserName(response.data.user?.name);
+        setUserType("lawyer"); // Since this is specifically for lawyer registration
+
+        // Persist in localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("userName", response.data.user?.name);
+          localStorage.setItem("userType", "lawyer");
+        }
+
+        return {
+          success: true,
+          userData: response.data.user,
+          token: response.data.token,
+        };
+      }
+
+      throw new Error("لم يتم استلام رمز التحقق");
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      throw new Error(error.response?.data?.message || "فشل التحقق من الرمز");
     }
   };
 
@@ -118,110 +160,71 @@ export function AuthProvider({ children }) {
         }
       );
 
-      if (response.data) {
-        const { data: user, token } = response.data;
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", token);
-          localStorage.setItem("userName", user.name);
-          localStorage.setItem("userType", "user");
-        }
-
-        setToken(token);
-        setUserName(user.name);
-        setUserType("user");
-
-        return { success: true, data: response.data };
+      if (response.data && response.data.message.includes("OTP SENT")) {
+        return {
+          success: true,
+          requiresOTP: true,
+          data: response.data.data,
+          message: response.data.message,
+        };
       }
       return { success: false, error: "Registration failed" };
     } catch (error) {
+      console.error("Registration error details:", error.response?.data);
+
       if (error.response?.status === 422) {
-        return { 
-          success: false, 
-          error: error.response.data.message || "Phone number already exists"
-        };
-      }
-      return { 
-        success: false, 
-        error: error.response?.data?.message || "Registration failed" 
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const registerLawyer = async (userData) => {
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `${API_BASE_URL}/lawyer/register`,
-        {
-          name: userData.name,
-          email: userData.email,
-          city: userData.city,
-          password: userData.password,
-          phone: userData.phone,
-          experience: userData.experience || 0,
-          license_number: userData.license_number,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+        const errorMessage = error.response.data.message;
+        if (typeof errorMessage === "object") {
+          const firstError = Object.values(errorMessage)[0];
+          return {
+            success: false,
+            error: Array.isArray(firstError) ? firstError[0] : errorMessage,
+          };
         }
-      );
-
-      if (response.data) {
-        const { data: user, token } = response.data;
-
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", token);
-          localStorage.setItem("userName", user.name);
-          localStorage.setItem("userType", "lawyer");
-        }
-
-        setToken(token);
-        setUserName(user.name);
-        setUserType("lawyer");
-
         return {
-          data: response.data,
+          success: false,
+          error: errorMessage || "يرجى التحقق من صحة البيانات المدخلة",
         };
       }
 
       return {
-        data: response.data,
+        success: false,
+        error: error.response?.data?.message || "حدث خطأ أثناء التسجيل",
       };
-    } catch (error) {
-      return null;
     } finally {
       setLoading(false);
     }
   };
 
   const register = async (userData, userType = "user") => {
-    if (userType === "lawyer") {
-      return registerLawyer(userData);
-    }
     return registerUser(userData);
   };
 
   const checkEmail = async (email) => {
     try {
+      console.log("Making check-email request for:", email);
+
       const response = await axios.get(
         `${API_BASE_URL}/check-email/check-email`,
         {
           params: { email },
           headers: {
-            Accept: "application/json",
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
         }
       );
-      return response.status === 200;
+
+      console.log("Check email response:", response.data);
+      return { success: true, data: response.data };
     } catch (error) {
-      return null;
+      console.error("Check email error:", error);
+      return {
+        success: false,
+        error:
+          error.response?.data?.message ||
+          "حدث خطأ في التحقق من البريد الإلكتروني",
+      };
     }
   };
 
@@ -231,12 +234,12 @@ export function AuthProvider({ children }) {
     userType,
     register,
     registerUser,
-    registerLawyer,
     logout: handleLogout,
     loginUser: handleLogin,
     checkEmail,
     isAuthenticated: !!token,
     loading,
+    verifyOTP,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

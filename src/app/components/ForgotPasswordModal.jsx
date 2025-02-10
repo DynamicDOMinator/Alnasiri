@@ -5,7 +5,7 @@ import { IoMdClose } from "react-icons/io";
 
 export default function ForgotPasswordModal({ isOpen, onClose }) {
   const router = useRouter();
-  const [step, setStep] = useState("email"); // email, otp
+  const [step, setStep] = useState("email"); // email, otp, password
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState({
@@ -102,6 +102,15 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
       return;
     }
 
+    setSuccess("تم التحقق من الرمز بنجاح");
+    setStep("password");
+    setOtp(completeOtp); // Store the OTP for later use
+  };
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    setError("");
+
     if (!newPassword.password || !newPassword.password_confirmation) {
       setError("الرجاء إدخال كلمة المرور وتأكيدها");
       return;
@@ -122,7 +131,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
       const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
       await axios.post(`${BASE_URL}/password-recovery/verify-otp`, {
         email,
-        otp: parseInt(completeOtp),
+        otp: parseInt(otp),
         password: newPassword.password,
         password_confirmation: newPassword.password_confirmation,
       });
@@ -133,7 +142,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
         router.refresh();
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "فشل في التحقق من الرمز");
+      setError(err.response?.data?.message || "فشل في تغيير كلمة المرور");
     }
   };
 
@@ -203,6 +212,17 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
               ))}
             </div>
 
+            <button
+              type="submit"
+              className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 w-full"
+            >
+              التحقق من الرمز
+            </button>
+          </form>
+        )}
+
+        {step === "password" && (
+          <form onSubmit={handlePasswordReset} className="space-y-4">
             <div className="border-2 relative rounded-lg">
               <label className="absolute -top-2.5 right-3 bg-white px-1 text-sm text-gray-600">
                 كلمة المرور الجديدة
@@ -238,7 +258,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
               type="submit"
               className="bg-blue-800 text-white px-6 py-2 rounded-md hover:bg-blue-900 w-full"
             >
-              تأكيد
+              تغيير كلمة المرور
             </button>
           </form>
         )}
