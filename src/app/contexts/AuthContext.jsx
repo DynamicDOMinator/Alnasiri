@@ -119,21 +119,23 @@ export function AuthProvider({ children }) {
       );
 
       if (response.data?.token) {
-        // Update context state
+        const userData = response.data.message;
+
+        // Update context state with correct user data
         setToken(response.data.token);
-        setUserName(response.data.user?.name);
-        setUserType("lawyer"); // Since this is specifically for lawyer registration
+        setUserName(userData.name);
+        setUserType(userData.user_type);
 
         // Persist in localStorage
         if (typeof window !== "undefined") {
           localStorage.setItem("token", response.data.token);
-          localStorage.setItem("userName", response.data.user?.name);
-          localStorage.setItem("userType", "lawyer");
+          localStorage.setItem("userName", userData.name);
+          localStorage.setItem("userType", userData.user_type);
         }
 
         return {
           success: true,
-          userData: response.data.user,
+          userData: userData,
           token: response.data.token,
         };
       }
