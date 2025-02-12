@@ -23,6 +23,9 @@ export default function AuthModel({ isOpen, onClose }) {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [newPasswordConfirmation, setNewPasswordConfirmation] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [verifiedOtp, setVerifiedOtp] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleOtpChange = (index, value) => {
     if (!/\d/.test(value) && value !== "") return;
@@ -36,6 +39,19 @@ export default function AuthModel({ isOpen, onClose }) {
     } else if (!value && index > 0) {
       document.getElementById(`otp-${index - 1}`).focus();
     }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").trim();
+    if (!/^\d+$/.test(pastedData)) return; // Only allow numbers
+
+    const digits = pastedData.slice(0, 4).split(""); // Take only first 4 digits
+    const newOtp = [...otp];
+    digits.forEach((digit, index) => {
+      if (index < 4) newOtp[index] = digit;
+    });
+    setOtp(newOtp);
   };
 
   const handleEmailCheck = async () => {
@@ -90,10 +106,16 @@ export default function AuthModel({ isOpen, onClose }) {
     setShowPassword(false);
     setName("");
     setPhone("");
-    setRegisterPassword("");
-    setConfirmPassword("");
     setOtp(["", "", "", ""]);
     setError("");
+    setRegisterPassword("");
+    setConfirmPassword("");
+    setUserData(null);
+    setIsForgotPassword(false);
+    setNewPassword("");
+    setNewPasswordConfirmation("");
+    setOldPassword("");
+    setVerifiedOtp("");
     setStep("email");
   };
 
@@ -164,26 +186,13 @@ export default function AuthModel({ isOpen, onClose }) {
       const otpString = otp.join("");
 
       if (isForgotPassword) {
-        // Password recovery verification (email OTP)
-        const response = await axios.post(
-          `${API_BASE_URL}/password-recovery/verify-otp`,
-          {
-            email,
-            otp: parseInt(otpString),
-            password: newPassword,
-            password_confirmation: newPasswordConfirmation,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          }
-        );
-
-        if (response.data) {
-          resetForm();
-          onClose();
+        // Just validate OTP format and move to next step
+        if (otpString.length === 4) {
+          setVerifiedOtp(otpString);
+          setStep("change-password");
+          setError("");
+        } else {
+          setError("الرجاء إدخال رمز التحقق كاملاً");
         }
       } else {
         // Regular OTP verification (phone OTP)
@@ -197,6 +206,35 @@ export default function AuthModel({ isOpen, onClose }) {
       }
     } catch (err) {
       setError(err.response?.data?.message || "خطأ في التحقق من الرمز");
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    try {
+      // Send the password change request with OTP and new passwords
+      const response = await axios.post(
+        `${API_BASE_URL}/password-recovery/verify-otp`,
+        {
+          email,
+          otp: parseInt(verifiedOtp),
+          password: newPassword,
+          password_confirmation: newPasswordConfirmation,
+        }
+      );
+
+      if (response.data.status === "success") {
+        setError(""); // Clear any previous errors
+        // Show success message and move to login
+        setSuccessMessage(response.data.message);
+        // Reset password fields
+        setNewPassword("");
+        setNewPasswordConfirmation("");
+        setVerifiedOtp("");
+        // Move to login step
+        setStep("login");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "حدث خطأ في تغيير كلمة المرور");
     }
   };
 
@@ -215,6 +253,9 @@ export default function AuthModel({ isOpen, onClose }) {
     setIsForgotPassword(false);
     setNewPassword("");
     setNewPasswordConfirmation("");
+    setOldPassword("");
+    setVerifiedOtp("");
+    setSuccessMessage("");
     onClose();
   };
 
@@ -233,19 +274,7 @@ export default function AuthModel({ isOpen, onClose }) {
               نافذة تسجيل الدخول والتسجيل
             </Dialog.Title>
             <button
-              onClick={() => {
-                onClose();
-                setStep("email");
-                setEmail("");
-                setPassword("");
-                setShowPassword(false);
-                setName("");
-                setPhone("");
-                setRegisterPassword("");
-                setConfirmPassword("");
-                setOtp(["", "", "", ""]);
-                setError("");
-              }}
+              onClick={handleClose}
               className="absolute top-4 left-4 text-gray-400 hover:text-gray-600 transition-colors p-2"
             >
               &#10005;
@@ -254,10 +283,17 @@ export default function AuthModel({ isOpen, onClose }) {
               {step === "email" && "تسجيل الدخول أو إنشاء حساب"}
               {step === "register" && "إكمال بيانات الحساب"}
               {step === "otp" && "إدخال رمز التحقق"}
+              {step === "change-password" && "تغيير كلمة المرور"}
+              {step === "login" && "تسجيل الدخول"}
             </h2>
             {error && (
               <p className="text-red-500 text-sm text-right p-3 bg-red-50 rounded-lg mb-4">
                 {error}
+              </p>
+            )}
+            {successMessage && (
+              <p className="text-green-600 text-sm text-right p-3 bg-green-50 rounded-lg mb-4">
+                {successMessage}
               </p>
             )}
             {step === "otp" && (
@@ -286,6 +322,7 @@ export default function AuthModel({ isOpen, onClose }) {
                       maxLength={1}
                       value={otp[index]}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onPaste={handleOtpPaste}
                       className="w-12 h-12 text-center border-2 border-gray-300 rounded-lg focus:border-blue-800 focus:outline-none text-lg"
                     />
                   ))}
@@ -298,7 +335,7 @@ export default function AuthModel({ isOpen, onClose }) {
                     onClick={handleVerifyOtp}
                     className="bg-blue-800 text-white px-8 py-2 w-full rounded-lg hover:bg-bluee-700 transition-colors"
                   >
-                    تحقق
+                    {isForgotPassword ? "التالي" : "تحقق"}
                   </button>
                 </div>
               </div>
@@ -398,6 +435,64 @@ export default function AuthModel({ isOpen, onClose }) {
                   className="w-full bg-blue-800 hover:bg-blue-700 transition-colors text-white rounded-lg py-3 font-medium"
                 >
                   التالي
+                </button>
+              </div>
+            )}
+            {step === "change-password" && (
+              <div className="space-y-4">
+                <input
+                  type="password"
+                  placeholder="كلمة المرور الجديدة"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  dir="rtl"
+                />
+                <input
+                  type="password"
+                  placeholder="تأكيد كلمة المرور الجديدة"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
+                  value={newPasswordConfirmation}
+                  onChange={(e) => setNewPasswordConfirmation(e.target.value)}
+                  dir="rtl"
+                />
+                {error && (
+                  <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+                )}
+                <button
+                  onClick={handlePasswordChange}
+                  className="w-full bg-blue-800 hover:bg-blue-700 transition-colors text-white rounded-lg py-3 font-medium"
+                >
+                  تغيير كلمة المرور
+                </button>
+              </div>
+            )}
+            {step === "login" && (
+              <div className="space-y-4">
+                <input
+                  type="email"
+                  placeholder="البريد الإلكتروني"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  dir="rtl"
+                />
+                <input
+                  type="password"
+                  placeholder="كلمة المرور"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  dir="rtl"
+                />
+                {error && (
+                  <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+                )}
+                <button
+                  onClick={handleEmailCheck}
+                  className="w-full bg-blue-800 hover:bg-blue-700 transition-colors text-white rounded-lg py-3 font-medium"
+                >
+                  تسجيل الدخول
                 </button>
               </div>
             )}
