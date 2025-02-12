@@ -20,45 +20,77 @@ import AuthModel from "./AuthModel";
 import { useAuth } from "../contexts/AuthContext";
 import { AiOutlineLogout } from "react-icons/ai";
 import axios from "axios";
+import { useUserType } from "../contexts/UserTypeContext";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModelOpen, setAuthModelOpen] = useState(false);
   const router = useRouter();
-  const { isAuthenticated, userName, userType, logout, loading } = useAuth();
+  const {
+    isAuthenticated,
+    userName,
+    logout,
+    isLoading: authLoading,
+  } = useAuth();
+  const { userType, isLoading: userTypeLoading } = useUserType();
   const [speciality, setSpecialties] = useState([]);
   const [city, setCity] = useState([]);
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  useEffect(() => {
-    localStorage.removeItem("searchResults");
-  }, []);
+  const isLoading = authLoading || userTypeLoading;
+
+  // Function to close mobile menu and handle navigation
+  const handleNavigation = (path) => {
+    setMobileMenuOpen(false);
+    router.push(path);
+  };
+
+  // Function to handle logout
+  const handleLogout = () => {
+    setMobileMenuOpen(false);
+    logout();
+    router.push("/");
+  };
 
   useEffect(() => {
-    const featchSpecialties = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(
+        // Fetch specialties
+        const specialtyRes = await axios.get(
           `${BASE_URL}/speciality/get-all-speciality`
         );
-        const speciality = res.data.map((speciality) => speciality.name);
-        setSpecialties(speciality);
-      } catch (error) {}
-    };
-    featchSpecialties();
+        const specialties = specialtyRes.data.map(
+          (specialty) => specialty.name
+        );
+        setSpecialties(specialties);
 
-    const featchCities = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/lawyer/get-all-cities`);
-        const cityNames = res.data.map((city) => city.name);
+        // Fetch cities
+        const cityRes = await axios.get(`${BASE_URL}/lawyer/get-all-cities`);
+        const cityNames = cityRes.data.map((city) => city.name);
         setCity(cityNames);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-    featchCities();
-  }, [BASE_URL]);
+
+    fetchData();
+  }, [isAuthenticated, userType, BASE_URL]);
+
+  useEffect(() => {
+    console.log("Header state updated:", {
+      isAuthenticated,
+      userType,
+      isLoading,
+    });
+  }, [isAuthenticated, userType, isLoading]);
 
   useEffect(() => {
     console.log("Auth state changed:", { isAuthenticated, userName, userType });
   }, [isAuthenticated, userName, userType]);
+
+  useEffect(() => {
+    console.log("Header: authModelOpen changed:", authModelOpen);
+  }, [authModelOpen]);
 
   const handleSearch = (searchType, value, close) => {
     if (!value) return;
@@ -76,23 +108,19 @@ export default function Header() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      router.push("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
-
-  if (loading) {
+  // Show loading state while checking auth and user type
+  if (isLoading) {
     return (
-      <header className="bg-white shadow fixed  top-0 w-full z-50">
+      <header className="bg-white shadow fixed top-0 w-full z-50">
         <nav
           aria-label="Global"
-          className="flex items-center justify-between p-6 lg:px-16"
+          className="flex items-center justify-between px-3 py-3 lg:px-16"
         >
-          {/* Display a loading spinner or placeholder */}
+          <div className="flex flex-1">
+            <div>
+              <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-lg"></div>
+            </div>
+          </div>
         </nav>
       </header>
     );
@@ -125,59 +153,67 @@ export default function Header() {
                   </PopoverButton>
 
                   <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                    {userType === "lawyer" && (
-                      <Link
-                        href="/Lawyer-dashboard"
-                        onClick={() => {
-                          handleLogout();
-                        }}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                      >
-                        لوحة التحكم
-                      </Link>
-                    )}
-                    {userType === "user" && (
+                    {({ close }) => (
                       <>
-                        <Link
-                          href="/notifications"
+                        {userType === "lawyer" ? (
+                          <Link
+                            href="/Lawyer-dashboard"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                            onClick={() => {
+                              setMobileMenuOpen(false);
+                              close();
+                            }}
+                          >
+                            لوحة التحكم
+                          </Link>
+                        ) : (
+                          <>
+                            <Link
+                              href="/notifications"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                              onClick={() => {
+                                setMobileMenuOpen(false);
+                                close();
+                              }}
+                            >
+                              الاشعارات
+                            </Link>
+                            <Link
+                              href="/my-questions"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                              onClick={() => {
+                                setMobileMenuOpen(false);
+                                close();
+                              }}
+                            >
+                              اسالتي
+                            </Link>
+                            <Link
+                              href="/profile-settings"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                              onClick={() => {
+                                setMobileMenuOpen(false);
+                                close();
+                              }}
+                            >
+                              الاعدادات
+                            </Link>
+                          </>
+                        )}
+                        <button
                           onClick={() => {
                             handleLogout();
+                            close();
                           }}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                          className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                         >
-                          الاشعارات
-                        </Link>
-                        <Link
-                          href="/my-questions"
-                          onClick={() => {
-                            handleLogout();
-                          }}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                        >
-                          اسالتي
-                        </Link>
-                        <Link
-                          href="/profile-settings"
-                          onClick={() => {
-                            handleLogout();
-                          }}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                        >
-                          الاعدادات
-                        </Link>
+                          <span>
+                            <AiOutlineLogout />
+                          </span>
+                          تسجيل خروج
+                        </button>
                       </>
                     )}
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                      }}
-                      className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                    >
-                      <span>
-                        <AiOutlineLogout />
-                      </span>
-                      تسجيل خروج
-                    </button>
                   </PopoverPanel>
                 </Popover>
               ) : (
@@ -248,9 +284,10 @@ export default function Header() {
                               <div
                                 key={index}
                                 className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
-                                onClick={() =>
-                                  handleSearch("city", cityName, close)
-                                }
+                                onClick={() => {
+                                  handleSearch("city", cityName, close);
+                                  setMobileMenuOpen(false);
+                                }}
                               >
                                 <span className="block font-semibold text-blue-500 hover:underline">
                                   {cityName}
@@ -295,9 +332,10 @@ export default function Header() {
                               <div
                                 key={index}
                                 className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
-                                onClick={() =>
-                                  handleSearch("specialty", spec, close)
-                                }
+                                onClick={() => {
+                                  handleSearch("specialty", spec, close);
+                                  setMobileMenuOpen(false);
+                                }}
                               >
                                 <span className="block font-semibold text-blue-500 hover:underline">
                                   {spec}
@@ -347,6 +385,7 @@ export default function Header() {
                                   router.push(
                                     `/legal-advice?speciality=${encodeURIComponent(spec)}`
                                   );
+                                  setMobileMenuOpen(false);
                                 }}
                               >
                                 <span className="block font-semibold text-blue-500 hover:underline">
@@ -361,6 +400,7 @@ export default function Header() {
                               onClick={() => {
                                 close();
                                 router.push("/legal-advice");
+                                setMobileMenuOpen(false);
                               }}
                             >
                               تصفح المواضيع القانونية
@@ -404,59 +444,63 @@ export default function Header() {
                     </PopoverButton>
 
                     <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                      {userType === "lawyer" && (
-                        <Link
-                          href="/Lawyer-dashboard"
-                          onClick={() => {
-                            handleLogout();
-                          }}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                        >
-                          لوحة التحكم
-                        </Link>
-                      )}
-                      {userType === "user" && (
+                      {({ close }) => (
                         <>
-                          <Link
-                            href="/notifications"
+                          {userType === "lawyer" && (
+                            <Link
+                              href="/Lawyer-dashboard"
+                              onClick={() => {
+                                handleLogout();
+                              }}
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                            >
+                              لوحة التحكم
+                            </Link>
+                          )}
+                          {userType === "user" && (
+                            <>
+                              <Link
+                                href="/notifications"
+                                onClick={() => {
+                                  handleLogout();
+                                }}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                              >
+                                الاشعارات
+                              </Link>
+                              <Link
+                                href="/my-questions"
+                                onClick={() => {
+                                  handleLogout();
+                                }}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                              >
+                                اسالتي
+                              </Link>
+                              <Link
+                                href="/profile-settings"
+                                onClick={() => {
+                                  handleLogout();
+                                }}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                              >
+                                الاعدادات
+                              </Link>
+                            </>
+                          )}
+                          <button
                             onClick={() => {
                               handleLogout();
                             }}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                            className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                           >
-                            الاشعارات
-                          </Link>
-                          <Link
-                            href="/my-questions"
-                            onClick={() => {
-                              handleLogout();
-                            }}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                          >
-                            اسالتي
-                          </Link>
-                          <Link
-                            href="/profile-settings"
-                            onClick={() => {
-                              handleLogout();
-                            }}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                          >
-                            الاعدادات
-                          </Link>
+                            <span>
+                              <AiOutlineLogout />
+                            </span>
+                            تسجيل خروج
+                          </button>
                         </>
                       )}
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                        }}
-                        className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                      >
-                        <span>
-                          <AiOutlineLogout />
-                        </span>
-                        تسجيل خروج
-                      </button>
                     </PopoverPanel>
                   </Popover>
                 ) : (

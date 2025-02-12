@@ -5,12 +5,22 @@ import axios from "axios";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { RiQuestionnaireLine } from "react-icons/ri";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useUserType } from "@/app/contexts/UserTypeContext";
 
 export default function MyQuestions() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const { userType, isLoading: userTypeLoading } = useUserType();
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  useEffect(() => {
+    if (!userTypeLoading && (!isAuthenticated || userType === "lawyer")) {
+      router.push("/");
+    }
+  }, [isAuthenticated, userType, userTypeLoading, router]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -49,7 +59,7 @@ export default function MyQuestions() {
 
   return (
     <div className="bg-slate-100 pt-24 pb-10 min-h-screen">
-      {isLoading ? (
+      {isLoading || userTypeLoading ? (
         <div className="absolute inset-0 flex justify-center items-center">
           <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-600" />
         </div>

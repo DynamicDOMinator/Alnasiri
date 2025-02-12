@@ -89,7 +89,7 @@ export default function AuthPopup() {
 
   const handleRegister = async () => {
     try {
-      // Basic validation
+      
       if (!name || !email || !phone || !registerPassword) {
         setError("جميع الحقول مطلوبة");
         return;

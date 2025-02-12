@@ -4,9 +4,20 @@ import { TiEdit } from "react-icons/ti";
 import axios from "axios";
 import { useAuth } from "@/app/contexts/AuthContext";
 import ForgotPasswordModal from "@/app/components/ForgotPasswordModal";
+import { useUserType } from "@/app/contexts/UserTypeContext";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 export default function ProfileSettings() {
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
+  const { userType, isLoading: userTypeLoading } = useUserType();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userTypeLoading && (!isAuthenticated || userType === "lawyer")) {
+      window.location.href = "/";
+    }
+  }, [isAuthenticated, userType, userTypeLoading]);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,6 +40,7 @@ export default function ProfileSettings() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(`${BASE_URL}/user/get-profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -44,6 +56,8 @@ export default function ProfileSettings() {
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchUserData();
@@ -501,76 +515,84 @@ export default function ProfileSettings() {
 
   return (
     <div className="container mx-auto p-6 max-w-2xl my-14 min-h-screen">
-      {message.text && (
-        <div
-          className={`mb-4 p-4 rounded-md text-center ${
-            message.type === "success"
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
-          {message.text}
+      {isLoading || userTypeLoading ? (
+        <div className="absolute inset-0 flex justify-center items-center">
+          <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-600" />
+        </div>
+      ) : (
+        <div>
+          {message.text && (
+            <div
+              className={`mb-4 p-4 rounded-md text-center ${
+                message.type === "success"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          <h1 className="text-2xl font-bold mb-8 text-right">اعدادات الحساب</h1>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              {renderField("name", "الاسم")}
+              {renderField("email", "البريد الالكتروني", "email")}
+              {renderField("phone", "رقم الجوال", "tel")}
+              {renderField("password", "كلمة المرور", "password")}
+
+              {/* Notification Checkbox */}
+              <div className="space-y-4">
+                <div className="flex items-center flex-row-reverse justify-start space-x-3 space-x-reverse">
+                  <input
+                    type="checkbox"
+                    id="notifications"
+                    checked={
+                      editingField === "notifications"
+                        ? tempNotificationStatus
+                        : notificationStatus
+                    }
+                    onChange={handleNotificationToggle}
+                    className="w-6 h-6  accent-blue-500 focus:outline-none  "
+                  />
+                  <label
+                    htmlFor="notifications"
+                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                  >
+                    الغاء الاشعارات علي البريد الالكتروني
+                  </label>
+                </div>
+
+                {/* Add Save/Cancel buttons for notifications */}
+                {editingField === "notifications" && (
+                  <div className="flex justify-end gap-2 mt-4">
+                    <button
+                      type="button"
+                      onClick={handleCancelNotifications}
+                      className="px-4 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm"
+                    >
+                      الغاء
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveNotifications}
+                      className="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                    >
+                      حفظ
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </form>
+
+          <ForgotPasswordModal
+            isOpen={isForgotPasswordModalOpen}
+            onClose={() => setIsForgotPasswordModalOpen(false)}
+          />
         </div>
       )}
-
-      <h1 className="text-2xl font-bold mb-8 text-right">اعدادات الحساب</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-4">
-          {renderField("name", "الاسم")}
-          {renderField("email", "البريد الالكتروني", "email")}
-          {renderField("phone", "رقم الجوال", "tel")}
-          {renderField("password", "كلمة المرور", "password")}
-
-          {/* Notification Checkbox */}
-          <div className="space-y-4">
-            <div className="flex items-center flex-row-reverse justify-start space-x-3 space-x-reverse">
-              <input
-                type="checkbox"
-                id="notifications"
-                checked={
-                  editingField === "notifications"
-                    ? tempNotificationStatus
-                    : notificationStatus
-                }
-                onChange={handleNotificationToggle}
-                className="w-6 h-6  accent-blue-500 focus:outline-none  "
-              />
-              <label
-                htmlFor="notifications"
-                className="text-sm font-medium text-gray-700 cursor-pointer"
-              >
-                الغاء الاشعارات علي البريد الالكتروني
-              </label>
-            </div>
-
-            {/* Add Save/Cancel buttons for notifications */}
-            {editingField === "notifications" && (
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={handleCancelNotifications}
-                  className="px-4 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-sm"
-                >
-                  الغاء
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveNotifications}
-                  className="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                >
-                  حفظ
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </form>
-
-      <ForgotPasswordModal
-        isOpen={isForgotPasswordModalOpen}
-        onClose={() => setIsForgotPasswordModalOpen(false)}
-      />
     </div>
   );
 }

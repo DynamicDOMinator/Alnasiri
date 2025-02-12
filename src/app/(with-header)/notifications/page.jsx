@@ -8,12 +8,42 @@ import { FaUser } from "react-icons/fa";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { IoIosArrowBack } from "react-icons/io";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { useUserType } from "@/app/contexts/UserTypeContext";
 
 export default function Notifications() {
+
+
+
+
+
+
+
+  
   const router = useRouter();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [imageErrors, setImageErrors] = useState(new Set());
+
+
+
+
+
+  const { logout , isAuthenticated } = useAuth();
+  const { userType, isLoading: userTypeLoading } = useUserType();
+  const [isLoading, setIsLoading] = useState(true);
+
+useEffect(() => {
+  if (!userTypeLoading && (!isAuthenticated || userType === "lawyer")) {
+   router.push("/");
+  }
+}, [isAuthenticated, userType, userTypeLoading, router]);
+
+
+
+
+
+
 
   useEffect(() => {
     const fetchNotifications = async () => {

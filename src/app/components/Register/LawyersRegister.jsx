@@ -48,7 +48,7 @@ const validators = {
 
 function LawyersRegister() {
   // Add auth context
-  const { register, isAuthenticated, verifyOTP } = useAuth();
+  const { register, isAuthenticated, verifyLoginOTP } = useAuth();
 
   // Consolidate all initial state into a single object for better organization
   const initialFormData = {
@@ -76,7 +76,7 @@ function LawyersRegister() {
   const [state, setState] = useState({
     formData: initialFormData,
     errors: {},
-    activeStep: isAuthenticated ? 1 : 0, // Set initial step based on authentication
+    activeStep: isAuthenticated ? 1 : 0, 
     isLoading: false,
     submitError: "",
     specialtySelections: [
@@ -435,11 +435,8 @@ function LawyersRegister() {
     try {
       setState((prev) => ({ ...prev, isLoading: true }));
 
-      // Use the verifyOTP function from AuthContext
-      const result = await verifyOTP({
-        phone: state.tempUserData.phone,
-        otp: otpString,
-      });
+      // Use the verifyLoginOTP function from AuthContext
+      const result = await verifyLoginOTP(otpString);
 
       if (result.success) {
         setState((prev) => ({
