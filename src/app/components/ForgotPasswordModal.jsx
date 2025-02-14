@@ -62,6 +62,29 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
   };
 
   const handleOtpChange = (index, value) => {
+    // Handle pasting multiple numbers
+    if (value.length > 1) {
+      const numbers = value.replace(/\D/g, '').split('').slice(0, 4);
+      const newOtpValues = [...otpValues];
+      numbers.forEach((num, idx) => {
+        if (idx < 4) {
+          newOtpValues[idx] = num;
+        }
+      });
+      setOtpValues(newOtpValues);
+      setOtp(newOtpValues.join(""));
+      
+      // Focus the next empty input or the last input
+      const nextEmptyIndex = newOtpValues.findIndex(val => !val);
+      if (nextEmptyIndex !== -1 && nextEmptyIndex < 4) {
+        document.getElementById(`otp-${nextEmptyIndex}`)?.focus();
+      } else {
+        document.getElementById('otp-3')?.focus();
+      }
+      return;
+    }
+
+    // Handle single digit input
     if (!/^\d*$/.test(value)) return;
 
     const newOtpValues = [...otpValues];
@@ -75,6 +98,15 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
         const nextInput = document.getElementById(`otp-${index + 1}`);
         if (nextInput) nextInput.focus();
       }
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text');
+    const numbers = pastedData.replace(/\D/g, '').slice(0, 4);
+    if (numbers) {
+      handleOtpChange(0, numbers);
     }
   };
 
@@ -199,15 +231,14 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
               {[0, 1, 2, 3].map((index) => (
                 <input
                   key={index}
-                  dir="ltr"
                   id={`otp-${index}`}
                   type="text"
-                  inputMode="numeric"
-                  maxLength="1"
-                  className="w-12 h-12 text-center text-2xl border-2 rounded-lg bg-gray-100 focus:outline-none focus:border-blue-500"
+                  maxLength={index === 0 ? 4 : 1}
                   value={otpValues[index]}
                   onChange={(e) => handleOtpChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={index === 0 ? handlePaste : undefined}
+                  className="w-12 h-12 text-center text-2xl border-2 border-gray-300 rounded-lg focus:border-blue-800 focus:outline-none"
                 />
               ))}
             </div>

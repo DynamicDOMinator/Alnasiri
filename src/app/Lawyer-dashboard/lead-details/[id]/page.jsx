@@ -10,7 +10,7 @@ import { CgSandClock } from "react-icons/cg";
 import { FaPhoneFlip } from "react-icons/fa6";
 import { CiMoneyBill } from "react-icons/ci";
 import axios from "axios";
-
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 export default function LeadDetails() {
   const { id } = useParams();
   const router = useRouter();
@@ -22,7 +22,9 @@ export default function LeadDetails() {
     const fetchLeadDetails = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`${BASE_URL}/lawyer/get-lawyer-chances-by-uuid/${id}`);
+        const response = await axios.get(
+          `${BASE_URL}/lawyer/get-lawyer-chances-by-uuid/${id}`
+        );
         if (response.data && response.data.length > 0) {
           setLeadData(response.data[0]);
         }
@@ -32,7 +34,7 @@ export default function LeadDetails() {
         setIsLoading(false);
       }
     };
-    
+
     if (id) {
       fetchLeadDetails();
     }
@@ -55,7 +57,7 @@ export default function LeadDetails() {
       const response = await axios.post(
         `${BASE_URL}/leads-purchace/create`,
         {
-          lead_uuid: leadData.uuid
+          lead_uuid: leadData.uuid,
         },
         {
           headers: {
@@ -63,13 +65,12 @@ export default function LeadDetails() {
           },
         }
       );
-      
+
       if (response.status === 200) {
-        router.push("/Lawyer-dashboard/MyForas"); 
+        router.push("/Lawyer-dashboard/MyForas");
       }
-      
     } catch (error) {
-      console.error('Purchase error:', error);
+      console.error("Purchase error:", error);
       return;
     } finally {
       setIsLoading(false);
@@ -77,12 +78,19 @@ export default function LeadDetails() {
   };
 
   if (!leadData) {
-    return <div className="text-center py-10">جاري التحميل...</div>;
+    return (
+      <div className="fixed inset-0 flex justify-center items-center bg-white">
+        <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
+      </div>
+    );
   }
 
   return (
     <div>
-      <div dir="rtl" className="lg:max-w-3xl md:max-w-xl px-10 md:px-0 mx-auto relative">
+      <div
+        dir="rtl"
+        className="lg:max-w-3xl md:max-w-xl px-10 md:px-0 mx-auto relative"
+      >
         <div className="sticky top-0 bg-white pb-2">
           <div className="pt-10">
             <div className="flex lg:flex-col items-center relative">
@@ -100,7 +108,6 @@ export default function LeadDetails() {
           <div>
             <p className="text-xl font-bold">{leadData.user.name}</p>
           </div>
-          
         </div>
 
         <div className="mt-7">
@@ -115,19 +122,27 @@ export default function LeadDetails() {
               </span>
             </li>
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              تم التسليم في  {new Date(leadData.created_at).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' })} 
+              تم التسليم في{" "}
+              {new Date(leadData.created_at).toLocaleDateString("ar-EG", {
+                day: "numeric",
+                month: "long",
+              })}
               <span>
                 <IoMdTime />
               </span>
             </li>
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {leadData.question_time === "urgent" ? "الرغبة في تعيين محامي فوراً" : "     الرغبه في تعيين محامي خلال 30 يوم" }
+              {leadData.question_time === "urgent"
+                ? "الرغبة في تعيين محامي فوراً"
+                : "     الرغبه في تعيين محامي خلال 30 يوم"}
               <span>
                 <CgSandClock />
               </span>
             </li>
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {leadData.contact_method === "call" ? "التواصل عبر الهاتف" : "التواصل عبر الرسائل"}
+              {leadData.contact_method === "call"
+                ? "التواصل عبر الهاتف"
+                : "التواصل عبر الرسائل"}
               <span>
                 <FaPhoneFlip />
               </span>
@@ -148,7 +163,7 @@ export default function LeadDetails() {
             </div>
           </div>
         )}
-        
+
         <div className="mt-5">
           <div className="border-b-2 border-gray-100 pb-2">
             <h3 className="font-bold pb-2">تفاصيل السؤال</h3>
@@ -162,10 +177,10 @@ export default function LeadDetails() {
           onClick={handlePurchaseLead}
           disabled={isLoading}
           className={`bg-green-600 text-white py-3 px-10 rounded-lg hover:bg-green-700 ${
-            isLoading ? 'opacity-50 cursor-not-allowed' : ''
+            isLoading ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {isLoading ? '...جاري المعالجة' : `عرض سعر ( ${leadData.price} ر.س )`}
+          {isLoading ? "...جاري المعالجة" : `عرض سعر ( ${leadData.price} ر.س )`}
         </button>
       </div>
     </div>

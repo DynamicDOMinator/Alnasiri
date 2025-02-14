@@ -1,7 +1,7 @@
 import React from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { FaUserTie } from "react-icons/fa";
+import Image from "next/image";
 import LawyerRegisterBtn from "./LawyerRegisterBtn";
 import {
   FaFacebookF,
@@ -115,19 +115,31 @@ function Footer() {
             </div>
 
             <div className="flex items-center gap-4 text-white text-sm">
-              <a href="#" className="hover:text-gray-300">
-                شروط الاستخدام
-              </a>
+             
               <span className="text-white/40">|</span>
-              <a href="#" className="hover:text-gray-300">
+              <Link href="/privacy" className="hover:text-gray-300">
                 سياسة الخصوصية
-              </a>
+              </Link>
               <span className="text-white/40">|</span>
-              <a href="#" className="hover:text-gray-300">
-                ملف تعريف الارتباط
-              </a>
+              <Link href="/terms" className="hover:text-gray-300">
+                الشروط والاحكام
+              </Link>
             </div>
+
+            
           </div>
+          <div className="flex items-center gap-4 mt-10 justify-center text-white text-sm">
+             
+              
+             <Image className="rounded-lg" src="/images/visa.png" alt="logo" width={50} height={50} />
+              <span className="text-white/40">|</span>
+              <Image className="rounded-lg" src="/images/mastercard.png" alt="logo" width={50} height={50} />
+              <span className="text-white/40">|</span>
+              <Image className="rounded-lg" src="/images/applepay.png" alt="logo" width={50} height={50} />
+              <span className="text-white/40">|</span>
+              <Image className="rounded-lg" src="/images/mada.png" alt="logo" width={50} height={50} />
+            </div>
+            
         </div>
       </div>
     </footer>

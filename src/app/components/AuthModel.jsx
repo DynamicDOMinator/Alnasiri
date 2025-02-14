@@ -44,9 +44,9 @@ export default function AuthModel({ isOpen, onClose }) {
   const handleOtpPaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").trim();
-    if (!/^\d+$/.test(pastedData)) return; // Only allow numbers
+    if (!/^\d+$/.test(pastedData)) return; 
 
-    const digits = pastedData.slice(0, 4).split(""); // Take only first 4 digits
+    const digits = pastedData.slice(0, 4).split(""); 
     const newOtp = [...otp];
     digits.forEach((digit, index) => {
       if (index < 4) newOtp[index] = digit;
@@ -81,17 +81,20 @@ export default function AuthModel({ isOpen, onClose }) {
               },
             }
           );
-          
+
           if (response.data.email && response.data.user_type) {
             setShowPassword(true);
-            setError(""); // Clear any previous errors
+            setError("");
           }
         } catch (err) {
           if (!showPassword && err.response && err.response.status === 404) {
             setStep("register");
-            setError(""); // Clear any previous errors
+            setError(""); 
           } else {
-            setError(err.response?.data?.message || "خطأ في التحقق من البريد الإلكتروني");
+            setError(
+              err.response?.data?.message ||
+                "خطأ في التحقق من البريد الإلكتروني"
+            );
           }
         }
       }
@@ -223,14 +226,14 @@ export default function AuthModel({ isOpen, onClose }) {
       );
 
       if (response.data.status === "success") {
-        setError(""); // Clear any previous errors
-        // Show success message and move to login
+        setError("");
+
         setSuccessMessage(response.data.message);
-        // Reset password fields
+
         setNewPassword("");
         setNewPasswordConfirmation("");
         setVerifiedOtp("");
-        // Move to login step
+
         setStep("login");
       }
     } catch (err) {
@@ -260,15 +263,18 @@ export default function AuthModel({ isOpen, onClose }) {
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => {
-      if (!open) {
-        resetForm();
-      }
-      onClose();
-    }}>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          resetForm();
+        }
+        onClose();
+      }}
+    >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" />
+        <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
           <Dialog.Content className="mx-auto w-full  md:w-[600px] rounded-xl bg-white p-8 relative shadow-2xl">
             <Dialog.Title className="sr-only">
               نافذة تسجيل الدخول والتسجيل
@@ -299,14 +305,20 @@ export default function AuthModel({ isOpen, onClose }) {
             {step === "otp" && (
               <div className="space-y-6">
                 {isForgotPassword ? (
-                  <p dir="rtl" className="text-gray-600 text-sm text-center mb-6">
+                  <p
+                    dir="rtl"
+                    className="text-gray-600 text-sm text-center mb-6"
+                  >
                     تم إرسال رمز التحقق إلى البريد الإلكتروني{" "}
                     <span dir="ltr" className="font-medium">
                       {email}
                     </span>
                   </p>
                 ) : (
-                  <p dir="rtl" className="text-gray-600 text-sm text-center mb-6">
+                  <p
+                    dir="rtl"
+                    className="text-gray-600 text-sm text-center mb-6"
+                  >
                     تم إرسال رمز التحقق إلى رقم الهاتف{" "}
                     <span dir="ltr" className="font-medium">
                       {userData?.phone}
@@ -328,7 +340,9 @@ export default function AuthModel({ isOpen, onClose }) {
                   ))}
                 </div>
                 {error && (
-                  <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+                  <p className="text-red-500 text-sm text-center mt-2">
+                    {error}
+                  </p>
                 )}
                 <div className="flex justify-center">
                   <button
@@ -358,7 +372,6 @@ export default function AuthModel({ isOpen, onClose }) {
                       : { opacity: 0, height: 0 }
                   }
                   transition={{ duration: 0.3 }}
-                
                   style={{ margin: 0, padding: 0 }}
                 >
                   {showPassword && (
@@ -396,7 +409,7 @@ export default function AuthModel({ isOpen, onClose }) {
                 <input
                   type="text"
                   placeholder="الاسم الكامل"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"     
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   dir="rtl"
@@ -418,7 +431,7 @@ export default function AuthModel({ isOpen, onClose }) {
                   type="password"
                   placeholder="كلمة المرور"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
-                  value={registerPassword}  
+                  value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
                   dir="rtl"
                 />
@@ -457,7 +470,9 @@ export default function AuthModel({ isOpen, onClose }) {
                   dir="rtl"
                 />
                 {error && (
-                  <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+                  <p className="text-red-500 text-sm text-center mt-2">
+                    {error}
+                  </p>
                 )}
                 <button
                   onClick={handlePasswordChange}
@@ -486,7 +501,9 @@ export default function AuthModel({ isOpen, onClose }) {
                   dir="rtl"
                 />
                 {error && (
-                  <p className="text-red-500 text-sm text-center mt-2">{error}</p>
+                  <p className="text-red-500 text-sm text-center mt-2">
+                    {error}
+                  </p>
                 )}
                 <button
                   onClick={handleEmailCheck}

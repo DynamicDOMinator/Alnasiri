@@ -466,6 +466,27 @@ function LawyersRegister() {
     const [localError, setLocalError] = useState("");
 
     const handleOtpChange = (index, value) => {
+      // Handle pasting multiple numbers
+      if (value.length > 1) {
+        const numbers = value.replace(/\D/g, '').split('').slice(0, 4);
+        const newOtp = [...otp];
+        numbers.forEach((num, idx) => {
+          if (idx < 4) {
+            newOtp[idx] = num;
+          }
+        });
+        setOtp(newOtp);
+        // Focus the next empty input or the last input
+        const nextEmptyIndex = newOtp.findIndex(val => !val);
+        if (nextEmptyIndex !== -1 && nextEmptyIndex < 4) {
+          document.getElementById(`otp-${nextEmptyIndex}`)?.focus();
+        } else {
+          document.getElementById('otp-3')?.focus();
+        }
+        return;
+      }
+
+      // Handle single digit input
       if (!/^\d*$/.test(value)) return; // Only allow digits
 
       const newOtp = [...otp];
@@ -475,6 +496,15 @@ function LawyersRegister() {
       // Auto-focus next input
       if (value && index < 3) {
         document.getElementById(`otp-${index + 1}`)?.focus();
+      }
+    };
+
+    const handlePaste = (e) => {
+      e.preventDefault();
+      const pastedData = e.clipboardData.getData('text');
+      const numbers = pastedData.replace(/\D/g, '').slice(0, 4);
+      if (numbers) {
+        handleOtpChange(0, numbers);
       }
     };
 
@@ -501,18 +531,18 @@ function LawyersRegister() {
             </p>
           )}
 
-          <div className="flex justify-center gap-4 mb-6">
+          <div className="flex justify-center gap-4 mb-6 dir-ltr">
             {otp.map((digit, index) => (
               <input
                 key={index}
                 id={`otp-${index}`}
                 type="text"
-                maxLength="1"
+                maxLength={index === 0 ? 4 : 1}
                 value={digit}
                 onChange={(e) => handleOtpChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-14 h-14 text-center text-xl font-semibold border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF883EE0]"
-                autoComplete="off"
+                onPaste={index === 0 ? handlePaste : undefined}
+                className="w-12 h-12 text-center text-2xl border-2 border-gray-300 rounded-lg focus:border-[#FF883EE0] focus:outline-none"
               />
             ))}
           </div>

@@ -4,7 +4,7 @@ function ForthSection() {
   return (
     <div className="md:flex md:justify-center  lg:mt-10 md:gap-10 lg:gap-0 2xl:gap-10 md:px-10 px-4  max-w-6xl mx-auto">
       <div className="basis-1/2 py-16 relative flex flex-col  gap-6 items-center justify-center">
-        <div className="lg:absolute top-0 right-0 z-30 py-5 md:py-0">
+        <div className="lg:absolute top-0 right-0 z-10 py-5 md:py-0">
           <Image
             src="/images/lookingFor1.png"
             alt="ابحث عن محامي"
@@ -14,7 +14,7 @@ function ForthSection() {
             priority
           />
         </div>
-        <div className="lg:absolute top-40 right-32 z-20 py-5 md:py-0 ">
+        <div className="lg:absolute top-40 right-32 z-10 py-5 md:py-0 ">
           <Image
             src="/images/lookingFor2.png"
             alt="ابحث عن محامي"
