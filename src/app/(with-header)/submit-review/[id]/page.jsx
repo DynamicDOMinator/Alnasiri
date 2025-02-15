@@ -19,7 +19,7 @@ export default function SubmitReview() {
   const [hired, setHired] = useState(false);
   const params = useParams();
   const router = useRouter();
-  const { token } = useAuth();
+
 
   useEffect(() => {
     const fetchLawyerProfile = async () => {
@@ -54,7 +54,7 @@ export default function SubmitReview() {
         rate: recommend,
         lawyer_consult: hired,
       };
-
+      const token = localStorage.getItem("token");
       await axios.post(`${BASE_URL}/lawyer/create-review`, reviewData, {
         headers: {
           Authorization: `Bearer ${token}`,
