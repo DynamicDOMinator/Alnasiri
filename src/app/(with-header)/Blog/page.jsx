@@ -58,11 +58,13 @@ async function getData() {
   try {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const res = await fetch(`${API_BASE_URL}/blogs/get-all-blogs`, {
-      cache: "no-store",
+      next: {
+        revalidate: 3600 // Revalidate every hour
+      },
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-      },
+      }
     });
 
     if (!res.ok) {

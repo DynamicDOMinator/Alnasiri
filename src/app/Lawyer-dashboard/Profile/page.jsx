@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import axios from "axios";
@@ -140,12 +140,10 @@ export default function Profile() {
 
         // Update specialty selections with existing values
         if (lawyer_office.specialties && lawyer_office.specialties.length > 0) {
-          // Create an array of specialty IDs
           const specialtyIds = lawyer_office.specialties.map((spec) =>
             typeof spec === "object" ? spec.id.toString() : spec.toString()
           );
 
-          // Create selections array with at least 4 slots
           const newSelections = Array(Math.max(4, specialtyIds.length))
             .fill(null)
             .map((_, index) => ({
@@ -155,50 +153,23 @@ export default function Profile() {
             }));
 
           setSpecialtySelections(newSelections);
-
-          setFormData((prev) => ({
-            ...prev,
-            city: user?.city === null ? "" : user?.city,
-            law_office:
-              lawyer_office?.law_office === null
-                ? ""
-                : lawyer_office?.law_office,
-            specialties: specialtyIds,
-            google_map:
-              lawyer_office?.google_map === null
-                ? ""
-                : lawyer_office?.google_map,
-            bio: lawyer_office?.bio === null ? "" : lawyer_office?.bio,
-            profile_img: null,
-            call_number:
-              lawyer_office?.call_number === null
-                ? ""
-                : lawyer_office?.call_number,
-            whatsapp_number:
-              lawyer_office?.whatsapp_number === null
-                ? ""
-                : lawyer_office?.whatsapp_number,
-          }));
-        } else {
-          // If no specialties, just update other form data
-          setFormData((prev) => ({
-            ...prev,
-            city: user?.city === null ? "" : user?.city,
-            law_office:
-              lawyer_office?.law_office === null
-                ? ""
-                : lawyer_office?.law_office,
-            specialties: [],
-            google_map:
-              lawyer_office?.google_map === null
-                ? ""
-                : lawyer_office?.google_map,
-            bio: lawyer_office?.bio === null ? "" : lawyer_office?.bio,
-            profile_img: null,
-            call_number: "",
-            whatsapp_number: "",
-          }));
         }
+
+        // Update form data
+        setFormData((prev) => ({
+          ...prev,
+          city: user?.city || "",
+          law_office: lawyer_office?.law_office || "",
+          specialties: lawyer_office?.specialties || [],
+          google_map: lawyer_office?.google_map || "",
+          bio: lawyer_office?.bio || "",
+          profile_img: null,
+          // Remove the "05" prefix if it exists and only store the remaining digits
+          call_number: lawyer_office?.call_number ? 
+            lawyer_office.call_number.replace(/^05/, '') : "",
+          whatsapp_number: lawyer_office?.whatsapp_number ? 
+            lawyer_office.whatsapp_number.replace(/^05/, '') : "",
+        }));
 
         if (isMounted) {
           setIsLoading(false);

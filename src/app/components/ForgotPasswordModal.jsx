@@ -74,13 +74,8 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
       setOtpValues(newOtpValues);
       setOtp(newOtpValues.join(""));
       
-      // Focus the next empty input or the last input
-      const nextEmptyIndex = newOtpValues.findIndex(val => !val);
-      if (nextEmptyIndex !== -1 && nextEmptyIndex < 4) {
-        document.getElementById(`otp-${nextEmptyIndex}`)?.focus();
-      } else {
-        document.getElementById('otp-3')?.focus();
-      }
+      // Focus the last input after pasting
+      document.getElementById('otp-3')?.focus();
       return;
     }
 
@@ -106,7 +101,16 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
     const pastedData = e.clipboardData.getData('text');
     const numbers = pastedData.replace(/\D/g, '').slice(0, 4);
     if (numbers) {
-      handleOtpChange(0, numbers);
+      const newOtpValues = [...otpValues];
+      numbers.split('').forEach((num, idx) => {
+        if (idx < 4) {
+          newOtpValues[idx] = num;
+        }
+      });
+      setOtpValues(newOtpValues);
+      setOtp(newOtpValues.join(""));
+      // Focus the last input after pasting
+      document.getElementById('otp-3')?.focus();
     }
   };
 

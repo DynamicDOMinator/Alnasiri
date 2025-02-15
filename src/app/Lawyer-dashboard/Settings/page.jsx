@@ -47,7 +47,7 @@ export default function Settings() {
         <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-10">
           <div>
             <div className="flex gap-1 items-center justify-end">
-              <h2 className="text-lg font-semibold">ملعومات الملف الشخصي</h2>
+              <h2 className="text-lg font-semibold">معلومات الملف الشخصي</h2>
               <ImProfile />
             </div>
             <div className="text-right">

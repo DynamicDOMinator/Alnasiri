@@ -4,7 +4,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useQuestion } from "../../contexts/QuestionContext";
 import { useAuth } from "../../contexts/AuthContext";
-
+import Link from "next/link";
 export default function ClientForm() {
   const router = useRouter();
   const { setQuestion } = useQuestion();
@@ -186,7 +186,7 @@ export default function ClientForm() {
   return (
     <div className="pt-36 py-10">
       {showDialog && <CustomAlert />}
-      <div dir="rtl" className="p-5 max-w-6xl mx-auto ">
+      <div dir="rtl" className="p-5 max-w-4xl mx-auto ">
         <h1 className="text-2xl font-bold text-center mb-5">
           اسال محامي مجاناً..!
         </h1>
@@ -252,7 +252,7 @@ export default function ClientForm() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-7">
           {/* Question */}
           <div>
             <label className="block font-medium mb-1">
@@ -334,6 +334,11 @@ export default function ClientForm() {
                 </option>
               ))}
             </select>
+            <Link href="/legal-specializations" >
+              <p className="text-blue-500 hover:underline pt-5 text-right">
+                اطلع علي شرح التخصصات
+              </p>
+            </Link>   
             {errors.specialty && (
               <p className="text-red-500 text-sm mt-1">{errors.specialty}</p>
             )}

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion } from "framer-motion";
@@ -26,6 +26,17 @@ export default function AuthModel({ isOpen, onClose }) {
   const [oldPassword, setOldPassword] = useState("");
   const [verifiedOtp, setVerifiedOtp] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [timer, setTimer] = useState(120);
+  const [canResend, setCanResend] = useState(false);
+  const [intervalId, setIntervalId] = useState(null);
+
+  useEffect(() => {
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [intervalId]);
 
   const handleOtpChange = (index, value) => {
     if (!/\d/.test(value) && value !== "") return;
@@ -54,9 +65,31 @@ export default function AuthModel({ isOpen, onClose }) {
     setOtp(newOtp);
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleEmailCheck = async () => {
     try {
+      // Validate email is not empty
+      if (!email) {
+        setError("البريد الإلكتروني مطلوب");
+        return;
+      }
+
+      // Validate email format
+      if (!validateEmail(email)) {
+        setError("الرجاء إدخال بريد إلكتروني صحيح");
+        return;
+      }
+
       if (showPassword) {
+        if (!password) {
+          setError("كلمة المرور مطلوبة");
+          return;
+        }
+
         const result = await login(email, password);
         if (result.success) {
           resetForm();
@@ -120,12 +153,58 @@ export default function AuthModel({ isOpen, onClose }) {
     setOldPassword("");
     setVerifiedOtp("");
     setStep("email");
+    setTimer(120);
+    setCanResend(false);
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^5\d{8}$/;  // Starts with 5 and followed by 8 digits
+    return phoneRegex.test(phone);
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/;
+    return passwordRegex.test(password);
+  };
+
+  const validateArabicName = (name) => {
+    const arabicRegex = /^[\u0600-\u06FF\s]+$/;  // Arabic Unicode range
+    return arabicRegex.test(name);
   };
 
   const handleRegister = async () => {
     try {
+      // Validate empty fields
       if (!name || !email || !phone || !registerPassword) {
         setError("جميع الحقول مطلوبة");
+        return;
+      }
+
+      // Validate email format
+      if (!validateEmail(email)) {
+        setError("الرجاء إدخال بريد إلكتروني صحيح");
+        return;
+      }
+
+      // Validate Arabic name
+      if (!validateArabicName(name)) {
+        setError("يجب أن يكون الاسم باللغة العربية فقط");
+        return;
+      }
+
+      // Validate phone number
+      if (!validatePhone(phone)) {
+        setError("رقم الجوال يجب أن يبدأ بـ 5 ويتكون من 9 أرقام");
+        return;
+      }
+
+      // Validate password
+      if (!validatePassword(registerPassword)) {
+        setError("كلمة المرور يجب أن تحتوي على 9 أحرف على الأقل، وتتضمن أحرف كبيرة وصغيرة وأرقام");
         return;
       }
 
@@ -155,6 +234,7 @@ export default function AuthModel({ isOpen, onClose }) {
         setError("");
         setUserData({ ...response.data.data, phone });
         setIsForgotPassword(false);
+        startTimer();
       }
     } catch (error) {
       setError(error.response?.data?.message || "حدث خطأ أثناء التسجيل");
@@ -163,6 +243,18 @@ export default function AuthModel({ isOpen, onClose }) {
 
   const handleForgotPasswordRequest = async () => {
     try {
+      // Validate email is not empty
+      if (!email) {
+        setError("البريد الإلكتروني مطلوب");
+        return;
+      }
+
+      // Validate email format
+      if (!validateEmail(email)) {
+        setError("الرجاء إدخال بريد إلكتروني صحيح");
+        return;
+      }
+
       const response = await axios.post(
         `${API_BASE_URL}/password-recovery/send-otp`,
         { email },
@@ -177,7 +269,8 @@ export default function AuthModel({ isOpen, onClose }) {
       if (response.data) {
         setStep("otp");
         setIsForgotPassword(true);
-        setError(""); // Clear any previous errors
+        setError("");
+        startTimer();
       }
     } catch (err) {
       setError(err.response?.data?.message || "حدث خطأ في إرسال رمز التحقق");
@@ -262,6 +355,75 @@ export default function AuthModel({ isOpen, onClose }) {
     onClose();
   };
 
+  const startTimer = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+
+    setTimer(120);
+    setCanResend(false);
+    
+    const newIntervalId = window.setInterval(() => {
+      setTimer(prevTimer => {
+    
+        if (prevTimer <= 1) {
+          clearInterval(newIntervalId);
+          setCanResend(true);
+          return 0;
+        }
+        return prevTimer - 1;
+      });
+    }, 1000);
+
+    setIntervalId(newIntervalId);
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      let response;
+      
+      if (isForgotPassword) {
+        // For email OTP
+        response = await axios.post(
+          `${API_BASE_URL}/lawyer/resend-otp-by-email`,
+          { email },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        );
+      } else {
+        // For phone OTP (existing logic)
+        response = await axios.post(
+          `${API_BASE_URL}/lawyer/resend-otp`,
+          { phone: userData?.phone },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        );
+      }
+
+      if (response.data) {
+        startTimer();
+        setError("");
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "حدث خطأ في إعادة إرسال الرمز");
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <Dialog.Root
       open={isOpen}
@@ -339,6 +501,21 @@ export default function AuthModel({ isOpen, onClose }) {
                     />
                   ))}
                 </div>
+                <div className="text-center space-y-2">
+                  {timer > 0 && (
+                    <p className="text-gray-600 text-sm">
+                      إعادة إرسال الرمز خلال {formatTime(timer)}
+                    </p>
+                  )}
+                  {canResend && (
+                    <button
+                      onClick={handleResendOTP}
+                      className="text-blue-800 hover:text-blue-600 text-sm"
+                    >
+                      إعادة إرسال رمز التحقق
+                    </button>
+                  )}
+                </div>
                 {error && (
                   <p className="text-red-500 text-sm text-center mt-2">
                     {error}
@@ -358,7 +535,7 @@ export default function AuthModel({ isOpen, onClose }) {
               <div className="space-y-4">
                 <input
                   type="email"
-                  placeholder="البريد الإلكتروني"
+                  placeholder="البريد الإلكتروني (example@domain.com)"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -408,19 +585,38 @@ export default function AuthModel({ isOpen, onClose }) {
               <div className="space-y-4">
                 <input
                   type="text"
-                  placeholder="الاسم الكامل"
+                  placeholder="الاسم الكامل (باللغة العربية)"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || validateArabicName(value)) {
+                      setName(value);
+                    }
+                  }}
+                  dir="rtl"
+                />
+                <input
+                  type="email"
+                  placeholder="البريد الإلكتروني (example@domain.com)"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   dir="rtl"
                 />
                 <div className="relative">
                   <input
                     type="tel"
-                    placeholder="رقم الجوال"
+                    placeholder="رقم الجوال (يبدأ بـ 5)"
                     className="w-full p-3 pl-16 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-left [&::placeholder]:text-right"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || (/^\d{0,9}$/.test(value) && (value === '' || value.startsWith('5')))) {
+                        setPhone(value);
+                      }
+                    }}
+                    maxLength={9}
                     dir="ltr"
                   />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
@@ -429,7 +625,7 @@ export default function AuthModel({ isOpen, onClose }) {
                 </div>
                 <input
                   type="password"
-                  placeholder="كلمة المرور"
+                  placeholder="كلمة المرور (9 أحرف على الأقل، تتضمن أحرف كبيرة وصغيرة وأرقام)"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}

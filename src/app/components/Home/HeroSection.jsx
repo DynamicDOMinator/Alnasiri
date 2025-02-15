@@ -162,6 +162,7 @@ export default function HeroSection() {
               className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
+             
             >
               <option value="">اختر المدينة</option>
               {city.map((cityName, index) => (
@@ -288,6 +289,7 @@ export default function HeroSection() {
               className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
               value={selectedSpecialty}
               onChange={(e) => setSelectedSpecialty(e.target.value)}
+             
             >
               <option value="">اختر التخصص</option>
               {speciality.map((spec, index) => (
@@ -296,6 +298,11 @@ export default function HeroSection() {
                 </option>
               ))}
             </select>
+            <Link href="/legal-specializations">
+              <p className="text-blue-500 hover:underline text-right">
+                اطلع علي شرح التخصصات
+              </p>
+            </Link>
             <div className="flex justify-between items-center lg:pt-20 pt-10">
               <button
                 className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
@@ -342,6 +349,11 @@ export default function HeroSection() {
                 </option>
               ))}
             </select>
+            <Link href="/legal-specializations">
+              <p className="text-blue-500 hover:underline text-right">
+                اطلع علي شرح التخصصات
+              </p>
+            </Link>     
 
             <label
               htmlFor="citySelect"
@@ -409,7 +421,11 @@ export default function HeroSection() {
                 </option>
               ))}
             </select>
-
+            <Link href="/legal-specializations">
+              <p className="text-blue-500 hover:underline text-right">
+                اطلع علي شرح التخصصات
+              </p>
+            </Link>
             <div className="flex justify-between items-center lg:pt-20 pt-10">
               <button
                 className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"
@@ -448,6 +464,7 @@ export default function HeroSection() {
               className="border-2 border-[#16498C] rounded-lg px-4 py-2 mb-6 w-full text-black text-right"
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
+             
             >
               <option value="">اختر المدينة</option>
               {city.map((cityName, index) => (
@@ -550,7 +567,11 @@ export default function HeroSection() {
                 </option>
               ))}
             </select>
-
+            <Link href="/legal-specializations">
+              <p className="text-blue-500 hover:underline text-right">
+                اطلع علي شرح التخصصات
+              </p>
+            </Link>
             <div className="flex justify-between items-center lg:pt-20 pt-10">
               <button
                 className="flex items-center flex-row-reverse gap-1 text-blue-500 mt-6 hover:underline"

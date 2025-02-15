@@ -45,12 +45,14 @@ export function AuthProvider({ children }) {
           const { token, user } = response.data;
           localStorage.setItem("token", token);
           localStorage.setItem("userName", user.name);
+          localStorage.setItem("userType", user.user_type);
           setUserName(user.name);
           setIsAuthenticated(true);
           setError(null);
           
-          // Force a page reload to ensure all contexts are updated
-          window.location.reload();
+          // Redirect based on user type
+          const redirectPath = user.user_type === 'lawyer' ? '/Lawyer-dashboard' : '/Askquestion';
+          window.location.href = redirectPath;
           
           return { success: true };
         } else if (response.data.message && response.data.message.includes("OTP SENT")) {

@@ -15,9 +15,10 @@ import Image from "next/image";
 import { FaUserTie } from "react-icons/fa6";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { FaLock } from "react-icons/fa";
-
+import { useUserType } from "@/app/contexts/UserTypeContext";
 // Auth Modal Component
 const AuthModal = ({ isOpen, onClose }) => {
+  const { userType } = useUserType();
   if (!isOpen) return null;
 
   return (
@@ -104,6 +105,7 @@ export default function LawyerProfile() {
   const params = useParams();
   const router = useRouter();
   const { token } = useAuth();
+  const { userType } = useUserType();
 
   const handleAction = (action) => {
     if (!token) {
@@ -378,14 +380,16 @@ export default function LawyerProfile() {
                 لا توجد تقييمات حتى الآن
               </p>
             )}
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={() => handleAction("review")}
+            {userType === "user" && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => handleAction("review")}
                 className="bg-blue-900 w-full md:w-auto text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200"
               >
                 تسليم المراجعة
-              </button>
-            </div>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
