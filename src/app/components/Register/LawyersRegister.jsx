@@ -467,23 +467,14 @@ function LawyersRegister() {
     const [localError, setLocalError] = useState("");
     const [timer, setTimer] = useState(120);
     const [canResend, setCanResend] = useState(false);
-    const [intervalId, setIntervalId] = useState(null);
     const [otp, setOtp] = useState(["", "", "", ""]);
-
-    // Wrap startTimer in useCallback
-    const startTimer = useCallback(() => {
-      if (intervalId) {
-        clearInterval(intervalId);
-        setIntervalId(null);
-      }
-
-      setTimer(120);
-      setCanResend(false);
-      
-      const newIntervalId = window.setInterval(() => {
-        setTimer(prevTimer => {
+    
+    // Remove intervalId from state and useCallback dependencies
+    useEffect(() => {
+      const intervalId = setInterval(() => {
+        setTimer((prevTimer) => {
           if (prevTimer <= 1) {
-            clearInterval(newIntervalId);
+            clearInterval(intervalId);
             setCanResend(true);
             return 0;
           }
@@ -491,18 +482,9 @@ function LawyersRegister() {
         });
       }, 1000);
 
-      setIntervalId(newIntervalId);
-    }, [intervalId]); // Add intervalId as dependency
-
-    useEffect(() => {
-      startTimer();
-      
-      return () => {
-        if (intervalId) {
-          clearInterval(intervalId);
-        }
-      };
-    }, [intervalId, startTimer]); // Add startTimer as dependency
+      // Cleanup on component unmount
+      return () => clearInterval(intervalId);
+    }, []); // Empty dependency array since we only want this to run once on mount
 
     const handleOtpChange = (index, value) => {
       // Handle pasting multiple numbers
@@ -569,7 +551,8 @@ function LawyersRegister() {
         );
 
         if (response.data) {
-          startTimer();
+          setTimer(120);
+          setCanResend(false);
           setLocalError("");
           setOtp(["", "", "", ""]);
           toast.success("تم إعادة إرسال رمز التحقق بنجاح");
@@ -1044,7 +1027,7 @@ function LawyersRegister() {
               {/* Office Name */}
               <div className="relative">
                 <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
-                  مكتب المحاماة
+                  مكتب المحامة
                 </label>
                 <input
                   type="text"
