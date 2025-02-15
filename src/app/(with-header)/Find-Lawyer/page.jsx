@@ -54,21 +54,21 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const { token } = useAuth();
+  const {  isAuthenticated } = useAuth();
 
   // Auto-show phone numbers for authenticated users
   useEffect(() => {
     // Clean up any old search results from localStorage
     localStorage.removeItem("searchResults");
 
-    if (token && lawyers.length > 0) {
+    if (isAuthenticated && lawyers.length > 0) {
       const allLawyerIds = lawyers.map((lawyer) => lawyer.id);
       setVisiblePhones(new Set(allLawyerIds));
     }
-  }, [lawyers, token]);
+  }, [lawyers, isAuthenticated]);
 
   const handleShowPhone = (lawyerId) => {
-    if (!token) {
+    if (!isAuthenticated) {
       setIsAuthModalOpen(true);
       return;
     }
@@ -410,7 +410,7 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
 
                 <div className="mt-4 md:mt-0">
                   <div className="flex flex-col gap-2">
-                    {token ? (
+                    {isAuthenticated ? (
                       <div className="bg-blue-900 text-white px-4 py-3 rounded flex items-center justify-center gap-2 min-w-[160px]">
                         <span dir="ltr">
                           0{lawyer.call_number || lawyer.lawyer?.phone}

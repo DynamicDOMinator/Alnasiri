@@ -104,11 +104,11 @@ export default function LawyerProfile() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const params = useParams();
   const router = useRouter();
-  const { token } = useAuth();
+  const {  isAuthenticated } = useAuth();
   const { userType } = useUserType();
 
   const handleAction = (action) => {
-    if (!token) {
+    if (!isAuthenticated) {
       setIsAuthModalOpen(true);
       return;
     }
@@ -259,12 +259,20 @@ export default function LawyerProfile() {
           </div>
 
           <div className="mt-4 md:mt-0 flex flex-col gap-3">
-            {lawyer.phone && (
+            {lawyer.phone && isAuthenticated ? (
               <button
                 onClick={() => handleAction("phone")}
                 className="bg-blue-900 text-white px-6 py-3 rounded flex items-center justify-center gap-2 hover:bg-blue-800 transition-colors"
               >
                 <span>0{lawyer.phone}</span>
+                <FiPhone />
+              </button>
+            ) : (
+              <button
+                onClick={() => handleAction("phone")}
+                className="bg-blue-900 text-white px-6 py-3 rounded flex items-center justify-center gap-2 hover:bg-blue-800 transition-colors"
+              >
+                <span>اظهار رقم الهاتف</span>
                 <FiPhone />
               </button>
             )}
