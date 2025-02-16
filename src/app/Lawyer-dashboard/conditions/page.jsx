@@ -19,6 +19,24 @@ export default function Settings() {
         </h1>
       </div>
 
+      
+
+      <Link href="/Lawyer-dashboard/conditions">
+        <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
+          <div>
+            <div className="flex gap-1 items-center justify-end">
+              <h2 className="text-lg font-semibold"> البيانات والخصوصية</h2>
+              <IoDocumentTextOutline />
+            </div>
+          </div>
+          <IoIosArrowBack />
+        </div>
+      </Link>
+
+
+
+
+
       <Link href="/Lawyer-dashboard/delete-account">
         <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
           <div>
@@ -37,17 +55,15 @@ export default function Settings() {
         </div>
       </Link>
 
-      <Link href="/Lawyer-dashboard/conditions">
-        <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
-          <div>
-            <div className="flex gap-1 items-center justify-end">
-              <h2 className="text-lg font-semibold"> البيانات والخصوصية</h2>
-              <IoDocumentTextOutline />
-            </div>
-          </div>
-          <IoIosArrowBack />
-        </div>
-      </Link>
+
+
+
+
+
+
+
+
+
     </div>
   );
 }

@@ -51,9 +51,9 @@ export default function MyForas() {
           className="lg:max-w-3xl  lg:mt-8 md:max-w-xl px-3 mb-32 lg:px-0 md:px-0 mx-auto relative"
         >
           <div className="sticky top-0 bg-white pb-2">
-            <div className="pt-10">
-              <div className="flex lg:flex-col items-right relative">
-                <h1 className="text-3xl font-bold text-right  mb-4">فرصي</h1>
+            <div className="lg:pt-10 pt-5">
+              <div className="flex lg:flex-col justify-center lg:items-right relative">
+                <h1 className="lg:text-3xl text-xl font-bold  lg:text-right  mb-4">فرصي</h1>
               </div>
             </div>
           </div>

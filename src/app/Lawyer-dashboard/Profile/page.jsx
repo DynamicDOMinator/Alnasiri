@@ -856,14 +856,14 @@ export default function Profile() {
             </div>
 
             {/* Add floating button for mobile */}
-            <div className="lg:hidden fixed bottom-6 right-6 z-50">
+            {/* <div className="lg:hidden fixed bottom-6 right-6 z-50">
               <button
                 onClick={handleViewProfile}
                 className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
               >
                 <FaUser size={20} />
               </button>
-            </div>
+            </div> */}
 
             {/* Bio Section */}
             <div className="text-center space-y-2 text-gray-700 max-w-2xl"></div>
@@ -1126,7 +1126,7 @@ export default function Profile() {
                     <button
                       type="button"
                       onClick={() => setIsEditing(false)}
-                      className="border border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50"
+                      className="border bg-slate-100 border-gray-300 px-6 py-2 rounded-lg hover:bg-gray-50"
                     >
                       إلغاء
                     </button>

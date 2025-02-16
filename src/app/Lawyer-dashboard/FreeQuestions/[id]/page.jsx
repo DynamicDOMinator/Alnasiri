@@ -17,14 +17,17 @@ export default function QuestionDetails() {
   const [question, setQuestion] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
+  const [showTextArea, setShowTextArea] = useState(false);
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   useEffect(() => {
     const fetchQuestionDetails = async () => {
+   
       try {
         setIsLoading(true);
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${BASE_URL}/question/get-question-by-uuid/${params.id}`, {
+        const response = await axios.get(`${BASE_URL}/question/get-question-or-lead-by-uuid/${params.id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -63,10 +66,12 @@ export default function QuestionDetails() {
           },
         }
       );
-      router.push("/Lawyer-dashboard/FreeQuestions");
+      setShowTextArea(false);
+      setIsAnswerSubmitted(true);
     } catch (error) {
       console.error('Error submitting answer:', error);
     } finally {
+      router.push(`/Lawyer-dashboard/MyAnswers`);
       setIsSubmitting(false);
     }
   };
@@ -109,7 +114,7 @@ export default function QuestionDetails() {
         <div className="border-2 border-gray-300 px-10 py-7 mt-10 rounded-lg relative">
           <ul className="mt-2">
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {question?.user?.name || "مستخدم غير معروف"}
+              {question?.user?.name || ""}
               <span className="w-4 h-4 bg-green-600 rounded-full"></span>
             </li>
 
@@ -132,38 +137,63 @@ export default function QuestionDetails() {
         </div>
 
         <div className="pt-7 border-2 mb-10 border-gray-300 px-10 py-7 mt-10 rounded-lg">
-          <div>
-            <h3 className="font-bold">السؤال</h3>
-            <p>{question.question_title}</p>
-          </div>
-          <div className="mt-5">
+
+      {question.question_title && (
+        <div>
+                <h3 className="font-bold">السؤال</h3>
+              <p>{question.question_title}</p>
+            </div>
+      )}
+
+           {question.question_content && (
+
+  <div className="mt-5">
             <h3 className="font-bold">تفاصيل السؤال</h3>
             <p>{question.question_content}</p>
           </div>
+
+           )}
+        
         </div>
 
         
       </div>
-      <form dir="rtl" onSubmit={handleSubmitAnswer} className=" bg-slate-100 sticky bottom-0">
-          <div className="w-full px-10 py-7 mt-10 rounded-lg">
-            <label className="block mb-2 font-bold">اكتب اجابتك</label>
-            <textarea
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              className="w-full h-32 p-2 border-2 border-gray-300 rounded-lg resize-none"
-              placeholder="اكتب اجابتك هنا..."
-            ></textarea>
-            <button
-              type="submit"
-              disabled={isSubmitting || !answer.trim()}
-              className={`mt-4 mb-20 lg:mb-0 bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 ${
-                (isSubmitting || !answer.trim()) ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isSubmitting ? 'جاري الإرسال...' : 'ارسال الاجابة'}
-            </button>
+      <form dir="rtl" onSubmit={handleSubmitAnswer} className="bg-slate-100 sticky bottom-0">
+        <div className="w-full px-10 py-7 mt-10 rounded-lg">
+          {showTextArea && (
+            <>
+              <label className="block mb-2 font-bold">اكتب اجابتك</label>
+              <textarea
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                className="w-full h-32 p-2 border-2 border-gray-300 rounded-lg resize-none"
+                placeholder="اكتب اجابتك هنا..."
+              ></textarea>
+            </>
+          )}
+          <div className="flex justify-center">
+            {showTextArea ? (
+              <button
+                type="submit"
+                disabled={!answer.trim() || isSubmitting}
+                className={`mt-4 mb-20 lg:mb-0 bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 ${
+                  !answer.trim() || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isSubmitting ? '...جاري الإرسال' : 'ارسال الاجابة'}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowTextArea(true)}
+                className="mt-4 mb-20 lg:mb-0 bg-green-600 text-white py-3 lg:text-lg  px-6 rounded-md hover:bg-green-700"
+              >
+                اكتب اجابتك
+              </button>
+            )}
           </div>
-        </form>
+        </div>
+      </form>
     </div>
   );
 }

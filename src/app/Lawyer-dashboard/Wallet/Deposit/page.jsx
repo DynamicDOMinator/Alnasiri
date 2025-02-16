@@ -7,6 +7,7 @@ import Link from "next/link";
 
 function DepositContent() {
   const searchParams = useSearchParams();
+ 
   const [selectedAmount, setSelectedAmount] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -128,6 +129,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
             setError(null);
             setTimeout(() => {
               setPaymentSuccess(false);
+             
             }, 3000);
           })
           .catch((err) => {
@@ -153,7 +155,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     setSelectedAmount(amount);
     setError(null);
     setPaymentSuccess(false);
-    if (amount === null) {
+    // Reset custom amount when selecting predefined values
+    if ([30, 40, 50, 60].includes(amount)) {
       setCustomAmount("");
     }
   };
@@ -362,82 +365,133 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
       </div>
 
       <div className="pt-5 flex flex-col gap-4">
-        <div className="flex items-center gap-2 border-2 p-3 rounded-md">
+        <div 
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+            selectedAmount === 30 ? 'border-green-600' : ''
+          }`}
+          onClick={() => handleAmountChange(30)}
+        >
           <input
             type="radio"
             name="amount"
             value="30"
             checked={selectedAmount === 30}
-            onChange={() => handleAmountChange(30)}
-            className="appearance-none w-4 h-4 border-4 border-green-600 rounded-full checked:border-green-600 checked:bg-green-600 focus:outline-none"
+            onChange={() => {}}
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
           />
           <p>30 ر.س</p>
         </div>
 
-        <div className="flex items-center gap-2 border-2 p-3 rounded-md">
+        <div 
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+            selectedAmount === 40 ? 'border-green-600' : ''
+          }`}
+          onClick={() => handleAmountChange(40)}
+        >
           <input
             type="radio"
             name="amount"
             value="40"
             checked={selectedAmount === 40}
-            onChange={() => handleAmountChange(40)}
-            className="appearance-none w-4 h-4 border-4 border-green-600 rounded-full checked:border-green-600 checked:bg-green-600 focus:outline-none"
+            onChange={() => {}}
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
           />
           <p>40 ر.س</p>
         </div>
 
-        <div className="flex items-center gap-2 border-2 p-3 rounded-md">
+        <div 
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+            selectedAmount === 50 ? 'border-green-600' : ''
+          }`}
+          onClick={() => handleAmountChange(50)}
+        >
           <input
             type="radio"
             name="amount"
             value="50"
             checked={selectedAmount === 50}
-            onChange={() => handleAmountChange(50)}
-            className="appearance-none w-4 h-4 border-4 border-green-600 rounded-full checked:border-green-600 checked:bg-green-600 focus:outline-none"
+            onChange={() => {}}
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
           />
           <p>50 ر.س</p>
         </div>
 
-        <div className="flex items-center gap-2 border-2 p-3 rounded-md">
+        <div 
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+            selectedAmount === 60 ? 'border-green-600' : ''
+          }`}
+          onClick={() => handleAmountChange(60)}
+        >
           <input
             type="radio"
             name="amount"
             value="60"
             checked={selectedAmount === 60}
-            onChange={() => handleAmountChange(60)}
-            className="appearance-none w-4 h-4 border-4 border-green-600 rounded-full checked:border-green-600 checked:bg-green-600 focus:outline-none"
+            onChange={() => {}}
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
           />
           <p>60 ر.س</p>
         </div>
 
         {/* Custom Amount Input */}
-        <div className="flex items-center gap-2 border-2 p-3 rounded-md">
+        <div 
+          className={`flex items-center gap-2 border-2 p-3 rounded-md ${
+            selectedAmount !== null && ![30, 40, 50, 60].includes(selectedAmount) ? 'border-green-600' : ''
+          }`}
+        >
           <input
             type="radio"
             name="amount"
-            checked={
-              selectedAmount !== null &&
-              ![30, 40, 50, 60].includes(selectedAmount)
-            }
-            onChange={() => {
-              if (customAmount) {
-                handleAmountChange(parseInt(customAmount));
-              }
-            }}
-            className="appearance-none w-4 h-4 border-4 border-green-600 rounded-full checked:border-green-600 checked:bg-green-600 focus:outline-none"
+            checked={selectedAmount !== null && ![30, 40, 50, 60].includes(selectedAmount)}
+            onChange={() => {}}
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
           />
           <div className="flex flex-col w-full">
             <div className="flex justify-between items-center gap-2">
               <p>كمية محددة</p>
-              <input
-                type="number"
-                min="1"
-                placeholder="ادخل المبلغ بالريال السعودي"
-                value={customAmount}
-                onChange={handleCustomAmountChange}
-                className="w-[80%] border rounded-md p-2 text-right"
-                dir="ltr"
-              />
+              <div 
+                className="w-[80%] relative cursor-pointer"
+                onClick={() => {
+                  if (!customAmount) {
+                    // Changed default amount from 1 to 100
+                    const defaultAmount = "100";
+                    setCustomAmount(defaultAmount);
+                    handleAmountChange(parseInt(defaultAmount));
+                  }
+                }}
+              >
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="ادخل المبلغ بالريال السعودي"
+                  value={customAmount}
+                  onChange={(e) => {
+                    handleCustomAmountChange(e);
+                    const value = e.target.value;
+                    if (value) {
+                      const numericValue = parseInt(value);
+                      if (!isNaN(numericValue) && numericValue > 0) {
+                        handleAmountChange(numericValue);
+                      }
+                    }
+                  }}
+                  className="w-full border rounded-md p-2 text-right focus:outline-none"
+                  dir="ltr"
+                />
+                {!customAmount && (
+                  <div 
+                    className="absolute inset-0 flex items-center cursor-pointer"
+                    onClick={() => {
+                      // Changed default amount from 1 to 100
+                      const defaultAmount = "100";
+                      setCustomAmount(defaultAmount);
+                      handleAmountChange(parseInt(defaultAmount));
+                    }}
+                  >
+                    
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -73,7 +73,7 @@ export default function Foras() {
         <p className="lg:text-right text-center py-5 lg:bg-transparent lg:shadow-none shadow-md lg:pt-16 text-xl md:text-3xl font-bold">
           فرص
         </p>
-        <div className="flex items-center justify-between pt-1 flex-row-reverse bg-white ">
+        <div className="flex items-center  justify-between py-1 flex-row-reverse bg-white ">
           <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
             {isSelectionMode && (
               <button
@@ -136,7 +136,7 @@ export default function Foras() {
                   day: "numeric",
                 })}
               </p>
-              <p className="font-semibold ">{lead.user.name}</p>
+              <p className="font-semibold "> {lead.user.name ? lead.user.name.split(' ')[0] : lead.name?.split(' ')[0] || 'مستخدم غير معروف'}</p>
             </div>
             {lead.question_title && (
               <p className="text-right font-semibold break-words whitespace-normal">
@@ -146,7 +146,7 @@ export default function Foras() {
               </p>
             )}
 
-            <p className="text-right text-gray-500 break-words whitespace-normal overflow-hidden">
+            <p className="text-right text-gray-500 break-words whitespace-normal ">
               {lead.question_content.length > 50
                 ? `...${lead.question_content.substring(0, 50)}`
                 : lead.question_content}
@@ -182,7 +182,7 @@ export default function Foras() {
               </button>
               <p
                 dir="rtl"
-                className="flex flex-row-reverse items-center gap-2 text-lg text-gray-500"
+                className="flex flex-row-reverse items-center ml-auto lg:ml-0 gap-2 md:text-lg  text-gray-500"
               >
                 {lead.sell_number === 0
                   ? "لم يتم التواصل مع العميل"

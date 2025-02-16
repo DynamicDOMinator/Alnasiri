@@ -7,13 +7,15 @@ import { FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { GoLaw } from "react-icons/go";
 import axios from "axios";
-
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 export default function AnswersDetails() {
   const router = useRouter();
   const params = useParams();
   const [isEditing, setIsEditing] = useState(false);
   const [answerData, setAnswerData] = useState(null);
   const [questionData, setQuestionData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [editedAnswer, setEditedAnswer] = useState("");
 
   useEffect(() => {
     const fetchAnswerDetails = async () => {
@@ -51,6 +53,12 @@ export default function AnswersDetails() {
     }
   }, [params.answerId]);
 
+  useEffect(() => {
+    if (answerData) {
+      setEditedAnswer(answerData.answer);
+    }
+  }, [answerData]);
+
   // Keeping the mock data for fields we don't have yet
   const mockData = {
     location: "الرياض",
@@ -65,16 +73,39 @@ export default function AnswersDetails() {
     ],
   };
 
-  const handleSubmitAnswer = (e) => {
+  const handleSubmitAnswer = async (e) => {
     e.preventDefault();
-    setIsEditing(false);
-    // Here you would typically send the answer to your backend
-    // After successful submission, redirect back to questions list
-    // router.push("/Lawyer-dashboard/MyAnswers");
+    setIsLoading(true);
+    const Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${Base_URL}/answers/edit`,
+        {
+          answer_uuid: answerData.uuid,
+          answer: editedAnswer
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setAnswerData({ ...answerData, answer: editedAnswer });
+      setIsEditing(false);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error updating answer:", error);
+      setIsLoading(false);
+    }
   };
 
   if (!answerData || !questionData) {
-    return <div className="text-center py-10">جاري التحميل...</div>;
+    return  <div className="fixed inset-0 flex justify-center items-center bg-white">
+    <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
+  </div>;
   }
 
   return (
@@ -130,14 +161,14 @@ export default function AnswersDetails() {
         <div className="pt-7 border-2 mb-10 border-gray-300 px-10 py-7 mt-10 rounded-lg">
           {questionData.question_title && (
             <div>
-              <p className="font-bold">السؤال</p>
+              <p className="font-bold break-words">السؤال</p>
               <h3 className="font-bold pt-2">{questionData.question_title}</h3>
             </div>
           )}
           <div>
             <div className="mt-5">
               <p className="font-bold">الاجابة</p>
-              <p className="pt-2">{questionData.question_content}</p>
+              <p className="pt-2 break-words">{answerData.answer}</p>
             </div>
           </div>
         </div>
@@ -159,35 +190,35 @@ export default function AnswersDetails() {
             <div className="space-y-4 ">
               <textarea
                 className="w-full min-h-[120px] md:min-h-[150px] p-4 text-right resize-none border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
-                value={answerData.answer}
-                onChange={(e) =>
-                  setAnswerData({ ...answerData, answer: e.target.value })
-                }
+                value={editedAnswer}
+                onChange={(e) => setEditedAnswer(e.target.value)}
                 placeholder="...اكتب اجابتك هنا"
               />
               <div className="flex justify-end flex-row-reverse gap-3">
                 <button
                   onClick={() => setIsEditing(false)}
                   className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  disabled={isLoading}
                 >
                   إلغاء
                 </button>
                 <button
                   onClick={handleSubmitAnswer}
                   className="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+                  disabled={isLoading}
                 >
-                  حفظ
+                  {isLoading ? "جاري الحفظ..." : "حفظ"}
                 </button>
               </div>
             </div>
           ) : (
             <div className="relative">
-              <div className="w-full min-h-[120px] md:min-h-[150px] p-4 text-right bg-gray-50 rounded-lg border-2 border-gray-200">
+              <div className="w-full min-h-[120px] md:min-h-[150px] break-words p-4 text-right bg-gray-50 rounded-lg border-2 border-gray-200">
                 <p className="text-gray-700 whitespace-pre-wrap">{answerData.answer}</p>
               </div>
               <button
                 onClick={() => setIsEditing(true)}
-                className="absolute top-4 left-4 text-blue-500 hover:text-blue-600 transition-colors"
+                className="absolute top-4 left-4 text-blue-500 hover:text-blue-600 transition-colors z-10 bg-gray-50 px-2 py-1"
               >
                 تعديل
               </button>

@@ -26,10 +26,10 @@ async function getQuestions(specialty = null, page = 1, searchQuery = null) {
       return { data: data.questions || [] };
     }
 
-    // For specialty search
+    // For specialty search - Updated to match header component
     if (specialty) {
       const response = await fetch(
-        `${baseUrl}/question/search-question/${encodeURIComponent(specialty)}?page=${page}`,
+        `${baseUrl}/question/search-question/${encodeURIComponent(specialty)}`,
         {
           cache: "no-store",
           headers: {
@@ -46,7 +46,6 @@ async function getQuestions(specialty = null, page = 1, searchQuery = null) {
       }
 
       const data = await response.json();
-
       return { data: data.questions || [] };
     }
 

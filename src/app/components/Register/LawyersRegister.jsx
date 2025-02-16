@@ -420,8 +420,8 @@ function LawyersRegister() {
         setState((prev) => ({ ...prev, isLoading: false }));
         
         if (response.data) {
-          // router.push("/Lawyer-dashboard");
-          // Add any additional success handling here
+          router.push("/Lawyer-dashboard");
+      
         }
       } catch (error) {
         toast.error(

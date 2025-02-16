@@ -126,7 +126,7 @@ export default function SubmitReview() {
                 className="w-full border-2 rounded-lg p-3 text-right resize-none focus:border-blue-900 focus:ring-1 focus:ring-blue-900 transition-colors"
                 value={reviewText}
                 onChange={(e) => {
-                  if (e.target.value.length <= 70) {
+                  if (e.target.value.length <= 200) {
                     setReviewText(e.target.value);
                   }
                 }}
@@ -134,7 +134,7 @@ export default function SubmitReview() {
                 placeholder="مطلوب"
               />
               <div className="text-left text-xs sm:text-sm text-gray-500 mt-1">
-                اقل من 70 حرف
+                {reviewText.length} / 200
               </div>
             </div>
 

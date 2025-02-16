@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
@@ -24,30 +24,26 @@ function SearchBar({ placeholder }) {
     fetchSpecialties();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     if (e) e.preventDefault();
     let searchParams = new URLSearchParams();
     
-    // Add search query to params if it exists
     if (query.trim()) {
       searchParams.append('search', query.trim());
     }
     
-    // Add specialty name to params if it exists
     if (selectedSpecialty) {
       const selectedSpecialtyObj = specialties.find(s => s.id.toString() === selectedSpecialty);
       if (selectedSpecialtyObj) {
-        searchParams.append('specialty', selectedSpecialtyObj.name);
+        searchParams.append('speciality', selectedSpecialtyObj.name);
       }
     }
 
-    // If there's no query but there's a specialty, just redirect with specialty
     if (!query.trim() && selectedSpecialty) {
       router.push(`/legal-advice?${searchParams.toString()}`);
       return;
     }
 
-    // Only make the API call if there's a search query
     if (query.trim()) {
       try {
         const response = await axios.get(
@@ -65,7 +61,13 @@ function SearchBar({ placeholder }) {
         router.push(`/legal-advice?${searchParams.toString()}`);
       }
     }
-  };
+  }, [query, selectedSpecialty, specialties, router]);
+
+  useEffect(() => {
+    if (selectedSpecialty) {
+      handleSubmit();
+    }
+  }, [selectedSpecialty, handleSubmit]);
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -135,7 +137,6 @@ function SearchBar({ placeholder }) {
             key={specialty.id}
             onClick={() => {
               setSelectedSpecialty(specialty.id.toString());
-              handleSubmit(new Event('submit'));
             }}
             className={`p-3 text-sm rounded-lg border transition-colors duration-200 
                       ${selectedSpecialty === specialty.id.toString()

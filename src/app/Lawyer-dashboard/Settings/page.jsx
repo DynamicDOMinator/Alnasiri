@@ -32,7 +32,7 @@ export default function Settings() {
 
   return (
     <div className="max-w-4xl mx-auto  px-4  mb-32 lg:mb-10">
-      <div className="sticky top-0 bg-white py-16 ">
+      <div className="sticky top-0 bg-white pt-16 pb-2 ">
         <h1 className="lg:text-3xl text-xl text-center font-bold  lg:text-right">
           الاعدادات الشخصيىة
         </h1>
