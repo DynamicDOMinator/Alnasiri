@@ -106,7 +106,7 @@ export default function LeadDetails() {
 
         <div className="flex items-center gap-4 w-full flex-row-reverse justify-end mt-10">
           <div>
-            <p className="text-xl font-bold">{leadData.user.name}</p>
+            <p className="text-xl font-bold">{leadData.user.name ? leadData.user.name.split(' ')[0] : leadData.user.name?.split(' ')[0] || 'مستخدم غير معروف'}</p>
           </div>
         </div>
 

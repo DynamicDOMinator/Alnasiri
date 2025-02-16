@@ -56,7 +56,7 @@ export default function MyAnswers() {
     <div className="w-full pb-24 lg:pb-0 max-w-3xl mx-auto relative">
       {/* Sticky header */}
       <div className="sticky top-0 w-full max-w-3xl py-5 lg:py-0 bg-white z-10">
-        <p className="lg:text-right text-center pb-5 lg:pb-0 lg:bg-transparent lg:shadow-none shadow-none lg:pt-16 text-xl  font-bold">
+        <p className="lg:text-right text-center pb-5 lg:pb-0 lg:bg-transparent lg:shadow-none shadow-none lg:pt-16 text-xl lg:text-3xl font-bold">
           اجوبتي
         </p>
         <div className="lg:pb-5">
@@ -86,7 +86,7 @@ export default function MyAnswers() {
                       year: "numeric",
                     })}
                   </p>
-                  <p className="font-semibold">{answer.user_name || "المستخدم"}</p>
+                  {answer.user_name ? answer.user_name.split(' ')[0] : answer.user_name?.split(' ')[0] || 'مستخدم غير معروف'}
                 </div>
                 {question.question_title && (
                   <p className="text-right font-semibold break-words whitespace-normal">
