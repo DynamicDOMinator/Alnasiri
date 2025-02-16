@@ -89,10 +89,10 @@ export default function LeadDetails() {
     <div>
       <div
         dir="rtl"
-        className="lg:max-w-3xl md:max-w-xl px-10 md:px-0 mx-auto relative"
+        className="lg:max-w-3xl md:max-w-xl pb-36 px-10 md:px-0 mx-auto relative"
       >
         <div className="sticky top-0 bg-white pb-2">
-          <div className="pt-10">
+          <div className="pt-10 ">
             <div className="flex lg:flex-col items-center relative">
               <Link href="/Lawyer-dashboard/" className="absolute right-0">
                 <FaArrowRight />
@@ -104,7 +104,7 @@ export default function LeadDetails() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 w-full flex-row-reverse justify-end mt-10">
+        <div className="flex items-center gap-4 w-full flex-row-reverse justify-end mt-10 ">
           <div>
             <p className="text-xl font-bold">{leadData.user.name ? leadData.user.name.split(' ')[0] : leadData.user.name?.split(' ')[0] || 'مستخدم غير معروف'}</p>
           </div>

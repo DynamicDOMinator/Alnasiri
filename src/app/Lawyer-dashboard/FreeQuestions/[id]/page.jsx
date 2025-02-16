@@ -119,17 +119,19 @@ export default function QuestionDetails() {
             </li>
 
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {question?.question_city || "المدينة غير محددة"}
+              {question?.question_city || question?.city || "المدينة غير محددة"}
               <span>
                 <FaLocationDot />
               </span>
             </li>
+            {question?.case_specialization && (
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
               {question?.case_specialization || "التخصص غير محدد"}
               <span>
                 <GoLaw />
               </span>
             </li>
+            )}
           </ul>
           <div className="absolute top-4 left-3">
             {/* <p>{new Date(question.user.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}</p> */}
@@ -145,11 +147,11 @@ export default function QuestionDetails() {
             </div>
       )}
 
-           {question.question_content && (
+           {question.question_content || question.details && (
 
   <div className="mt-5">
             <h3 className="font-bold">تفاصيل السؤال</h3>
-            <p>{question.question_content}</p>
+            <p>{question.question_content || question.details}</p>
           </div>
 
            )}
@@ -159,7 +161,7 @@ export default function QuestionDetails() {
         
       </div>
       <form dir="rtl" onSubmit={handleSubmitAnswer} className="bg-slate-100 sticky bottom-0">
-        <div className="w-full px-10 py-7 mt-10 rounded-lg">
+        <div className="w-full px-10 lg:py-7 pb-2 mt-10 rounded-lg">
           {showTextArea && (
             <>
               <label className="block mb-2 font-bold">اكتب اجابتك</label>

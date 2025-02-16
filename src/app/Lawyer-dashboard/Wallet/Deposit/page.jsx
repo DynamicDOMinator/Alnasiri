@@ -500,7 +500,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
       <div className="flex justify-center mb-20 lg:mb-0 mt-10 lg:mt-20">
         <button
           onClick={() => setShowPaymentModal(true)}
-          className={`w-1/2 py-2 px-4 mx-auto rounded ${
+          className={` w-1/4 py-2 px-4 mx-auto rounded fixed bottom-0 mb-6 ${
             selectedAmount
               ? "bg-green-700 text-white hover:bg-green-800"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -533,8 +533,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
             )}
             <form dir="ltr" onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Card Number
+                <label className="block text-sm text-right font-medium text-gray-700">
+                  رقم البطاقة
                 </label>
                 <input
                   type="text"
@@ -548,8 +548,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Card Holder Name
+                <label className="block text-sm text-right font-medium text-gray-700">
+                  اسم حامل البطاقة
                 </label>
                 <input
                   type="text"
@@ -563,8 +563,8 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Expiry Date
+                  <label className="block text-sm  font-medium text-gray-700">
+                    تاريخ الانتهاء
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -619,7 +619,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                 </button>
                 <button
                   type="submit"
-                  className={`flex-1 py-2 px-4 bg-green-700 text-white rounded-md ${
+                  className={`flex-1 py-2  px-4 bg-green-700 text-white rounded-md ${
                     isLoading
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:bg-green-800"

@@ -178,7 +178,7 @@ export default function FreeQuestions() {
                       >
                         اجب عن السؤال
                       </button>
-                      <p className="flex items-center gap-1 text-lg text-gray-700">
+                      <p className="flex items-center ml-auto lg:ml-0 gap-1 lg:text-lg   text-gray-700">
                         {(!item.answers_count && !item.sell_number) || item.answers_count === 0 ? (
                           <>
                             كن اول من يجاوب علي العميل
