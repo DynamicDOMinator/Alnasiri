@@ -23,13 +23,46 @@ export default function FreeQuestions() {
       try {
         setIsLoading(true);
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${BASE_URL}/question/mix`, {
+        const response = await axios.get(`${BASE_URL}/question/get-all-questions-for-user`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (response.data) {
-          setQuestions(response.data);
+      
+
+        if (response.data?.data) {
+          const transformedData = response.data.data.map(item => {
+         
+            if (item.data_type === "Question") {
+              return {
+                uuid: item.question.uuid,
+                type: "chance",
+                created_at: item.question.created_at,
+                user: item.question.user,
+                question_title: item.question.question_title,
+                question_content: item.question.question_content,
+                case_specialization: item.question.case_specialization,
+                city: item.question.question_city,
+                answers_count: 0,
+                sell_number: 0
+              };
+            } else if (item.data_type === "UnsignedLead") {
+              return {
+                uuid: item.lead.uuid,
+                type: "chance",
+                created_at: item.lead.created_at,
+                name: item.lead.name,
+                details: item.lead.details,
+                city: item.lead.city,
+                sell_number: item.lead.sell_number,
+                answers_count: 0
+              };
+            }
+            return null;
+          }).filter(Boolean);
+
+       
+          setQuestions(transformedData);
         }
       } catch (error) {
         console.error('Error fetching questions:', error);
@@ -50,9 +83,32 @@ export default function FreeQuestions() {
     }
   };
 
-  const handleDeleteSelected = () => {
-    setSelectedQuestions([]);
-    setIsSelectionMode(false);
+  const handleDeleteSelected = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${BASE_URL}/question/hide-question`,
+        {
+          question_uuid: selectedQuestions
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // After successful deletion, remove the items from the local state
+      const updatedQuestions = questions.filter(
+        question => !selectedQuestions.includes(question.uuid)
+      );
+      setQuestions(updatedQuestions);
+      setSelectedQuestions([]);
+      setIsSelectionMode(false);
+    } catch (error) {
+      console.error('Error deleting questions:', error);
+      // You might want to add error handling UI here
+    }
   };
 
   const handleAnswerQuestion = (uuid) => {
@@ -74,7 +130,7 @@ export default function FreeQuestions() {
   return (
     <div className="min-h-screen relative">
       {isLoading ? (
-        <div className="fixed inset-0 flex justify-center items-center bg-white">
+        <div className="fixed inset-0 flex justify-center items-center  bg-white">
           <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
         </div>
       ) : (
@@ -82,64 +138,72 @@ export default function FreeQuestions() {
           dir="rtl"
           className="lg:max-w-3xl lg:mt-8 md:max-w-xl px-3 mb-32 lg:px-0 md:px-0 mx-auto relative"
         >
-          <div className="sticky top-0 bg-white pb-2">
+          <div className="sticky top-0 bg-white z-50 pb-2">
             <div className="lg:pt-10 pt-5">
               <div className="flex lg:flex-col justify-center lg:items-right relative">
                 <h1 className="lg:text-3xl text-xl font-bold text-right mb-4">الأسئلة المجانية</h1>
               </div>
             </div>
-            <div dir="ltr" className="flex items-center justify-between  flex-row-reverse pb-2">
-        <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
-          {isSelectionMode && (
-            <button
-              onClick={handleDeleteSelected}
-              className="font-bold flex items-center gap-2 border-2 border-red-500 text-red-500 px-4 py-2 rounded-full"
-            >
-              حذف المحدد ({selectedQuestions.length})
-            </button>
-          )}
-          <button
-            onClick={() => {
-              setIsSelectionMode(!isSelectionMode);
-              setSelectedQuestions([]);
-            }}
-            className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full"
-          >
-            {isSelectionMode ? "إلغاء" : "تحديد"}
-          </button>
-          <button className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full">
-            فلتر{" "}
-            <span>
-              <Image
-                src="/images/filter.png"
-                height={15}
-                width={15}
-                alt="فلتر"
-              />
-            </span>
-          </button>
-        </div>
-        
-      </div>
+            <div dir="ltr" className="flex items-center justify-between flex-row-reverse pb-2">
+              <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
+                {isSelectionMode && selectedQuestions.length > 0 && (
+                  <button
+                    onClick={handleDeleteSelected}
+                    className="font-bold flex items-center gap-2 border-2 border-red-500 text-red-500 px-4 py-2 rounded-full"
+                  >
+                    حذف  ({selectedQuestions.length})
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setIsSelectionMode(!isSelectionMode);
+                    setSelectedQuestions([]);
+                  }}
+                  className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full"
+                >
+                  {isSelectionMode ? "إلغاء" : "تحديد"}
+                </button>
+                <button className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full">
+                  فلتر{" "}
+                  <span>
+                    <Image
+                      src="/images/filter.png"
+                      height={15}
+                      width={15}
+                      alt="فلتر"
+                    />
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {questions.length > 0 ? (
             questions.map((item) => (
               <div
-              dir="ltr"
+                dir="ltr"
                 key={item.uuid}
-                onClick={() => item.type === "chance" && handleQuestionClick(item.uuid)}
-                className={`border-2 border-gray-300 rounded-lg w-full md:px-10 px-3 py-6 mb-4 ${
+                onClick={(e) => {
+                  if (!isSelectionMode) {
+                    handleQuestionClick(item.uuid);
+                  }
+                }}
+                className={`relative border-2  border-gray-300 rounded-lg w-full md:px-10 px-3 py-6 mb-4 ${
                   item.type === "chance" ? "cursor-pointer hover:border-blue-500" : ""
-                }`}
+                } ${selectedQuestions.includes(item.uuid) ? "border-blue-500" : ""}`}
               >
                 {isSelectionMode && (
-                  <input
-                    type="checkbox"
-                    className="absolute top-3 right-3 h-5 w-5 cursor-pointer"
-                    checked={selectedQuestions.includes(item.uuid)}
-                    onChange={(e) => handleSelectQuestion(e, item.uuid)}
-                  />
+                  <div 
+                    className="absolute lg:top-3 top-1 pb-2 right-3 z-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5  cursor-pointer"
+                      checked={selectedQuestions.includes(item.uuid)}
+                      onChange={(e) => handleSelectQuestion(e, item.uuid)}
+                    />
+                  </div>
                 )}
                 <div className="flex  justify-between items-center">
                   <p className="flex items-center">

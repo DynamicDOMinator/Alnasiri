@@ -118,7 +118,7 @@ export default function ClientForm() {
 
       const requestData = {
         question_title: formData.question,
-        question_content: formData.description,
+        question_content: formData.description.replace(/\r\n/g, '\n'),
         question_city: formData.city,
         question_status: hireLawyer ? "yes" : "no",
         case_specialization: formData.specialty,
@@ -280,6 +280,8 @@ export default function ClientForm() {
               name="description"
               value={formData.description}
               onChange={handleChange}
+              rows={5}
+              style={{ whiteSpace: 'pre-wrap' }}
               className={`w-full p-2 border rounded-md text-right ${
                 errors.description ? "border-red-500" : ""
               }`}

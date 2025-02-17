@@ -58,13 +58,37 @@ export default function Foras() {
     }
   };
 
-  const handleDeleteSelected = () => {
-    const updatedLeads = leads.filter(
-      (lead) => !selectedLeads.includes(lead.id)
-    );
-    setLeads(updatedLeads);
-    setIsSelectionMode(false);
-    setSelectedLeads([]);
+  const handleDeleteSelected = async () => {
+    try {
+     
+      const selectedUUIDs = leads
+        .filter(lead => selectedLeads.includes(lead.id))
+        .map(lead => lead.uuid);
+
+    
+      await axios.post(
+        `${BASE_URL}/leads/hide-lead`,
+        {
+          lead_uuid: selectedUUIDs
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}` 
+          }
+        }
+      );
+
+      // Remove hidden leads from the local state
+      const updatedLeads = leads.filter(
+        (lead) => !selectedLeads.includes(lead.id)
+      );
+      setLeads(updatedLeads);
+      setIsSelectionMode(false);
+      setSelectedLeads([]);
+    } catch (error) {
+      console.error('Error hiding leads:', error);
+    
+    }
   };
 
   return (
@@ -75,12 +99,12 @@ export default function Foras() {
         </p>
         <div className="flex items-center  justify-between py-1 flex-row-reverse bg-white ">
           <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
-            {isSelectionMode && (
+            {isSelectionMode && selectedLeads.length > 0 && (
               <button
                 onClick={handleDeleteSelected}
                 className="font-bold flex items-center gap-2 border-2 border-red-500 text-red-500 px-4 py-2 rounded-full"
               >
-                حذف المحدد ({selectedLeads.length})
+                حذف  ({selectedLeads.length})
               </button>
             )}
             <button
@@ -88,7 +112,7 @@ export default function Foras() {
                 setIsSelectionMode(!isSelectionMode);
                 setSelectedLeads([]);
               }}
-              className="font-bold flex items-center gap-2 border-2 border-gray-300 hover:border-gray-400  px-4 py-2 rounded-full"
+              className="font-bold flex items-center gap-2 border-2 border-gray-300 px-4 py-2 rounded-full"
             >
               {isSelectionMode ? "إلغاء" : "تحديد"}
             </button>
