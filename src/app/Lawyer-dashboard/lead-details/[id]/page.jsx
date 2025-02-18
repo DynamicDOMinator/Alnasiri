@@ -167,7 +167,9 @@ export default function LeadDetails() {
         <div className="mt-5">
           <div className="border-b-2 border-gray-100 pb-2">
             <h3 className="font-bold pb-2">تفاصيل السؤال</h3>
-            <p className="text-right">{leadData.question_content}</p>
+            <p className="text-right whitespace-pre-wrap break-words">
+              {leadData.question_content}
+            </p>
           </div>
         </div>
       </div>

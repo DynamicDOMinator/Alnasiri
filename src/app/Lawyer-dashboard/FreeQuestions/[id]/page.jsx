@@ -23,20 +23,22 @@ export default function QuestionDetails() {
 
   useEffect(() => {
     const fetchQuestionDetails = async () => {
-   
       try {
         setIsLoading(true);
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${BASE_URL}/question/get-question-or-lead-by-uuid/${params.id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `${BASE_URL}/question/get-question-or-lead-by-uuid/${params.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (response.data && response.data.question) {
           setQuestion(response.data.question);
         }
       } catch (error) {
-        console.error('Error fetching question details:', error);
+        console.error("Error fetching question details:", error);
       } finally {
         setIsLoading(false);
       }
@@ -58,7 +60,7 @@ export default function QuestionDetails() {
         `${BASE_URL}/answers/store`,
         {
           question_uuid: params.id,
-          answer: answer
+          answer: answer.replace(/\r\n/g, '\n'),
         },
         {
           headers: {
@@ -69,7 +71,7 @@ export default function QuestionDetails() {
       setShowTextArea(false);
       setIsAnswerSubmitted(true);
     } catch (error) {
-      console.error('Error submitting answer:', error);
+      console.error("Error submitting answer:", error);
     } finally {
       router.push(`/Lawyer-dashboard/MyAnswers`);
       setIsSubmitting(false);
@@ -114,7 +116,9 @@ export default function QuestionDetails() {
         <div className="border-2 border-gray-300 px-10 py-7 mt-10 rounded-lg relative">
           <ul className="mt-2">
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-            {question?.user?.name ? question.user.name.split(' ')[0] : question.name?.split(' ')[0] || 'مستخدم غير معروف'}
+              {question?.user?.name
+                ? question.user.name.split(" ")[0]
+                : question.name?.split(" ")[0] || "مستخدم غير معروف"}
               <span className="w-4 h-4 bg-green-600 rounded-full"></span>
             </li>
 
@@ -125,12 +129,12 @@ export default function QuestionDetails() {
               </span>
             </li>
             {question?.case_specialization && (
-            <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {question?.case_specialization || "التخصص غير محدد"}
-              <span>
-                <GoLaw />
-              </span>
-            </li>
+              <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
+                {question?.case_specialization || "التخصص غير محدد"}
+                <span>
+                  <GoLaw />
+                </span>
+              </li>
             )}
           </ul>
           <div className="absolute top-4 left-3">
@@ -138,29 +142,31 @@ export default function QuestionDetails() {
           </div>
         </div>
 
-        <div className="pt-7 border-2 mb-10 border-gray-300 px-10 py-7 mt-10 rounded-lg">
-
-      {question.question_title && (
-        <div>
-                <h3 className="font-bold">السؤال</h3>
+        {question.question_title && (
+          <div className="border-2 border-gray-300 px-10 py-7 mt-10 rounded-lg">
+            <div>
+              <h3 className="font-bold">السؤال</h3>
               <p>{question.question_title}</p>
             </div>
-      )}
-
-           {question.question_content || question.details && (
-
-  <div className="mt-5">
-            <h3 className="font-bold">تفاصيل السؤال</h3>
-            <p>{question.question_content || question.details}</p>
           </div>
+        )}
 
-           )}
-        
-        </div>
-
-        
+        {(question.question_content || question.details) && (
+          <div className="border-2 mb-10 border-gray-300 px-10 py-7 mt-10 rounded-lg">
+            <div>
+              <h3 className="font-bold">تفاصيل السؤال</h3>
+              <p className="whitespace-pre-wrap">
+                {question.question_content || question.details}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
-      <form dir="rtl" onSubmit={handleSubmitAnswer} className="bg-slate-100 sticky bottom-0">
+      <form
+        dir="rtl"
+        onSubmit={handleSubmitAnswer}
+        className="bg-slate-100 sticky bottom-0"
+      >
         <div className="w-full px-10 lg:py-7 pb-2 mt-10 rounded-lg">
           {showTextArea && (
             <>
@@ -179,10 +185,12 @@ export default function QuestionDetails() {
                 type="submit"
                 disabled={!answer.trim() || isSubmitting}
                 className={`mt-4 mb-20 lg:mb-0 bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 ${
-                  !answer.trim() || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                  !answer.trim() || isSubmitting
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
               >
-                {isSubmitting ? '...جاري الإرسال' : 'ارسال الاجابة'}
+                {isSubmitting ? "...جاري الإرسال" : "ارسال الاجابة"}
               </button>
             ) : (
               <button

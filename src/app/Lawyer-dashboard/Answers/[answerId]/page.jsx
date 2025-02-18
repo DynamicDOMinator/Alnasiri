@@ -84,7 +84,7 @@ export default function AnswersDetails() {
         `${Base_URL}/answers/edit`,
         {
           answer_uuid: answerData.uuid,
-          answer: editedAnswer
+          answer: editedAnswer.replace(/\r\n/g, '\n')
         },
         {
           headers: {
@@ -168,7 +168,7 @@ export default function AnswersDetails() {
           <div>
             <div className="mt-5">
               <p className="font-bold">الاجابة</p>
-              <p className="pt-2 break-words">{answerData.answer}</p>
+              <p className="pt-2 whitespace-pre-wrap">{answerData.answer}</p>
             </div>
           </div>
         </div>

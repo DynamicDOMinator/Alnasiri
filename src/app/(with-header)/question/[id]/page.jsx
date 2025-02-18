@@ -330,7 +330,7 @@ export default function QuestionDetails() {
                       <h2 className="text-lg sm:text-xl font-bold text-gray-700">
                         {questions[0].question_title}
                       </h2>
-                      <p className="text-sm sm:text-base text-gray-700 mt-2">
+                      <p className="text-sm sm:text-base whitespace-pre-wrap text-gray-700 mt-2">
                         {questions[0].question_content}
                       </p>
                     </div>

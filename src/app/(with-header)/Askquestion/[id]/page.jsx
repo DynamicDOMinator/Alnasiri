@@ -125,7 +125,7 @@ export default function QuestionSuccess() {
           <p className="text-xl font-semibold mt-2">
             {questionDetails?.question_title || "No Title"}
           </p>
-          <p className="text-sm mt-2">
+          <p className="text-sm mt-2 whitespace-pre-wrap">
             {questionDetails?.question_content || "No Content"}
           </p>
 

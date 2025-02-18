@@ -439,10 +439,10 @@ export default function LawyerProfile() {
                               <BsQuestionCircle className="text-blue-900 text-xl" />
                             </div>
                           </div>
-                          <h4 className="text-xl font-semibold mb-2 text-right">
+                          <h4 className="text-xl font-semibold mb-2 text-right whitespace-pre-wrap break-words">
                             {qa.question.question_title}
                           </h4>
-                          <p className="text-gray-700 text-right">
+                          <p className="text-gray-700 text-right whitespace-pre-wrap break-words">
                             {qa.question.question_content}
                           </p>
                         </div>
@@ -460,7 +460,7 @@ export default function LawyerProfile() {
                               <MdOutlineQuestionAnswer className="text-green-600 text-xl" />
                             </div>
                           </div>
-                          <p className="text-gray-700 text-right">
+                          <p className="text-gray-700 text-right whitespace-pre-wrap break-words">
                             {qa.answer}
                           </p>
                         </div>
