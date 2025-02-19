@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
+import { IoMail } from "react-icons/io5";
+import { FaClock } from "react-icons/fa";
+import { AiFillMessage } from "react-icons/ai";
 
 import Link from "next/link";
 import { useQuestion } from "../../../contexts/QuestionContext";
@@ -30,7 +33,6 @@ export default function QuestionSuccess() {
         setLoading(true);
 
         if (questionData && currentQuestionId === params.id) {
-        
           setQuestionDetails(questionData);
           setLoading(false);
           return;
@@ -42,14 +44,14 @@ export default function QuestionSuccess() {
         );
 
         if (response.data?.question || response.data?.lawyerChance) {
-          const questionData = response.data.question || response.data.lawyerChance;
-        
+          const questionData =
+            response.data.question || response.data.lawyerChance;
+
           setQuestionDetails(questionData);
         } else {
           throw new Error("No data found");
         }
       } catch (error) {
-      
         setError(error.response?.data?.error || "حدث خطأ أثناء تحميل السؤال");
       } finally {
         setLoading(false);
@@ -119,17 +121,39 @@ export default function QuestionSuccess() {
       <div className="max-w-6xl mx-auto p-6 ">
         <div className="text-6xl mb-4 text-green-500 animate-bounce">✓</div>
         <h1 className="text-2xl font-bold mb-4">شكرا لك تم تلقي سؤالك</h1>
+        <div className="flex flex-col gap-4 items-center mt-5 mb-20 ">
+          <p className="flex items-center gap-2">
+            <span>
+              <IoMail />
+            </span>
+            نرسل لك بريدًا إلكترونيًا عندما يرد المحامون
+          </p>
+          <p className="flex items-center gap-2">
+            <span>
+              <FaClock />
+            </span>
+            يتم الرد على معظم الأسئلة خلال 12 ساعة
+          </p>
+          <p className="flex items-center gap-2">
+            <span>
+              <AiFillMessage />
+            </span>
+            تحصل معظم الأسئلة على إجابات من محاميين على الأقل
+          </p>
+        </div>
 
         <div className="text-right p-4 relative rounded-lg mb-6 border border-gray-300 mt-10">
-          <h2 className="mb-2 absolute -top-3 bg-white px-2">السؤال</h2>
-          <p className="text-xl font-semibold mt-2">
+          <h2 className="mb-2 absolute -top-3 bg-[#e5f8f7] text-[#00b7af] px-3 rounded-md">
+            السؤال
+          </h2>
+          <p className="text-2xl break-words font-semibold pt-9">
             {questionDetails?.question_title || "No Title"}
           </p>
-          <p className="text-sm mt-2 whitespace-pre-wrap">
+          <p className="text-lg break-words mt-5 whitespace-pre-wrap">
             {questionDetails?.question_content || "No Content"}
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2">
+          <div className="mt-10 flex flex-wrap items-center gap-2">
             <p className="text-sm">
               {questionDetails?.question_city || "No City"}
             </p>
@@ -148,7 +172,8 @@ export default function QuestionSuccess() {
           </div>
         </div>
 
-        <div className="flex justify-between md:flex-row flex-col gap-4 bg-white px-4 py-10 rounded-lg shadow-lg">
+        <div className="flex justify-between md:flex-row flex-col gap-4 bg-white px-4 py-10 mt-10 rounded-lg shadow-[0px_2px_11px_0px_rgba(137,147,159,0.25)]">
+
           <div>
             <h3 className="text-xl font-semibold text-right">أسال سؤال اخر</h3>
             <p className="text-sm text-right mt-2">
@@ -170,6 +195,9 @@ export default function QuestionSuccess() {
             </Link>
           </div>
         </div>
+
+        <hr className="mt-12 border-gray-300" />
+
         <div className="text-right py-10">
           <h3 className="text-xl font-semibold">لم يتم الرد من المحامين بعد</h3>
           <p>
@@ -179,11 +207,11 @@ export default function QuestionSuccess() {
         </div>
         {/* search inputs  */}
 
-        <div className="relative bg-white pb-4 rounded-lg shadow-lg">
+        <div className="relative bg-white pb-4  rounded-lg shadow-lg">
           <div className="w-[90%] mx-auto my-10 h-3 rounded-lg bg-blue-900"></div>
 
           <div className="flex lg:flex-row flex-col gap-4 ">
-            <div className="lg:w-1/2 lg:px-16">
+            <div className="lg:w-1/2 lg:px-16 px-3">
               {/* search component */}
               <Search />
               {/* end of the component */}

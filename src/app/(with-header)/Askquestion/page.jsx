@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useQuestion } from "../../contexts/QuestionContext";
 import { useAuth } from "../../contexts/AuthContext";
 import Link from "next/link";
+import AuthModel from "../../components/AuthModel";
+
 export default function ClientForm() {
   const router = useRouter();
   const { setQuestion } = useQuestion();
@@ -20,7 +22,7 @@ export default function ClientForm() {
   });
   const [errors, setErrors] = useState({});
   const { isAuthenticated } = useAuth();
-  const [showDialog, setShowDialog] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [cities, setCities] = useState([]);
   const [specialties, setSpecialties] = useState([]);
 
@@ -94,7 +96,7 @@ export default function ClientForm() {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      setShowDialog(true);
+      setShowAuthModal(true);
       return;
     }
 
@@ -118,7 +120,7 @@ export default function ClientForm() {
 
       const requestData = {
         question_title: formData.question,
-        question_content: formData.description.replace(/\r\n/g, '\n'),
+        question_content: formData.description.replace(/\r\n/g, "\n"),
         question_city: formData.city,
         question_status: hireLawyer ? "yes" : "no",
         case_specialization: formData.specialty,
@@ -168,69 +170,48 @@ export default function ClientForm() {
     }
   };
 
-  const CustomAlert = () => (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-5 rounded shadow-md text-center">
-        <h2 className="text-lg font-bold">تنبيه</h2>
-        <p>يجب عليك تسجيل الدخول قبل إرسال السؤال.</p>
-        <button
-          onClick={() => setShowDialog(false)}
-          className="mt-4 bg-[#FF6624] text-white py-2 px-4 rounded"
-        >
-          حسناً
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="pt-36 py-10">
-      {showDialog && <CustomAlert />}
+    <div className="pt-36 py-10 bg-gray-100">
+      <AuthModel
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
       <div dir="rtl" className="p-5 max-w-4xl mx-auto ">
-        <h1 className="text-2xl font-bold text-center mb-5">
+        <h1 className="lg:text-[48px] text-xl font-bold text-center mb-20">
           اسال محامي مجاناً..!
         </h1>
         {/* How it works */}
         <div className="mb-5">
-          <div className="flex justify-between items-center border-t-4 border-black bg-white shadow-md py-6 px-2">
+          <div
+            className="flex justify-between items-center border-t-4 border-black bg-white shadow-md py-6 px-2 cursor-pointer"
+            onClick={() => setShowDetails(!showDetails)}
+          >
             <h2 className="text-xl font-semibold text-[#30B2B4F7] mb-2">
               كيف تسفيد من هذه الخدمة؟
             </h2>
-            <button
-              className="text-blue-500 hover:text-blue-700"
-              onClick={() => setShowDetails(!showDetails)}
+            <div
+              className={`text-blue-500 transform transition-transform duration-300 ${showDetails ? "rotate-180" : ""}`}
             >
-              {showDetails ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
           </div>
-          {showDetails && (
-            <div className="bg-white shadow-md px-2 pb-4 ">
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              showDetails ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <div className="bg-white shadow-md px-2 pb-4">
               <ul className="list-disc mr-4 [&>li]:relative [&>li]:right-4">
                 <li className="py-1">
                   اكتب سؤالك بكل سهوله-الخدمة مجانية و تحتفظ بخصوصيتك
@@ -248,7 +229,7 @@ export default function ClientForm() {
                 </li>
               </ul>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Form */}
@@ -256,10 +237,11 @@ export default function ClientForm() {
           {/* Question */}
           <div>
             <label className="block font-medium mb-1">
-              أطرح سؤالا<span className="text-red-600">*</span>
+              أسال سؤالك<span className="text-red-600">*</span>
             </label>
             <textarea
               name="question"
+              placeholder="أشرح وضعك او حالتك"
               value={formData.question}
               onChange={handleChange}
               className={`w-full p-2 border rounded-md text-right ${
@@ -274,14 +256,15 @@ export default function ClientForm() {
           {/* Description */}
           <div>
             <label className="block font-medium mb-1">
-              اشرح وضعك أو حالتك<span className="text-red-600">*</span>
+              اشرح حالتك<span className="text-red-600">*</span>
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              rows={5}
-              style={{ whiteSpace: 'pre-wrap' }}
+              placeholder="قدم التفاصيل المهمة. لا داعي لأن تكون مثالية - يمكنك دائمًا  توضيح المزيد أو طرح أسئلة إضافية لاحقًا."
+              rows={8}
+              style={{ whiteSpace: "pre-wrap" }}
               className={`w-full p-2 border rounded-md text-right ${
                 errors.description ? "border-red-500" : ""
               }`}
@@ -336,11 +319,11 @@ export default function ClientForm() {
                 </option>
               ))}
             </select>
-            <Link href="/legal-specializations" >
+            <Link href="/legal-specializations">
               <p className="text-blue-500 hover:underline pt-5 text-right">
                 اطلع علي شرح التخصصات
               </p>
-            </Link>   
+            </Link>
             {errors.specialty && (
               <p className="text-red-500 text-sm mt-1">{errors.specialty}</p>
             )}
@@ -349,7 +332,7 @@ export default function ClientForm() {
           {/* Hire Lawyer */}
           <div>
             <label className="block font-medium mb-1">
-              هل تخطط لتوظيف محامٍ؟
+              هل تخطط لتوظيف محامٍ؟<span className="text-red-600">*</span>
             </label>
             <div className="space-x-4 flex flex-col gap-2">
               <label className="inline-flex items-center">
@@ -358,7 +341,6 @@ export default function ClientForm() {
                   name="hireLawyer"
                   value="true"
                   onChange={() => setHireLawyer(true)}
-                  required
                   className="form-radio ml-2"
                 />
                 <span>نعم</span>
@@ -378,6 +360,9 @@ export default function ClientForm() {
                 <span>لا</span>
               </label>
             </div>
+            {errors.hireLawyer && (
+              <p className="text-red-500 text-sm mt-1">{errors.hireLawyer}</p>
+            )}
           </div>
 
           {/* When to hire lawyer */}
@@ -466,10 +451,16 @@ export default function ClientForm() {
             </div>
           )}
 
+          <div>
+            <p className="text-gray-600">
+              نستخدم هذا السؤال للحصول على المساعدة من المحامين بشكل أسرع
+            </p>
+          </div>
+
           {/* Submit */}
           <button
             type="submit"
-            className="bg-[#16498C]  hover:bg-blue-900 w-full md:w-auto text-white py-2 px-16 rounded"
+            className="bg-blue-500  hover:bg-blue-600 w-full md:w-auto text-white py-2 px-16 rounded"
           >
             إرسال
           </button>
