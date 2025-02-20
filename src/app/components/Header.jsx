@@ -21,6 +21,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { AiOutlineLogout } from "react-icons/ai";
 import axios from "axios";
 import { useUserType } from "../contexts/UserTypeContext";
+import { FaUser } from "react-icons/fa";
+import { IoIosArrowBack } from "react-icons/io";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -33,7 +35,7 @@ export default function Header() {
     isLoading: authLoading,
   } = useAuth();
   const { userType, isLoading: userTypeLoading } = useUserType();
-  const [speciality, setSpecialties] = useState([]);
+  const [specialities, setSpecialities] = useState([]);
   const [city, setCity] = useState([]);
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -62,7 +64,7 @@ export default function Header() {
         const specialties = specialtyRes.data.map(
           (specialty) => specialty.name
         );
-        setSpecialties(specialties);
+        setSpecialities(specialties);
 
         // Fetch cities
         const cityRes = await axios.get(`${BASE_URL}/lawyer/get-all-cities`);
@@ -75,22 +77,6 @@ export default function Header() {
 
     fetchData();
   }, [isAuthenticated, userType, BASE_URL]);
-
-  useEffect(() => {
-    console.log("Header state updated:", {
-      isAuthenticated,
-      userType,
-      isLoading,
-    });
-  }, [isAuthenticated, userType, isLoading]);
-
-  useEffect(() => {
-    console.log("Auth state changed:", { isAuthenticated, userName, userType });
-  }, [isAuthenticated, userName, userType]);
-
-  useEffect(() => {
-    console.log("Header: authModelOpen changed:", authModelOpen);
-  }, [authModelOpen]);
 
   const handleSearch = (searchType, value, close) => {
     if (!value) return;
@@ -137,84 +123,104 @@ export default function Header() {
             <div>
               {isAuthenticated ? (
                 <Popover className="relative">
-                  <PopoverButton
-                    className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
-                      userType === "lawyer"
-                        ? "bg-[#16498C] text-white border-[#16498C]"
-                        : "text-gray-700 hover:text-gray-900"
-                    }`}
-                  >
-                    {userType === "lawyer" ? (
-                      <span className="text-sm font-medium">لوحة التحكم</span>
-                    ) : (
-                      <span className="text-sm font-medium">{userName}</span>
-                    )}
-                    <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-                  </PopoverButton>
-
-                  <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                    {({ close }) => (
-                      <>
+                  {({ open }) => (
+                    <>
+                      <PopoverButton
+                        className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+                          userType === "lawyer"
+                            ? "bg-[#16498C] text-white border-[#16498C]"
+                            : `text-gray-700 hover:text-gray-900 ${open ? "border-blue-500" : "border-gray-200"}`
+                        }`}
+                      >
                         {userType === "lawyer" ? (
-                          <Link
-                            href="/Lawyer-dashboard"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                            onClick={() => {
-                              setMobileMenuOpen(false);
-                              close();
-                            }}
-                          >
+                          <span className="text-sm font-medium">
                             لوحة التحكم
-                          </Link>
+                          </span>
                         ) : (
+                          <span className="text-sm font-medium flex items-center gap-2 ">
+                            {userName}
+                            <FaUser className="size-4" />
+                          </span>
+                        )}
+                        <ChevronDownIcon
+                          className="h-5 w-5"
+                          aria-hidden="true"
+                        />
+                      </PopoverButton>
+
+                      <PopoverPanel className="absolute left-0 z-10 mt-3 w-64 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                        {({ close }) => (
                           <>
-                            <Link
-                              href="/notifications"
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                              onClick={() => {
-                                setMobileMenuOpen(false);
-                                close();
-                              }}
-                            >
-                              الاشعارات
-                            </Link>
-                            <Link
-                              href="/my-questions"
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                              onClick={() => {
-                                setMobileMenuOpen(false);
-                                close();
-                              }}
-                            >
-                              اسالتي
-                            </Link>
-                            <Link
-                              href="/profile-settings"
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                              onClick={() => {
-                                setMobileMenuOpen(false);
-                                close();
-                              }}
-                            >
-                              الاعدادات
-                            </Link>
+                            {userType === "lawyer" ? (
+                              <Link
+                                href="/Lawyer-dashboard"
+                                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                onClick={() => {
+                                  setMobileMenuOpen(false);
+                                  close();
+                                }}
+                              >
+                                <IoIosArrowBack className="size-5" />
+                                لوحة التحكم
+                              </Link>
+                            ) : (
+                              <>
+                                <Link
+                                  href="/profile-settings"
+                                  className=" px-4 py-2 text-lg border-b-2 text-blue-500 hover:bg-gray-100 text-right flex items-center justify-end mb-2"
+                                  onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    close();
+                                  }}
+                                >
+                                 
+                                  اعدادات الحساب
+                                </Link>
+
+                                <Link
+                                  href="/notifications"
+                                  className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                  onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    close();
+                                  }}
+                                >
+                                  <IoIosArrowBack className="size-5" />
+                                  الاشعارات
+                                </Link>
+                                <Link
+                                  href="/my-questions"
+                                  className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                  onClick={() => {
+                                    setMobileMenuOpen(false);
+                                    close();
+                                  }}
+                                >
+                                  <IoIosArrowBack className="size-5" />
+                                  اسالتي
+                                </Link>
+                              </>
+                            )}
+
+                            <div className="px-3 py-2 hover:bg-gray-100">
+                              <button
+                                onClick={() => {
+                                  handleLogout();
+                                  close();
+                                }}
+                                className="justify-center border-2  w-full px-4 py-3  text-sm  text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                              >
+                                <span>
+                                  <AiOutlineLogout />
+                                </span>
+                                تسجيل خروج
+                              </button>
+                            </div>
                           </>
                         )}
-                        <button
-                          onClick={() => {
-                            handleLogout();
-                            close();
-                          }}
-                          className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                        >
-                          <span>
-                            <AiOutlineLogout />
-                          </span>
-                          تسجيل خروج
-                        </button>
-                      </>
-                    )}
-                  </PopoverPanel>
+                      </PopoverPanel>
+                    </>
+                  )}
                 </Popover>
               ) : (
                 <button
@@ -328,7 +334,7 @@ export default function Header() {
                       >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
-                            {speciality.map((spec, index) => (
+                            {specialities.map((spec, index) => (
                               <div
                                 key={index}
                                 className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
@@ -376,7 +382,7 @@ export default function Header() {
                       >
                         <div className="p-4">
                           <div className="grid grid-cols-3 gap-2">
-                            {speciality.map((spec, index) => (
+                            {specialities.map((spec, index) => (
                               <div
                                 key={index}
                                 className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
@@ -428,80 +434,95 @@ export default function Header() {
               <div>
                 {isAuthenticated ? (
                   <Popover className="relative">
-                    <PopoverButton
-                      className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
-                        userType === "lawyer"
-                          ? "bg-[#16498C] text-white border-[#16498C]"
-                          : "text-gray-700 hover:text-gray-900"
-                      }`}
-                    >
-                      {userType === "lawyer" ? (
-                        <span className="text-sm font-medium">لوحة التحكم</span>
-                      ) : (
-                        <span className="text-sm font-medium">{userName}</span>
-                      )}
-                      <ChevronDownIcon className="h-5 w-5" aria-hidden="true" />
-                    </PopoverButton>
-
-                    <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                      {({ close }) => (
-                        <>
-                          {userType === "lawyer" && (
-                            <Link
-                              href="/Lawyer-dashboard"
-                              onClick={() => {
-                                handleLogout();
-                              }}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                            >
+                    {({ open }) => (
+                      <>
+                        <PopoverButton
+                          className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+                            userType === "lawyer"
+                              ? "bg-[#16498C] text-white border-[#16498C]"
+                              : `text-gray-700 hover:text-gray-900 ${open ? "border-blue-500" : "border-gray-200"}`
+                          }`}
+                        >
+                          {userType === "lawyer" ? (
+                            <span className="text-sm font-medium">
                               لوحة التحكم
-                            </Link>
+                            </span>
+                          ) : (
+                            <span className="text-sm font-medium flex items-center gap-2">
+                              {userName}
+                              <FaUser className="size-4" />
+                            </span>
                           )}
-                          {userType === "user" && (
+                          <ChevronDownIcon
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                          />
+                        </PopoverButton>
+
+                        <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                          {({ close }) => (
                             <>
-                              <Link
-                                href="/notifications"
+                              {userType === "lawyer" && (
+                                <Link
+                                  href="/Lawyer-dashboard"
+                                  onClick={() => {
+                                    handleLogout();
+                                  }}
+                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                                >
+                                  لوحة التحكم
+                                </Link>
+                              )}
+                              {userType === "user" && (
+                                <>
+                                  <Link
+                                    href="/notifications"
+                                    onClick={() => {
+                                      handleLogout();
+                                    }}
+                                    className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                  >
+                                    الاشعارات
+                                    <IoIosArrowBack className="size-5" />
+                                  </Link>
+                                  <Link
+                                    href="/my-questions"
+                                    onClick={() => {
+                                      handleLogout();
+                                    }}
+                                    className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                  >
+                                    اسالتي
+                                    <IoIosArrowBack className="size-5" />
+                                  </Link>
+                                  <Link
+                                    href="/profile-settings"
+                                    onClick={() => {
+                                      handleLogout();
+                                    }}
+                                    className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                  >
+                                    الاعدادات
+                                    <IoIosArrowBack className="size-5" />
+                                  </Link>
+                                </>
+                              )}
+                              <button
                                 onClick={() => {
                                   handleLogout();
                                 }}
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
+                                className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                               >
-                                الاشعارات
-                              </Link>
-                              <Link
-                                href="/my-questions"
-                                onClick={() => {
-                                  handleLogout();
-                                }}
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                              >
-                                اسالتي
-                              </Link>
-                              <Link
-                                href="/profile-settings"
-                                onClick={() => {
-                                  handleLogout();
-                                }}
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right"
-                              >
-                                الاعدادات
-                              </Link>
+                                <span>
+                                  <AiOutlineLogout />
+                                </span>
+                                تسجيل خروج
+                              </button>
                             </>
                           )}
-                          <button
-                            onClick={() => {
-                              handleLogout();
-                            }}
-                            className="justify-end w-full px-4 py-2 text-sm text-right text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                          >
-                            <span>
-                              <AiOutlineLogout />
-                            </span>
-                            تسجيل خروج
-                          </button>
-                        </>
-                      )}
-                    </PopoverPanel>
+                        </PopoverPanel>
+                      </>
+                    )}
                   </Popover>
                 ) : (
                   <button
@@ -546,7 +567,7 @@ export default function Header() {
                         className="h-5 w-5 flex-shrink-0"
                       />
                     </DisclosureButton>
-                    <DisclosurePanel className="mt-2 ">
+                    <DisclosurePanel className="mt-2">
                       <div className="grid grid-cols-2 gap-4">
                         {city.map((cityName, index) => (
                           <div
@@ -557,7 +578,7 @@ export default function Header() {
                               setMobileMenuOpen(false);
                             }}
                           >
-                            <span className="block font-semibold text-gray-900">
+                            <span className="block font-semibold text-blue-500 hover:underline">
                               {cityName}
                             </span>
                           </div>
@@ -577,24 +598,18 @@ export default function Header() {
                     </DisclosureButton>
                     <DisclosurePanel className="mt-2">
                       <div className="grid grid-cols-2 gap-4">
-                        {speciality.map((spec, index) => (
+                        {specialities.map((spec, index) => (
                           <div
                             key={index}
-                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
+                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
+                            onClick={() => {
+                              handleSearch("specialty", spec);
+                              setMobileMenuOpen(false);
+                            }}
                           >
-                            <Link
-                              href={`/question/search-question/${spec}`}
-                              onClick={() => {
-                                handleSearch("specialty", spec);
-                                setMobileMenuOpen(false);
-                              }}
-                              className="block font-semibold text-gray-900"
-                            >
+                            <span className="block font-semibold text-blue-500 hover:underline">
                               {spec}
-                            </Link>
-                            <p className="mt-1 text-gray-600">
-                              استشارات في {spec}
-                            </p>
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -612,23 +627,33 @@ export default function Header() {
                     </DisclosureButton>
                     <DisclosurePanel className="mt-2">
                       <div className="grid grid-cols-2 gap-4">
-                        {speciality.map((spec, index) => (
+                        {specialities.map((spec, index) => (
                           <div
                             key={index}
-                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right"
+                            className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
+                            onClick={() => {
+                              router.push(
+                                `/legal-advice?speciality=${encodeURIComponent(spec)}`
+                              );
+                              setMobileMenuOpen(false);
+                            }}
                           >
-                            <Link
-                              href={`/question/search-question/${spec}`}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="block font-semibold text-gray-900"
-                            >
+                            <span className="block font-semibold text-blue-500 hover:underline">
                               {spec}
-                            </Link>
-                            <p className="mt-1 text-gray-600">
-                              استشارات في {spec}
-                            </p>
+                            </span>
                           </div>
                         ))}
+                      </div>
+                      <div className="flex justify-end mt-4">
+                        <button
+                          className="bg-blue-700 text-white px-4 py-2 rounded-lg"
+                          onClick={() => {
+                            router.push("/legal-topics");
+                            setMobileMenuOpen(false);
+                          }}
+                        >
+                          تصفح المواضيع القانونية
+                        </button>
                       </div>
                     </DisclosurePanel>
                   </Disclosure>

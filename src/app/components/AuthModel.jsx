@@ -55,9 +55,9 @@ export default function AuthModel({ isOpen, onClose }) {
   const handleOtpPaste = (e) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").trim();
-    if (!/^\d+$/.test(pastedData)) return; 
+    if (!/^\d+$/.test(pastedData)) return;
 
-    const digits = pastedData.slice(0, 4).split(""); 
+    const digits = pastedData.slice(0, 4).split("");
     const newOtp = [...otp];
     digits.forEach((digit, index) => {
       if (index < 4) newOtp[index] = digit;
@@ -122,7 +122,7 @@ export default function AuthModel({ isOpen, onClose }) {
         } catch (err) {
           if (!showPassword && err.response && err.response.status === 404) {
             setStep("register");
-            setError(""); 
+            setError("");
           } else {
             setError(
               err.response?.data?.message ||
@@ -162,7 +162,7 @@ export default function AuthModel({ isOpen, onClose }) {
   };
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^5\d{8}$/;  // Starts with 5 and followed by 8 digits
+    const phoneRegex = /^5\d{8}$/; // Starts with 5 and followed by 8 digits
     return phoneRegex.test(phone);
   };
 
@@ -172,7 +172,7 @@ export default function AuthModel({ isOpen, onClose }) {
   };
 
   const validateArabicName = (name) => {
-    const arabicRegex = /^[\u0600-\u06FF\s]+$/;  // Arabic Unicode range
+    const arabicRegex = /^[\u0600-\u06FF\s]+$/; // Arabic Unicode range
     return arabicRegex.test(name);
   };
 
@@ -204,7 +204,9 @@ export default function AuthModel({ isOpen, onClose }) {
 
       // Validate password
       if (!validatePassword(registerPassword)) {
-        setError("كلمة المرور يجب أن تحتوي على 9 أحرف على الأقل، وتتضمن أحرف كبيرة وصغيرة وأرقام");
+        setError(
+          "كلمة المرور يجب أن تحتوي على 9 أحرف على الأقل، وتتضمن أحرف كبيرة وصغيرة وأرقام"
+        );
         return;
       }
 
@@ -363,10 +365,9 @@ export default function AuthModel({ isOpen, onClose }) {
 
     setTimer(120);
     setCanResend(false);
-    
+
     const newIntervalId = window.setInterval(() => {
-      setTimer(prevTimer => {
-    
+      setTimer((prevTimer) => {
         if (prevTimer <= 1) {
           clearInterval(newIntervalId);
           setCanResend(true);
@@ -382,7 +383,7 @@ export default function AuthModel({ isOpen, onClose }) {
   const handleResendOTP = async () => {
     try {
       let response;
-      
+
       if (isForgotPassword) {
         // For email OTP
         response = await axios.post(
@@ -421,7 +422,7 @@ export default function AuthModel({ isOpen, onClose }) {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -590,7 +591,7 @@ export default function AuthModel({ isOpen, onClose }) {
                   value={name}
                   onChange={(e) => {
                     const value = e.target.value;
-                    if (value === '' || validateArabicName(value)) {
+                    if (value === "" || validateArabicName(value)) {
                       setName(value);
                     }
                   }}
@@ -612,7 +613,11 @@ export default function AuthModel({ isOpen, onClose }) {
                     value={phone}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '' || (/^\d{0,9}$/.test(value) && (value === '' || value.startsWith('5')))) {
+                      if (
+                        value === "" ||
+                        (/^\d{0,9}$/.test(value) &&
+                          (value === "" || value.startsWith("5")))
+                      ) {
                         setPhone(value);
                       }
                     }}

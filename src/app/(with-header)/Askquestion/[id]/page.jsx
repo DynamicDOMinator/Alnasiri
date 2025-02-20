@@ -20,7 +20,7 @@ export default function QuestionSuccess() {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("ar-SA", {
+    return date.toLocaleDateString("ar-EG", {
       year: "numeric",
       month: "long",
       day: "numeric",

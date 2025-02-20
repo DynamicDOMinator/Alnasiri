@@ -336,7 +336,7 @@ export default function ProfileSettings() {
                 isPassword
                   ? "********"
                   : isPhone
-                    ? ` 05${formData[fieldName]}`
+                    ? ` 0${formData[fieldName]}`
                     : formData[fieldName]
               }
               readOnly

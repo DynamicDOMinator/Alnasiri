@@ -12,38 +12,20 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { useUserType } from "@/app/contexts/UserTypeContext";
 
 export default function Notifications() {
-
-
-
-
-
-
-
-  
   const router = useRouter();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [imageErrors, setImageErrors] = useState(new Set());
 
-
-
-
-
-  const { logout , isAuthenticated } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const { userType, isLoading: userTypeLoading } = useUserType();
   const [isLoading, setIsLoading] = useState(true);
 
-useEffect(() => {
-  if (!userTypeLoading && (!isAuthenticated || userType === "lawyer")) {
-   router.push("/");
-  }
-}, [isAuthenticated, userType, userTypeLoading, router]);
-
-
-
-
-
-
+  useEffect(() => {
+    if (!userTypeLoading && (!isAuthenticated || userType === "lawyer")) {
+      router.push("/");
+    }
+  }, [isAuthenticated, userType, userTypeLoading, router]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -107,13 +89,15 @@ useEffect(() => {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
-          <h1 className="lg:text-3xl text-xl font-bold text-right">الاشعارات</h1>
+          <h1 className="lg:text-3xl text-xl font-bold text-right">
+            الاشعارات
+          </h1>
 
           <div
             dir="rtl"
-            className="flex md:flex-row flex-col md:items-start items-center mt-10 gap-10 justify-between"
+            className="md:flex md:flex-row flex-col md:items-start items-center mt-10 gap-10 justify-between"
           >
-            <div className="flex flex-col gap-4 w-full md:w-auto lg:w-2/3">
+            <div className="flex flex-col gap-4 w-auto md:w-1/2 lg:w-2/3">
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
                   <div
@@ -121,14 +105,22 @@ useEffect(() => {
                     className="flex items-start gap-2 w-full p-4 bg-white shadow-md"
                   >
                     <ProfileImage src={notification.lawyer_image} size={100} />
-                    <div>
-                      <p className="text-lg font-bold">{notification.text}</p>
-                      <p className="mt-2">{notification.question?.question_title}</p>
-                      <p className="mt-2">
-                        {new Date(notification.created_at).toLocaleDateString("ar-EG")}
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-lg font-bold break-words whitespace-pre-wrap">
+                        {notification.text}
                       </p>
-                      <button 
-                        onClick={() => handleViewQuestion(notification.question_uuid)}
+                      <p className="mt-2 break-words whitespace-pre-wrap">
+                        {notification.question?.question_title}
+                      </p>
+                      <p className="mt-2">
+                        {new Date(notification.created_at).toLocaleDateString(
+                          "ar-EG"
+                        )}
+                      </p>
+                      <button
+                        onClick={() =>
+                          handleViewQuestion(notification.question_uuid)
+                        }
                         className="text-blue-800 hover:underline flex items-center gap-1 mt-2"
                       >
                         اطلع علي السؤال
@@ -140,7 +132,9 @@ useEffect(() => {
               ) : (
                 <div className="flex flex-col items-center justify-center p-8 bg-white shadow-md rounded-lg">
                   <IoNotificationsOutline className="text-6xl text-gray-400 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">لا توجد إشعارات</h3>
+                  <h3 className="text-xl font-semibold mb-2">
+                    لا توجد إشعارات
+                  </h3>
                   <p className="text-gray-500 text-center mb-6">
                     لم تتلق أي إشعارات حتى الآن. ابدأ بطرح سؤالك الأول واحصل على
                     إجابات من محامين متخصصين
@@ -156,7 +150,7 @@ useEffect(() => {
               )}
             </div>
 
-            <div className="border-t-4 lg:w-1/3 w-full md:w-auto border-blue-800 pb-5 bg-white p-2 flex flex-col items-center shadow-md">
+            <div className="border-t-4 lg:w-1/3 w-full md:w-auto border-blue-800 mt-10 md:mt-0 pb-5 bg-white p-2 flex flex-col items-center shadow-md">
               <h2 className="text-lg font-bold mt-2">أسأل سؤال مجاني</h2>
               <p className="text-gray-800 mt-2">
                 اطرح سؤالاً واحصل على مشورة مجانية من عدة محامين

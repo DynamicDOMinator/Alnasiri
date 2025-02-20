@@ -24,6 +24,8 @@ export default function ClientForm() {
   const { isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [cities, setCities] = useState([]);
+  const [citySearch, setCitySearch] = useState("");
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [specialties, setSpecialties] = useState([]);
 
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -53,6 +55,19 @@ export default function ClientForm() {
     };
     featchCities();
   }, [BASE_URL]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".relative")) {
+        setShowCityDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -170,6 +185,11 @@ export default function ClientForm() {
     }
   };
 
+  // Filter cities based on search input
+  const filteredCities = cities.filter((city) =>
+    city.toLowerCase().includes(citySearch.toLowerCase())
+  );
+
   return (
     <div className="pt-36 py-10 bg-gray-100">
       <AuthModel
@@ -275,25 +295,58 @@ export default function ClientForm() {
           </div>
 
           {/* City */}
-          <div>
+          <div className="relative">
             <label className="block font-medium mb-1">
               المدينة<span className="text-red-600">*</span>
             </label>
-            <select
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className={`w-full p-2 border rounded-md text-right ${
+            <div
+              onClick={() => setShowCityDropdown(!showCityDropdown)}
+              className={`w-full p-2 border rounded-md bg-white  text-right cursor-pointer flex justify-between items-center ${
                 errors.city ? "border-red-500" : ""
               }`}
             >
-              <option value="">اختر مدينتك</option>
-              {cities.map((city, index) => (
-                <option key={index} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+              <span className={formData.city ? "" : "text-gray-400"}>
+                {formData.city || "اختر مدينتك"}
+              </span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className={`h-5 w-5 transition-transform ${showCityDropdown ? "rotate-180" : ""}`}
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            {showCityDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <input
+                  type="text"
+                  value={citySearch}
+                  onChange={(e) => setCitySearch(e.target.value)}
+                  className="w-full p-2 border-b text-right"
+                  placeholder="ابحث عن مدينة..."
+                  onClick={(e) => e.stopPropagation()}
+                  autoFocus
+                />
+                {filteredCities.map((city, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-right"
+                    onClick={() => {
+                      setFormData({ ...formData, city: city });
+                      setShowCityDropdown(false);
+                      setCitySearch("");
+                    }}
+                  >
+                    {city}
+                  </div>
+                ))}
+              </div>
+            )}
             {errors.city && (
               <p className="text-red-500 text-sm mt-1">{errors.city}</p>
             )}
@@ -408,9 +461,7 @@ export default function ClientForm() {
               {/* Communication Method - Now conditional on hireTime having a value */}
               {hireTime && (
                 <div className="pt-5">
-                  <p className="pb-4">
-                    نستخدم هذا السؤال للحصول على المساعدة من المحامين بشكل أسرع.
-                  </p>
+                    ذ
                   <label className="block font-medium mb-1">
                     طريقة التواصل
                   </label>
