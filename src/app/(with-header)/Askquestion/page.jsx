@@ -461,7 +461,7 @@ export default function ClientForm() {
               {/* Communication Method - Now conditional on hireTime having a value */}
               {hireTime && (
                 <div className="pt-5">
-                    ذ
+                    
                   <label className="block font-medium mb-1">
                     طريقة التواصل
                   </label>
