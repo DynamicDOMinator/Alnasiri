@@ -630,7 +630,7 @@ export default function AuthModel({ isOpen, onClose }) {
                 </div>
                 <input
                   type="password"
-                  placeholder="كلمة المرور (9 أحرف على الأقل، تتضمن أحرف كبيرة وصغيرة وأرقام)"
+                  placeholder="كلمة المرور (9 أحرف على الأقل)"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
                   value={registerPassword}
                   onChange={(e) => setRegisterPassword(e.target.value)}
