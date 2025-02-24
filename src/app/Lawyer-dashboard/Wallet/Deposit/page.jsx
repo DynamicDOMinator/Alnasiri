@@ -500,7 +500,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
       <div className="flex justify-center mb-20 lg:mb-0 mt-10 lg:mt-20 ">
         <button
           onClick={() => setShowPaymentModal(true)}
-          className={`w-[90%] md:w-1/2 lg:w-1/4 py-2 px-4 lg:mx-auto rounded  fixed bottom-16  lg:bottom-0 mb-6 lg:z-50 ${
+          className={`w-[90%] md:w-1/2 lg:w-1/4 py-3 px-4 lg:mx-auto rounded  fixed bottom-16  lg:bottom-0 mb-6 lg:z-50 ${
             selectedAmount
               ? "bg-green-700 text-white hover:bg-green-800"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
