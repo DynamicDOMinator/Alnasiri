@@ -5,6 +5,8 @@ import axios from "axios";
 import { IoMail } from "react-icons/io5";
 import { FaClock } from "react-icons/fa";
 import { AiFillMessage } from "react-icons/ai";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdArrowBackIos } from "react-icons/md";
 
 import Link from "next/link";
 import { useQuestion } from "../../../contexts/QuestionContext";
@@ -117,11 +119,46 @@ export default function QuestionSuccess() {
   }
 
   return (
-    <div className="pt-36 py-10 text-center" dir="rtl">
-      <div className="max-w-6xl mx-auto p-6 ">
-        <div className="text-6xl mb-4 text-green-500 animate-bounce">✓</div>
-        <h1 className="text-2xl font-bold mb-4">شكرا لك تم تلقي سؤالك</h1>
-        <div className="flex flex-col gap-4 items-center mt-5 mb-20 ">
+    <div className="pt-16 py-10 text-center" dir="rtl">
+
+<div dir="rtl" className="bg-[#00447b] pt-7 pb-6">
+  <div className="md:flex   items-center lg:px-20  gap-2">
+    <h1 className="text-[#008cc9] text-lg break-words whitespace-pre-wrap">
+      <Link href="/legal-topics">
+نصائح قانونية</Link>
+</h1>
+<MdArrowBackIos className="text-white text-lg lg:block hidden" />
+
+<h2 className="text-[#008cc9] px-1 lg:px-0 text-lg break-words whitespace-pre-wrap">
+{questionDetails?.question_title}
+</h2>
+
+
+
+  </div>
+
+  <h2 className="text-white text-2xl md:text-right text-center font-bold lg:px-20 pt-7">
+  بشاره الأسئلة و الاجوبة
+</h2>
+<p className="text-white text-sm lg:text-lg md:text-right text-center lg:px-20 pt-2">احصل على الإجابات القانونية التي تحتاجها من محامين معتمدين.
+
+
+
+
+
+
+
+</p>
+</div>
+
+
+
+
+      <div className="max-w-6xl mx-auto p-6 pt-16 ">
+        <div className="text-6xl mb-4 text-green-500 w-fit mx-auto"><FaCheckCircle />
+        </div>
+        <h2 className="text-2xl font-bold mb-4  w-fit mx-auto">شكرا لك تم تلقي سؤالك</h2>
+        <div className="flex flex-col gap-4  items-start mx-auto mt-5 mb-20 w-fit ">
           <p className="flex items-center gap-2">
             <span>
               <IoMail />
@@ -142,7 +179,7 @@ export default function QuestionSuccess() {
           </p>
         </div>
 
-        <div className="text-right p-4 relative rounded-lg mb-6 border border-gray-300 mt-10">
+        <div className="text-right p-4 relative rounded-lg mb-6 border border-gray-300 mt-10 px-8">
           <h2 className="mb-2 absolute -top-3 bg-[#e5f8f7] text-[#00b7af] px-3 rounded-md">
             السؤال
           </h2>
@@ -173,14 +210,13 @@ export default function QuestionSuccess() {
         </div>
 
         <div className="flex justify-between md:flex-row flex-col gap-4 bg-white px-4 py-10 mt-10 rounded-lg shadow-[0px_2px_11px_0px_rgba(137,147,159,0.25)]">
-
           <div>
-            <h3 className="text-xl font-semibold text-right">أسال سؤال اخر</h3>
-            <p className="text-sm text-right mt-2">
-              ابحث علي رد فوري من محام مرخص مجانا
+            <h3 className="lg:text-xl font-bold text-right">أسال سؤال اخر</h3>
+            <p className="text-sm lg:text-lg font-bold text-right mt-2">
+            احصل على رد فوري - و سريع من محامي معتمد ، مجاناً!
             </p>
           </div>
-          <div className="flex md:flex-row flex-col gap-4">
+          <div className="flex md:flex-row flex-col gap-4 lg:h-fit">
             <Link
               href="/Askquestion"
               className="bg-[#16498C] text-white px-6 py-3 md:h-fit w-full md:w-fit rounded-lg hover:bg-blue-900"
@@ -224,8 +260,7 @@ export default function QuestionSuccess() {
                 </p>
 
                 <p className="text-gray-600 text-right pt-5 px-3 lg:px-0">
-                  المحامون المرخصون متاحون وجاهزون لتقديم المشورة بشأن مجموعة
-                  واسعه من المسائل القانونية
+                محاميك المعتمد جاهز لتقديم استشارة قانونية شاملة تُغطي كافة جوانب المسائل القانونية
                 </p>
                 <div className="lg:absolute bottom-0 right-0  w-[100%]">
                   <Link href="/Askquestion">

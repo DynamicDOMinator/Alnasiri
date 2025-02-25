@@ -79,13 +79,10 @@ export default function ProfileSettings() {
 
   // Add validation functions
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-    if (!passwordRegex.test(password)) {
+    if (password.length !== 9) {
       return {
         isValid: false,
-        message:
-          "كلمة المرور يجب أن تحتوي على الأقل 8 أحرف، حرف كبير، حرف صغير، ورقم",
+        message: "كلمة المرور يجب أن تكون 9 أحرف",
       };
     }
     return { isValid: true };
@@ -233,13 +230,7 @@ export default function ProfileSettings() {
   // Add helper text for password requirements
   const renderPasswordHelperText = () => (
     <div className="text-sm text-red-500 mt-1 text-right">
-      كلمة المرور يجب أن تحتوي على:
-      <ul className="list-disc list-inside mr-4 space-y-1">
-        <li>8 أحرف على الأقل</li>
-        <li>حرف كبير واحد على الأقل</li>
-        <li>حرف صغير واحد على الأقل</li>
-        <li>رقم واحد على الأقل</li>
-      </ul>
+      كلمة المرور يجب أن تكون 9 أحرف
     </div>
   );
 
@@ -316,7 +307,8 @@ export default function ProfileSettings() {
     setTempNotificationStatus(notificationStatus);
   };
 
-  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
+    useState(false);
 
   const renderField = (fieldName, label, type = "text") => {
     const isEditing = editingField === fieldName;
@@ -357,16 +349,16 @@ export default function ProfileSettings() {
             </button>
           </div>
 
-            {/* Add Forgot Password link for password field */}
-            {fieldName === "password" && !isEditing && (
-              <button
-                type="button"
-                onClick={() => setIsForgotPasswordModalOpen(true)}
-                className="text-blue-700 text-right w-full pt-2 hover:underline"
-              >
-                هل نسيت كلمة المرور ؟
-              </button>
-            )}
+          {/* Add Forgot Password link for password field */}
+          {fieldName === "password" && !isEditing && (
+            <button
+              type="button"
+              onClick={() => setIsForgotPasswordModalOpen(true)}
+              className="text-blue-700 text-right w-full pt-2 hover:underline"
+            >
+              هل نسيت كلمة المرور ؟
+            </button>
+          )}
 
           {/* Edit mode */}
           {isEditing && (

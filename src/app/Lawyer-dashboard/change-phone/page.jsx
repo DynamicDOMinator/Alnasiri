@@ -43,7 +43,7 @@ export default function Changephone() {
         </div>
       
 
-        <button className="bg-green-700 mt-10 w-full md:w-auto text-white  hover:bg-green-800 px-14 py-3 rounded-md">
+        <button   className="bg-green-700 mt-10  text-white  hover:bg-green-800 px-14 py-3 rounded-md">
           حفظ التغيرات
         </button>
       </div>

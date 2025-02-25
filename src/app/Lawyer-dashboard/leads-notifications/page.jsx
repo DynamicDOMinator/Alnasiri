@@ -110,9 +110,9 @@ export default function LeadsNotifications() {
           </div>
         </div>
 
-        <div className="flex justify-center mt-20">
+        <div className="flex justify-start mt-20">
           <button
-            className="bg-green-700 w-full md:w-auto text-white px-14 py-3 rounded-md mt-5 disabled:opacity-50"
+           className="bg-green-700 mt-10  text-white  hover:bg-green-800 px-14 py-3 rounded-md"
             onClick={handleSaveChanges}
             disabled={isLoading}
           >

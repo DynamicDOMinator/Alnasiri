@@ -61,7 +61,7 @@ export default function Search() {
     <div>
       <div>
         <p className="text-xl font-bold text-right px-3 lg:px-0">
-          هل تحتاج الي مساعدة الان ؟ ابحث عن محام لديه خبرة في حالتك
+          هل تحتاج الي مساعدة الان ؟ ابحث عن محامي   
         </p>
         </div>
       <div className="mt-5">

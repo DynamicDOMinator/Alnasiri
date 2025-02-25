@@ -167,8 +167,7 @@ export default function AuthModel({ isOpen, onClose }) {
   };
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}$/;
-    return passwordRegex.test(password);
+    return password.length >= 9;
   };
 
   const validateArabicName = (name) => {
@@ -204,9 +203,7 @@ export default function AuthModel({ isOpen, onClose }) {
 
       // Validate password
       if (!validatePassword(registerPassword)) {
-        setError(
-          "كلمة المرور يجب أن تحتوي على 9 أحرف على الأقل، وتتضمن أحرف كبيرة وصغيرة وأرقام"
-        );
+        setError("كلمة المرور يجب أن تحتوي على 9 أحرف على الأقل");
         return;
       }
 

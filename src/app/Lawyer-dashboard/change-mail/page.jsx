@@ -89,7 +89,7 @@ export default function ChangeMail() {
 
   return (
     <div dir="rtl">
-      <div className="max-w-4xl mx-auto  px-4  mb-32 lg:mt-16">
+      <div className="max-w-4xl mx-auto  px-4  mb-32 lg:mt-16 mt-10">
         <Link href="/Lawyer-dashboard/account-settings">
           {" "}
           <FaArrowRightLong />{" "}

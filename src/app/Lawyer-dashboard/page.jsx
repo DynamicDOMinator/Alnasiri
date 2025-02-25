@@ -60,21 +60,19 @@ export default function Foras() {
 
   const handleDeleteSelected = async () => {
     try {
-     
       const selectedUUIDs = leads
-        .filter(lead => selectedLeads.includes(lead.id))
-        .map(lead => lead.uuid);
+        .filter((lead) => selectedLeads.includes(lead.id))
+        .map((lead) => lead.uuid);
 
-    
       await axios.post(
         `${BASE_URL}/leads/hide-lead`,
         {
-          lead_uuid: selectedUUIDs
+          lead_uuid: selectedUUIDs,
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}` 
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
 
@@ -86,8 +84,7 @@ export default function Foras() {
       setIsSelectionMode(false);
       setSelectedLeads([]);
     } catch (error) {
-      console.error('Error hiding leads:', error);
-    
+      console.error("Error hiding leads:", error);
     }
   };
 
@@ -104,7 +101,7 @@ export default function Foras() {
                 onClick={handleDeleteSelected}
                 className="font-bold flex items-center gap-2 border-2 border-red-500 text-red-500 px-4 py-2 rounded-full"
               >
-                حذف  ({selectedLeads.length})
+                حذف ({selectedLeads.length})
               </button>
             )}
             <button
@@ -160,7 +157,12 @@ export default function Foras() {
                   day: "numeric",
                 })}
               </p>
-              <p className="font-semibold "> {lead.user.name ? lead.user.name.split(' ')[0] : lead.name?.split(' ')[0] || 'مستخدم غير معروف'}</p>
+              <p className="font-semibold ">
+                {" "}
+                {lead.user.name
+                  ? lead.user.name.split(" ")[0]
+                  : lead.name?.split(" ")[0] || "مستخدم غير معروف"}
+              </p>
             </div>
             {lead.question_title && (
               <p className="text-right font-semibold break-words whitespace-normal">
@@ -176,7 +178,12 @@ export default function Foras() {
                 : lead.question_content}
             </p>
             <div className="flex flex-row-reverse flex-wrap md:flex-nowrap items-center gap-2 pt-2 text-white">
-              {[lead.day_name, lead.sell_status, lead.case_specialization]
+              {[
+                lead.day_name,
+                lead.sell_status === "حصري" ? "حصري" : "",
+                lead.sell_status === "عاجل" ? "عاجل" : "",
+                lead.case_specialization,
+              ]
                 .filter(Boolean)
                 .map((tag, index) => (
                   <p

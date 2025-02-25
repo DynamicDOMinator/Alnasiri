@@ -109,7 +109,7 @@ export default function QuestionDetails() {
               <h1 className="lg:text-3xl font-bold lg:pt-10 w-full text-center lg:text-right">
                 التفاصيل
               </h1>
-            </div>
+            </div>  
           </div>
         </div>
 
@@ -165,7 +165,7 @@ export default function QuestionDetails() {
       <form
         dir="rtl"
         onSubmit={handleSubmitAnswer}
-        className="bg-slate-100 sticky bottom-0"
+        className="md:bg-slate-100 sticky bottom-0"
       >
         <div className="w-full px-10 lg:py-7 pb-2 mt-10 rounded-lg">
           {showTextArea && (
