@@ -112,11 +112,83 @@ export default function ProfileSettings() {
     return { isValid: true };
   };
 
+  const validateName = (name) => {
+    // Check for any English characters
+    if (/[a-zA-Z]/.test(name)) {
+      return {
+        isValid: false,
+        message: "لا يمكن استخدام الحروف الإنجليزية في الاسم",
+      };
+    }
+
+    const arabicNameRegex = /^[\u0600-\u06FF\s]+$/; // Arabic Unicode range
+
+    if (!arabicNameRegex.test(name)) {
+      return {
+        isValid: false,
+        message: "يجب أن يحتوي الاسم على حروف عربية فقط",
+      };
+    }
+    if (name.length < 2) {
+      return {
+        isValid: false,
+        message: "يجب أن يحتوي الاسم على حرفين على الأقل",
+      };
+    }
+    return { isValid: true };
+  };
+
   const [validationError, setValidationError] = useState("");
 
   const handleSaveField = async (fieldName) => {
     try {
       setValidationError(""); // Clear any previous validation errors
+
+      if (fieldName === "name") {
+        const nameValidation = validateName(editedValues[fieldName]);
+        if (!nameValidation.isValid) {
+          setMessage({
+            type: "error",
+            text: nameValidation.message,
+          });
+          return;
+        }
+
+        const response = await axios.post(
+          `${BASE_URL}/change-data/change-name`,
+          { name: editedValues[fieldName] },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.data.message) {
+          // Update local storage with new name
+          localStorage.setItem("userName", editedValues[fieldName]);
+
+          // Update form data
+          setFormData((prev) => ({
+            ...prev,
+            name: editedValues[fieldName],
+          }));
+
+          setMessage({
+            type: "success",
+            text: response.data.message,
+          });
+
+          // Clear editing state
+          setEditingField(null);
+          setEditedValues({});
+
+          // Add a small delay before reloading to show the success message
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      }
 
       if (fieldName === "phone") {
         const phoneValidation = validatePhone(editedValues[fieldName]);
@@ -163,7 +235,7 @@ export default function ProfileSettings() {
       }
 
       if (fieldName === "password") {
-        // Validate passwords match
+        // Validate passwords match first
         if (editedValues.new_password !== editedValues.confirm_password) {
           setValidationError("كلمات المرور غير متطابقة");
           setMessage({
@@ -173,7 +245,7 @@ export default function ProfileSettings() {
           return;
         }
 
-        // Validate password strength
+        // Only check password length if passwords match
         const passwordValidation = validatePassword(editedValues.new_password);
         if (!passwordValidation.isValid) {
           setValidationError(passwordValidation.message);
@@ -225,12 +297,13 @@ export default function ProfileSettings() {
   const handleCancelEdit = () => {
     setEditingField(null);
     setEditedValues({});
+    setValidationError(""); // Clear validation error when canceling
   };
 
-  // Add helper text for password requirements
+  // Update renderPasswordHelperText to show the current validation error
   const renderPasswordHelperText = () => (
     <div className="text-sm text-red-500 mt-1 text-right">
-      كلمة المرور يجب أن تكون 9 أحرف
+      {validationError}
     </div>
   );
 
@@ -314,6 +387,15 @@ export default function ProfileSettings() {
     const isEditing = editingField === fieldName;
     const isPassword = fieldName === "password";
     const isPhone = fieldName === "phone";
+
+    const handleNameInput = (e) => {
+      // Only allow Arabic characters and spaces
+      const arabicValue = e.target.value.replace(/[^\u0600-\u06FF\s]/g, "");
+      setEditedValues({
+        ...editedValues,
+        [fieldName]: arabicValue,
+      });
+    };
 
     return (
       <div className="space-y-2">
@@ -401,7 +483,7 @@ export default function ProfileSettings() {
                         })
                       }
                       className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-                      placeholder="ادخل كلمة المرور الجديدة"
+                      placeholder=" يجب ان لا تقل عن 9 خانات"
                     />
                     <label className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600">
                       كلمة المرور الجديدة
@@ -422,7 +504,7 @@ export default function ProfileSettings() {
                         })
                       }
                       className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-                      placeholder="تأكيد كلمة المرور الجديدة"
+                      placeholder=" يجب ان لا تقل عن 9 خانات"
                     />
                     <label className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600">
                       تأكيد كلمة المرور
@@ -450,6 +532,8 @@ export default function ProfileSettings() {
                             [fieldName]: value,
                           });
                         }
+                      } else if (fieldName === "name") {
+                        handleNameInput(e);
                       } else {
                         setEditedValues({
                           ...editedValues,
@@ -457,7 +541,9 @@ export default function ProfileSettings() {
                         });
                       }
                     }}
-                    className={`w-full px-4 py-2 ${isPhone ? "text-left" : "text-right"} border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 ${
+                    className={`w-full px-4 py-2 ${
+                      isPhone ? "text-left" : "text-right"
+                    } border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 ${
                       isPhone ? "pl-16" : ""
                     }`}
                     placeholder={`ادخل ${label} الجديد`}
@@ -472,10 +558,7 @@ export default function ProfileSettings() {
               )}
 
               {/* Only show password requirements when there's a validation error */}
-              {isEditing &&
-                isPassword &&
-                validationError &&
-                renderPasswordHelperText()}
+              {isEditing && isPassword && renderPasswordHelperText()}
 
               {/* Only show save/cancel buttons when editing */}
               {isEditing && (
@@ -552,7 +635,7 @@ export default function ProfileSettings() {
                     htmlFor="notifications"
                     className="text-sm font-medium text-gray-700 cursor-pointer"
                   >
-                    الغاء الاشعارات علي البريد الالكتروني
+                    الاشتراك في الإشعارات علي البريد الالكتروني
                   </label>
                 </div>
 

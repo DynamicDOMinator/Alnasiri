@@ -270,7 +270,7 @@ export default function FreeQuestions() {
             </div>
             <div
               dir="ltr"
-              className="flex items-center justify-between flex-row-reverse pb-2"
+              className="flex items-center justify-between flex-row-reverse "
             >
               <div className="flex items-center justify-end px-5 lg:px-0 gap-2">
                 {isSelectionMode && selectedQuestions.length > 0 && (
