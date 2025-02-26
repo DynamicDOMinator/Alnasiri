@@ -123,73 +123,49 @@ export default function Header() {
             <div>
               {isAuthenticated ? (
                 <Popover className="relative">
-                  {({ open }) => (
+                  {({ open, close }) => (
                     <>
-                      <PopoverButton
-                        className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
-                          userType === "lawyer"
-                            ? "bg-[#16498C] text-white border-[#16498C]"
-                            : `text-gray-700 hover:text-gray-900 ${open ? "border-blue-500" : "border-gray-200"}`
-                        }`}
+                      <div
+                        onMouseEnter={(e) => {
+                          const button =
+                            e.currentTarget.querySelector("button");
+                          if (button && !open) button.click();
+                        }}
                       >
-                        {userType === "lawyer" ? (
-                          <span className="text-sm font-medium">
-                            لوحة التحكم
-                          </span>
-                        ) : (
-                          <span className="text-sm font-medium flex items-center gap-2 ">
-                            {userName}
-                            <FaUser className="size-4" />
-                          </span>
-                        )}
-                        <ChevronDownIcon
-                          className="h-5 w-5"
-                          aria-hidden="true"
-                        />
-                      </PopoverButton>
+                        <PopoverButton
+                          className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+                            userType === "lawyer"
+                              ? "bg-[#16498C] text-white border-[#16498C]"
+                              : `text-gray-700 hover:text-gray-900 ${open ? "border-blue-500" : "border-gray-200"}`
+                          }`}
+                        >
+                          {userType === "lawyer" ? (
+                            <span className="text-sm font-medium">
+                              لوحة التحكم
+                            </span>
+                          ) : (
+                            <span className="text-sm font-medium flex items-center gap-2 ">
+                              {userName}
+                              <FaUser className="size-4" />
+                            </span>
+                          )}
+                          <ChevronDownIcon
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                          />
+                        </PopoverButton>
+                      </div>
 
-                      <PopoverPanel className="absolute left-0 z-10 mt-3 w-64 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                        {({ close }) => (
-                          <>
-                            {userType === "lawyer" ? (
-                              <Link
-                                href="/Lawyer-dashboard"
-                                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
-                                onClick={() => {
-                                  setMobileMenuOpen(false);
-                                  close();
-                                }}
-                              >
-                                <IoIosArrowBack className="size-5" />
-                                لوحة التحكم
-                              </Link>
-                            ) : (
-                              <>
+                      {open && (
+                        <PopoverPanel
+                          className="absolute left-0 z-10 mt-3 w-64 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+                          onMouseLeave={() => close()}
+                        >
+                          {({ close }) => (
+                            <>
+                              {userType === "lawyer" ? (
                                 <Link
-                                  href="/profile-settings"
-                                  className=" px-4 py-2 text-lg border-b-2 text-blue-500 hover:bg-gray-100 text-right flex items-center justify-end mb-2"
-                                  onClick={() => {
-                                    setMobileMenuOpen(false);
-                                    close();
-                                  }}
-                                >
-                                 
-                                  اعدادات الحساب
-                                </Link>
-
-                                <Link
-                                  href="/notifications"
-                                  className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
-                                  onClick={() => {
-                                    setMobileMenuOpen(false);
-                                    close();
-                                  }}
-                                >
-                                  <IoIosArrowBack className="size-5" />
-                                  الاشعارات
-                                </Link>
-                                <Link
-                                  href="/my-questions"
+                                  href="/Lawyer-dashboard"
                                   className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
                                   onClick={() => {
                                     setMobileMenuOpen(false);
@@ -197,28 +173,64 @@ export default function Header() {
                                   }}
                                 >
                                   <IoIosArrowBack className="size-5" />
-                                  اسالتي
+                                  لوحة التحكم
                                 </Link>
-                              </>
-                            )}
+                              ) : (
+                                <>
+                                  <Link
+                                    href="/profile-settings"
+                                    className=" px-4 py-2 text-lg border-b-2 text-blue-500 hover:bg-gray-100 text-right flex items-center justify-end mb-2"
+                                    onClick={() => {
+                                      setMobileMenuOpen(false);
+                                      close();
+                                    }}
+                                  >
+                                    اعدادات الحساب
+                                  </Link>
 
-                            <div className="px-3 py-2 hover:bg-gray-100">
-                              <button
-                                onClick={() => {
-                                  handleLogout();
-                                  close();
-                                }}
-                                className="justify-center border-2  w-full px-4 py-3  text-sm  text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-                              >
-                                <span>
-                                  <AiOutlineLogout />
-                                </span>
-                                تسجيل خروج
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </PopoverPanel>
+                                  <Link
+                                    href="/notifications"
+                                    className=" px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                    onClick={() => {
+                                      setMobileMenuOpen(false);
+                                      close();
+                                    }}
+                                  >
+                                    <IoIosArrowBack className="size-5" />
+                                    الاشعارات
+                                  </Link>
+                                  <Link
+                                    href="/my-questions"
+                                    className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                    onClick={() => {
+                                      setMobileMenuOpen(false);
+                                      close();
+                                    }}
+                                  >
+                                    <IoIosArrowBack className="size-5" />
+                                    اسالتي
+                                  </Link>
+                                </>
+                              )}
+
+                              <div className="px-3 py-2 hover:bg-gray-100">
+                                <button
+                                  onClick={() => {
+                                    handleLogout();
+                                    close();
+                                  }}
+                                  className="justify-center border-2  w-full px-4 py-3  text-sm  text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                                >
+                                  <span>
+                                    <AiOutlineLogout />
+                                  </span>
+                                  تسجيل خروج
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </PopoverPanel>
+                      )}
                     </>
                   )}
                 </Popover>
@@ -436,28 +448,36 @@ export default function Header() {
                   <Popover className="relative">
                     {({ open }) => (
                       <>
-                        <PopoverButton
-                          className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
-                            userType === "lawyer"
-                              ? "bg-[#16498C] text-white border-[#16498C]"
-                              : `text-gray-700 hover:text-gray-900 ${open ? "border-blue-500" : "border-gray-200"}`
-                          }`}
+                        <div
+                          onMouseEnter={(e) => {
+                            const button =
+                              e.currentTarget.querySelector("button");
+                            if (button && !open) button.click();
+                          }}
                         >
-                          {userType === "lawyer" ? (
-                            <span className="text-sm font-medium">
-                              لوحة التحكم
-                            </span>
-                          ) : (
-                            <span className="text-sm font-medium flex items-center gap-2">
-                              {userName}
-                              <FaUser className="size-4" />
-                            </span>
-                          )}
-                          <ChevronDownIcon
-                            className="h-5 w-5"
-                            aria-hidden="true"
-                          />
-                        </PopoverButton>
+                          <PopoverButton
+                            className={`flex flex-row-reverse items-center gap-2 border-2 px-4 py-2 rounded-lg focus:outline-none ${
+                              userType === "lawyer"
+                                ? "bg-[#16498C] text-white border-[#16498C]"
+                                : `text-gray-700 hover:text-gray-900 ${open ? "border-blue-500" : "border-gray-200"}`
+                            }`}
+                          >
+                            {userType === "lawyer" ? (
+                              <span className="text-sm font-medium">
+                                لوحة التحكم
+                              </span>
+                            ) : (
+                              <span className="text-sm font-medium flex items-center gap-2">
+                                {userName}
+                                <FaUser className="size-4" />
+                              </span>
+                            )}
+                            <ChevronDownIcon
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
+                          </PopoverButton>
+                        </div>
 
                         <PopoverPanel className="absolute left-0 z-10 mt-3 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
                           {({ close }) => (
