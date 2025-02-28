@@ -28,7 +28,7 @@ const loadGoogleMapsScript = (() => {
     };
 
     const script = document.createElement("script");
-    const apiKey = "AIzaSyBUup3wJD1T6htAHG_ayRCM9BDOC6VoPeA";
+    const apiKey = "AIzaSyA6-Q_5kN_H9ylYgja5Ub2RWEp-1vNBy60";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,marker&callback=initMap&v=beta`;
     script.async = true;
 
@@ -400,7 +400,7 @@ export default function Profile() {
             mapTypeControl: false,
             streetViewControl: false,
             fullscreenControl: false,
-            mapId: "9796f5e900df0b54",
+            mapId: "d36a0e2836677d1f",
             gestureHandling: "greedy",
           };
 

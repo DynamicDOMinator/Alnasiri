@@ -3,12 +3,13 @@ import { Cairo } from "next/font/google";
 import "../globals.css";
 import Sidebar from "../components/LawyersDashboard/Sidebar";
 import { UserTypeProvider } from "../contexts/UserTypeContext";
-import {useUserType} from "../contexts/UserTypeContext"
+import { useUserType } from "../contexts/UserTypeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+
 const cairo = Cairo({
   subsets: ["latin"],
   weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
@@ -19,19 +20,21 @@ export default function LawyerDashboardLayout({ children }) {
 
   return (
     <html>
+      <head>
+        <title>بشارة - لوحة التحكم</title>
+        <link rel="icon" href="/images/afav.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body className={cairo.className}>
         <AuthProvider>
           <UserTypeProvider>
-            <AuthContent>
-              {children}
-            </AuthContent>
+            <AuthContent>{children}</AuthContent>
           </UserTypeProvider>
         </AuthProvider>
       </body>
     </html>
   );
 }
-
 
 function AuthContent({ children }) {
   const { isAuthenticated } = useAuth();
@@ -40,8 +43,8 @@ function AuthContent({ children }) {
 
   // Handle authentication and user type checks
   useEffect(() => {
-    console.log('Auth state:', { isAuthenticated, userType, isLoading });
-    
+    console.log("Auth state:", { isAuthenticated, userType, isLoading });
+
     // Wait for loading to complete
     if (isLoading) {
       return;
@@ -49,8 +52,11 @@ function AuthContent({ children }) {
 
     // Only redirect if we're not authenticated or not a lawyer
     if (!isAuthenticated || userType !== "lawyer") {
-      console.log('Redirecting:', !isAuthenticated ? 'Not authenticated' : 'Not a lawyer');
-      router.push('/');
+      console.log(
+        "Redirecting:",
+        !isAuthenticated ? "Not authenticated" : "Not a lawyer"
+      );
+      router.push("/");
     }
   }, [isAuthenticated, userType, isLoading, router]);
 
@@ -58,8 +64,8 @@ function AuthContent({ children }) {
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex justify-center items-center bg-white">
-      <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
-    </div>
+        <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
+      </div>
     );
   }
 

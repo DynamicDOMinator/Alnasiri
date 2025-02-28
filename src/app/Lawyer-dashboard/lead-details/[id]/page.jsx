@@ -25,11 +25,15 @@ export default function LeadDetails() {
         const response = await axios.get(
           `${BASE_URL}/lawyer/get-lawyer-chances-by-uuid/${id}`
         );
-        if (response.data && response.data.length > 0) {
+        console.log("API Response:", response.data);
+
+        if (Array.isArray(response.data) && response.data.length > 0) {
           setLeadData(response.data[0]);
+        } else if (response.data && typeof response.data === "object") {
+          setLeadData(response.data);
         }
       } catch (err) {
-        console.log(err);
+        console.log("Error fetching data:", err);
       } finally {
         setIsLoading(false);
       }
@@ -39,6 +43,10 @@ export default function LeadDetails() {
       fetchLeadDetails();
     }
   }, [id, BASE_URL]);
+
+  useEffect(() => {
+    console.log("Current leadData:", leadData);
+  }, [leadData]);
 
   useEffect(() => {
     const saved = localStorage.getItem("seenLeads");
@@ -77,10 +85,18 @@ export default function LeadDetails() {
     }
   };
 
-  if (!leadData) {
+  if (isLoading) {
     return (
       <div className="fixed inset-0 flex justify-center items-center bg-white">
         <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
+      </div>
+    );
+  }
+
+  if (!leadData && !isLoading) {
+    return (
+      <div className="fixed inset-0 flex justify-center items-center bg-white">
+        <p>No data found</p>
       </div>
     );
   }
@@ -106,17 +122,26 @@ export default function LeadDetails() {
 
         <div className="flex items-center gap-4 w-full flex-row-reverse justify-end mt-10 ">
           <div>
-            <p className="text-xl font-bold">{leadData.user.name ? leadData.user.name.split(' ')[0] : leadData.user.name?.split(' ')[0] || 'مستخدم غير معروف'}</p>
+            <p className="text-xl font-bold">
+              {leadData.user?.name
+                ? leadData.user.name.split(" ")[0]
+                : leadData.name?.split(" ")[0] || "مستخدم غير معروف"}
+            </p>
           </div>
         </div>
 
-        <div className="mt-7">
-          <p className="font-bold">بحث عن {leadData.case_specialization} </p>
-        </div>
+        {(leadData.case_specialization) && (
+          <div className="mt-7">
+            <p className="font-bold">
+              بحث عن {leadData.case_specialization || leadData.type}
+            </p>
+          </div>
+        )}
+
         <div className="border-b-2 border-gray-100 pb-10">
           <ul className="mt-2">
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {leadData.question_city}
+              {leadData.question_city || leadData.city || "غير محدد"}
               <span>
                 <FaLocationDot />
               </span>
@@ -132,7 +157,7 @@ export default function LeadDetails() {
               </span>
             </li>
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {leadData.question_time === "urgent"
+              {(leadData.question_time || leadData.time) === "urgent"
                 ? "الرغبة في تعيين محامي فوراً"
                 : "     الرغبه في تعيين محامي خلال 30 يوم"}
               <span>
@@ -148,18 +173,18 @@ export default function LeadDetails() {
               </span>
             </li>
             <li className="flex flex-row-reverse pt-1 items-center justify-end gap-1">
-              {leadData.price} ريال
+              {leadData.price || 0} ريال
               <span>
                 <CiMoneyBill />
               </span>
             </li>
           </ul>
         </div>
-        {leadData.question_title && (
+        {(leadData.question_title || leadData.name) && (
           <div className="mt-10">
             <div className="border-b-2 border-gray-100 pb-2">
               <h3 className="font-bold pb-2">السؤال</h3>
-              <p>{leadData.question_title}</p>
+              <p>{leadData.question_title || leadData.name}</p>
             </div>
           </div>
         )}
@@ -168,7 +193,9 @@ export default function LeadDetails() {
           <div className="border-b-2 border-gray-100 pb-2">
             <h3 className="font-bold pb-2">تفاصيل السؤال</h3>
             <p className="text-right whitespace-pre-wrap break-words">
-              {leadData.question_content}
+              {leadData.question_content ||
+                leadData.details ||
+                "لا توجد تفاصيل"}
             </p>
           </div>
         </div>
@@ -182,7 +209,9 @@ export default function LeadDetails() {
             isLoading ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
-          {isLoading ? "...جاري المعالجة" : `عرض سعر ( ${leadData.price} ر.س )`}
+          {isLoading
+            ? "...جاري المعالجة"
+            : `عرض سعر ( ${leadData.price || 0} ر.س )`}
         </button>
       </div>
     </div>

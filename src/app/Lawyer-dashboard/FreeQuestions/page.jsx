@@ -196,11 +196,11 @@ export default function FreeQuestions() {
       const response = await axios.get(
         `${BASE_URL}/question/search-question-by-city-and-specialization`,
         {
-          city: selectedCities.length > 0 ? selectedCities : null,
-          specialization:
-            selectedSpecialties.length > 0 ? selectedSpecialties : null,
-        },
-        {
+          params: {
+            city: selectedCities.length > 0 ? selectedCities : null,
+            specialization:
+              selectedSpecialties.length > 0 ? selectedSpecialties : null,
+          },
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -208,38 +208,35 @@ export default function FreeQuestions() {
       );
 
       if (response.data?.data) {
-        const transformedData = response.data.data
-          .map((item) => {
-            if (item.data_type === "Question") {
-              return {
-                uuid: item.question.uuid,
-                type: "chance",
-                created_at: item.question.created_at,
-                user: item.question.user,
-                question_title: item.question.question_title,
-                question_content: item.question.question_content,
-                case_specialization: item.question.case_specialization,
-                city: item.question.question_city,
-                answers_count: 0,
-                sell_number: 0,
-              };
-            } else if (item.data_type === "UnsignedLead") {
-              return {
-                uuid: item.lead.uuid,
-                type: "chance",
-                created_at: item.lead.created_at,
-                name: item.lead.name,
-                details: item.lead.details,
-                city: item.lead.city,
-                sell_number: item.lead.sell_number,
-                answers_count: 0,
-              };
-            }
-            return null;
-          })
-          .filter(Boolean);
+        const transformedData = response.data.data.map((question) => ({
+          data_type: "Question",
+          question: {
+            uuid: question.uuid,
+            created_at: question.created_at,
+            user: {
+              name: "مستخدم", // You might want to fetch the actual user name if needed
+            },
+            question_title: question.question_title,
+            question_content: question.question_content,
+            case_specialization: question.case_specialization,
+            question_city: question.question_city,
+          },
+        }));
 
-        setQuestions(transformedData);
+        const processedData = transformedData.map((item) => ({
+          uuid: item.question.uuid,
+          type: "chance",
+          created_at: item.question.created_at,
+          user: item.question.user,
+          question_title: item.question.question_title,
+          question_content: item.question.question_content,
+          case_specialization: item.question.case_specialization,
+          city: item.question.question_city,
+          answers_count: 0,
+          sell_number: 0,
+        }));
+
+        setQuestions(processedData);
       }
     } catch (error) {
       console.error("Error filtering questions:", error);

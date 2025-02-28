@@ -163,19 +163,19 @@ export default function QuestionSuccess() {
             <span>
               <IoMail />
             </span>
-            نرسل لك بريدًا إلكترونيًا عندما يرد المحامون
+            سيتم ارسال بريد الكتروني لك فور الاجابة على سؤالك.
           </p>
           <p className="flex items-center gap-2">
             <span>
               <FaClock />
             </span>
-            يتم الرد على معظم الأسئلة خلال 12 ساعة
+             تلقى محامينا سؤالك.
           </p>
           <p className="flex items-center gap-2">
             <span>
               <AiFillMessage />
             </span>
-            تحصل معظم الأسئلة على إجابات من محاميين على الأقل
+             ستتم الإجابة على سؤالك في اسرع وقت
           </p>
         </div>
 
