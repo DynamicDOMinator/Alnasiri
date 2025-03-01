@@ -142,7 +142,9 @@ export default function FreeQuestions() {
   };
 
   const handleDeleteSelected = async () => {
+    
     try {
+      console.log(selectedQuestions);
       const token = localStorage.getItem("token");
       await axios.post(
         `${BASE_URL}/question/hide-question`,

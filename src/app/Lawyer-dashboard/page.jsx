@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-import { BiSearchAlt2 } from "react-icons/bi"; 
+import { BiSearchAlt2 } from "react-icons/bi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 export default function Foras() {
   const router = useRouter();
@@ -55,6 +55,9 @@ export default function Foras() {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
+            params: {
+              exclude_hidden: true,
+            },
           }
         );
 
@@ -87,7 +90,6 @@ export default function Foras() {
             exclusive: leadData.exclusive,
           };
 
-         
           if (item.data_type === "Lead") {
             return {
               ...baseFields,
@@ -172,25 +174,21 @@ export default function Foras() {
     router.push(`/Lawyer-dashboard/lead-details/${uuid}`);
   };
 
-  const handleSelectLead = (e, leadId) => {
+  const handleSelectLead = (e, leadUuid) => {
     e.stopPropagation();
-    if (selectedLeads.includes(leadId)) {
-      setSelectedLeads(selectedLeads.filter((id) => id !== leadId));
+    if (selectedLeads.includes(leadUuid)) {
+      setSelectedLeads(selectedLeads.filter((uuid) => uuid !== leadUuid));
     } else {
-      setSelectedLeads([...selectedLeads, leadId]);
+      setSelectedLeads([...selectedLeads, leadUuid]);
     }
   };
 
   const handleDeleteSelected = async () => {
     try {
-      const selectedUUIDs = leads
-        .filter((lead) => selectedLeads.includes(lead.originalId))
-        .map((lead) => lead.uuid);
-
       await axios.post(
         `${BASE_URL}/leads/hide-lead`,
         {
-          lead_uuid: selectedUUIDs,
+          lead_uuid: selectedLeads,
         },
         {
           headers: {
@@ -200,7 +198,7 @@ export default function Foras() {
       );
 
       const updatedLeads = leads.filter(
-        (lead) => !selectedLeads.includes(lead.originalId)
+        (lead) => !selectedLeads.includes(lead.uuid)
       );
       setLeads(updatedLeads);
       setIsSelectionMode(false);
@@ -337,11 +335,11 @@ export default function Foras() {
           </p>
         </div>
       </div>
-      <div className="flex flex-col gap-2 justify-center items-center px-4 md:px-5 lg:px-0 pt-2 min-h-[calc(100vh-200px)]">
+      <div className="flex flex-col gap-2 justify-center items-center px-4 md:px-5 lg:px-0 pt-2 pb-20 lg:pb-0">
         {isLoading ? (
           <div className="fixed inset-0 flex justify-center items-center  bg-white">
-          <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
-        </div>
+            <AiOutlineLoading3Quarters className="animate-spin text-4xl text-green-600" />
+          </div>
         ) : leads.length > 0 ? (
           leads.map((lead) => (
             <div
@@ -353,8 +351,8 @@ export default function Foras() {
                 <input
                   type="checkbox"
                   className="absolute top-3 right-3 h-5 w-5 cursor-pointer"
-                  checked={selectedLeads.includes(lead.originalId)}
-                  onChange={(e) => handleSelectLead(e, lead.originalId)}
+                  checked={selectedLeads.includes(lead.uuid)}
+                  onChange={(e) => handleSelectLead(e, lead.uuid)}
                 />
               )}
               {seenLeads.includes(lead.uuid) && (
