@@ -32,7 +32,6 @@ export default function MyReviews() {
                 }
 
                 const data = await response.json();
-                console.log('Reviews data:', data); // Debug response
                 setReviews(data);
             } catch (err) {
                 console.error('Fetch error:', err);
