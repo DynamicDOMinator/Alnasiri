@@ -100,7 +100,7 @@ export default function MyReviews() {
         <div className="container mx-auto px-4 py-8 mt-20 min-h-screen max-w-7xl">
             <h1 className="text-3xl font-bold mb-8 text-right ">المراجعات</h1>
             <div dir="rtl" className="flex mt-10 items-start flex-col-reverse lg:flex-row-reverse gap-6">
-                <div className="border-t-4 lg:w-1/3 w-full border-blue-800 h-fit pb-5 bg-white p-2 flex flex-col items-center shadow-md">
+                <div className="border-t-4 lg:w-1/3 w-full border-blue-800  pb-5 bg-white p-2 flex flex-col items-center shadow-md">
                     <h2 className="text-lg font-bold mt-2">أسأل سؤال مجاني</h2>
                     <p className="text-gray-800 mt-2">
                         اطرح سؤالاً واحصل على مشورة مجانية من عدة محامين
@@ -109,9 +109,9 @@ export default function MyReviews() {
                         <Link href="/Askquestion">اسأل سؤال مجاني</Link>
                     </button>
                 </div>
-                <div className="lg:w-2/3 w-full grid gap-6">
+                <div className="lg:w-2/3 w-full gap-6 ">
                     {reviews.map((review) => (
-                        <div key={review.id} className="bg-white rounded-lg shadow-md p-6">
+                        <div key={review.id} className="bg-white mt-5 rounded-lg shadow-md p-6 w-full">
                             <div className="flex items-start gap-4">
                                 <div className="flex-shrink-0">
                                     {review.lawyer.office[0]?.full_profile_image_url ? (
@@ -126,18 +126,18 @@ export default function MyReviews() {
                                         <FaUserCircle className="w-16 h-16 text-gray-400" />
                                     )}
                                 </div>
-                                <div className="flex-grow">
+                                <div className="flex-grow max-w-full overflow-hidden">
                                     <div className="flex justify-between items-start">
                                         <h3 className="text-xl font-semibold">{review.lawyer.name}</h3>
                                         <button 
                                             onClick={() => handleDeleteReview(review.id)}
-                                            className="text-blue-400 border-2 py-2 px-2 border-blue-400 hover:text-blue-500 transition-colors"
+                                            className="text-blue-400 border-2 py-2 px-2 border-blue-400 hover:text-blue-500 transition-colors flex-shrink-0"
                                             title="حذف المراجعة"
                                         >
                                             <FaTrash className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    <p className="mt-3 text-gray-600">{review.text}</p>
+                                    <p className="mt-3 text-gray-600 break-words whitespace-pre-wrap ">{review.text}</p>
                                 </div>
                             </div>
                         </div>
