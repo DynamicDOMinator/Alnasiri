@@ -349,7 +349,7 @@ export default function LawyerProfile() {
         {/* Reviews Section */}
         <div className="mt-10">
           <h3 className="text-xl pb-2 border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right">
-            التقييمات
+            
             <span className="px-1">{lawyer.reviews_count}</span>
             {lawyer.reviews_count < 3 ? "تقييم" : "تقييمات"}
           </h3>
@@ -358,7 +358,7 @@ export default function LawyerProfile() {
               <div>
                 {lawyer.reviews_data.map((review, index) => (
                   <div key={index} className="mb-6 p-4 border-2  rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center  justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <BiLike
                           className={`${
@@ -379,7 +379,7 @@ export default function LawyerProfile() {
                         </p>
                       </div>
                     </div>
-                    <p className="text-gray-700 text-right">{review.text}</p>
+                    <p className="text-gray-700 text-right whitespace-pre-wrap break-words w-full">{review.text}</p>
                   </div>
                 ))}
               </div>
@@ -460,7 +460,7 @@ export default function LawyerProfile() {
                               <MdOutlineQuestionAnswer className="text-green-600 text-xl" />
                             </div>
                           </div>
-                          <p className="text-gray-700 text-right whitespace-pre-wrap break-words">
+                          <p className="text-gray-700  text-right whitespace-pre-wrap break-words">
                             {qa.answer}
                           </p>
                         </div>
