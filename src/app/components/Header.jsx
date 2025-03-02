@@ -210,6 +210,17 @@ export default function Header() {
                                     <IoIosArrowBack className="size-5" />
                                     اسالتي
                                   </Link>
+                                  <Link
+                                    href="/my-reviews"
+                                    className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-right flex items-center justify-between"
+                                    onClick={() => {
+                                      setMobileMenuOpen(false);
+                                      close();
+                                    }}
+                                  >
+                                    <IoIosArrowBack className="size-5" />
+                                    المراجعات
+                                  </Link>
                                 </>
                               )}
 
