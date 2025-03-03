@@ -1,46 +1,63 @@
 import React from "react";
 import { MdQuestionMark } from "react-icons/md";
 import Link from "next/link";
+import Image from "next/image";
+
 function SecondSection() {
   return (
     <div className="bg-blue-50  ">
-      <div className="text-center pt-10 md:px-48 ">
-        <p className="md:text-3xl px-6 md:p-0 text-2xl font-bold">
+      <div className="text-center pt-10 max-w-6xl mx-auto  ">
+        <p className="md:text-[40px] md:leading-[50px] md:p-0 text-2xl leading-7 font-bold">
           {" "}
-          كرسنا جهودنا لنقدم لك معلومات محايدة عن المحاميين <br /> في السعودية 
-          و الإجراءات القانونية
+          كرسنا جهودنا لتقديم معلومات قانونية دقيقة  عن نظام القضاء السعودي ، و مراجعات حقيقية وموثقة
         </p>
       </div>
 
+<div>
+  <Image
+    src={"/images/sectionOne.png"}
+    alt="logo"
+    width={1000}
+    height={1000}
+    className="mx-auto"
+  />
+</div>
+
+
+
+
+
       <div className="flex flex-wrap md:flex-nowrap px-4  items-center justify-center gap-10 mt-16  py-10 ">
-        <div className="bg-white shadow rounded-lg text-right px-4 pl-6  py-8 w-full md:w-auto md:min-w-[380px]">
+      <div className="bg-white relative shadow rounded-lg text-right px-4 pl-6 py-8 w-full md:w-[380px] md:h-[340px] flex flex-col justify-between">
+  <div>
+    <h2 className="flex items-top gap-2 font-semibold text-xl justify-end">
+      اسال محامي مجانا
+      <span className="bg-[#16498C] h-fit px-1 py-1 rounded-2xl">
+        <MdQuestionMark className="text-white" />
+      </span>
+    </h2>
+
+    <ul className="flex flex-col gap-2 py-4 pr-10 text-gray-600">
+      <li>اسال محامي عن اي مشكلتك القانونية</li>
+      <li>احصل على إجابة سريعة و دقيقة</li>
+      <li>خدمة متاحة لجميع القضايا</li>
+    </ul>
+  </div>
+
+  <Link href="/Askquestion">
+    <button className="mt-4 flex items-center justify-center gap-2 hover:bg-blue-50 text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
+      استشارة مجانية
+      <span className="bg-gray-400 py-1 px-1 rounded-2xl border-black border-2">
+        <MdQuestionMark className="text-black" />
+      </span>
+    </button>
+  </Link>
+</div>
+
+
+        <div className="bg-white shadow rounded-lg text-right px-4 pl-6  py-8 w-full   md:w-[380px] md:h-[340px]">
           <h2 className="flex items-top gap-2  font-semibold text-lg justify-end">
-            اسأل سؤال لمحامي مجانا <br /> و احصل على اجابة مجانية
-            <span className="bg-[#16498C] h-fit px-1 py-1 rounded-2xl">
-              <MdQuestionMark className="text-white" />
-            </span>
-          </h2>
-
-          <ul className="flex flex-col gap-2 py-4 pr-10 text-gray-600">
-            <li>استشارة قانونية مجانية</li>
-            <li>إجابة سريعة</li>
-            <li>سهولة التواصل</li>
-            <li>خدمة متاحة لجميع القضايا</li>
-          </ul>
-
-          <Link href="/Askquestion">
-            <button className="mt-4 flex items-center justify-center gap-2 hover:bg-blue-50 text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
-              أطرح سؤالاً
-              <span className="bg-gray-400 py-1 px-1 rounded-2xl border-black border-2">
-                <MdQuestionMark className="text-black" />
-              </span>
-            </button>
-          </Link>
-        </div>
-
-        <div className="bg-white shadow rounded-lg text-right px-4 pl-6  py-8 w-full md:w-auto md:min-w-[380px]">
-          <h2 className="flex items-top gap-2  font-semibold text-lg justify-end">
-            ابحث عن محاميين موثقين في وزارة <br /> العدل و حاصلين على رخص مهنية
+          ابحث عن محامي متخصص في قضيتك
             <span className="bg-[#16498C] h-fit px-1 py-1 rounded-2xl">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -58,14 +75,14 @@ function SecondSection() {
           </h2>
 
           <ul className="flex flex-col gap-2 py-4 pr-9 text-gray-600">
-            <li>لتوثيق من وزارة العدل</li>
-            <li>بحث حسب التخصص</li>
+            <li>جميع المحامين في بشارة متخصصين في مجالات قانونية حسب خبراتهم و مؤهلاتهم</li>
+            <li>جميع المراجعات في بشارة موثقة</li>
             <li>المحامين المعتمدين</li>
-            <li>سهولة الوصول</li>
+            <li>جميع المحامين مرخصين من وزارة العدل</li>
           </ul>
 
-          <button className="mt-4 flex items-center justify-center gap-1 hover:bg-blue-50  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
-            ابداء البحث
+          <button className="mt-4  flex items-center justify-center gap-1 hover:bg-blue-50  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
+          ابدأ في البحث
             <span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -23,6 +23,7 @@ import axios from "axios";
 import { useUserType } from "../contexts/UserTypeContext";
 import { FaUser } from "react-icons/fa";
 import { IoIosArrowBack } from "react-icons/io";
+import Image from "next/image";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -119,7 +120,7 @@ export default function Header() {
           aria-label="Global"
           className="flex items-center justify-between px-3  py-3 lg:px-16"
         >
-          <div className="flex flex-1">
+          <div className="flex  flex-1">
             <div>
               {isAuthenticated ? (
                 <Popover className="relative">
@@ -282,6 +283,7 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-10">
+            
             <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse ">
               {/* Cities Menu */}
               <Popover className="relative">
@@ -348,6 +350,7 @@ export default function Header() {
                         />
                         محامين حسب مجال الممارسة
                       </PopoverButton>
+                      
                     </div>
 
                     {open && (
@@ -442,7 +445,17 @@ export default function Header() {
                 )}
               </Popover>
             </PopoverGroup>
+            {/* <div className="bg-red-500">
+  <Image
+    src={"/images/logo2.png"}
+    alt="logo"
+    width={100}
+    height={100}
+    className="size-28"
+  />
+</div> */}
           </div>
+          
         </nav>
 
         {/* Mobile menu */}

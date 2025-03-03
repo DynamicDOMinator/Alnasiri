@@ -34,37 +34,33 @@ function ThiedSection() {
         </div>
 
         <div className="basis-1/2 ">
-          <h3 className="text-2xl font-bold pb-4 text-right">
-            أحصل علي سؤال قانوني؟
+          <h3 className="text-[30px] font-bold pb-1 text-right">
+          عندك سؤال قانوني؟ 
           </h3>
-          <p className="font-semibold text-2xl pb-2 text-right">
-            !لدينا اجابات{" "}
+          <p dir="rtl" className="font-bold text-[30px] pb-2 text-right">
+          عندنا الاجابة !
           </p>
           <p className="text-gray-600 pb-8 text-right">
-            اجابات المحامون في مختلف انحاء البلاد علي اكثر من ١٧ مليون سؤال{" "}
-            <br />
-            احصل علي اجابات اليوم في منتدي الاسئلة و الاجوبة الخاصه بنا
+          اجابتنا دقيقة و من محامين متخصصين
           </p>
 
           <h3 className="text-xl font-bold pb-2 text-right">
-            ١- اسأل سؤال لمحامي مجانا
+            ١- اسأل سؤال - مجانا
           </h3>
-
+ 
           <p className="border-b-2 border-gray-200 pb-6 text-right">
-            قم بنشر سؤالك القانوني بشكل مجهول ، وسيقوم المستشار القانوني <br />{" "}
-            ذو الخبرة بالرد عليك خلال ساعات
+          اسأل سؤالك ، سيجيبك أهل القانون في ساعات
           </p>
 
           <h3 className="text-xl font-bold pb-2 pt-4 text-right">
-            ٢- تصفح مكتبتنا للاسئلة والاجوبة الموجودة
+            ٢- تصفح مكتبة الاسئلة و الاجوبة القانونية
           </h3>
           <p className="border-b-2 border-gray-200 pb-6 text-right">
-            ابحث عن اجابات للأسئلة التي تم طرحها مسبقا من الاشخاص <br /> الذين
-            واجهوا مشكلات قانونية مماثلة
+          اطلع على الأسئلة السابقة ، للذين خاضوا تجارب قانونية مشابهة لما تمر به
           </p>
           <div className="flex justify-end">
              <Link href="/Askquestion">
-            <button className="bg-[#16498C] hover:bg-blue-800 text-white text-lg px-4 py-2 rounded-md mt-6">
+            <button className="bg-[#0077c8] hover:bg-[#0056a0] transition-all duration-300 text-white text-lg w-[187px] h-[50px] rounded-md mt-6">
               أطرح سؤالا
             </button>
           </Link>

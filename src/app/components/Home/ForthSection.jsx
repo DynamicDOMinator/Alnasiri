@@ -36,32 +36,28 @@ function ForthSection() {
       </div>
 
       <div className="basis-1/2 flex flex-col items-end">
-        <h4 className="text-2xl font-bold text-right">هل تبحث عن محام؟</h4>
-        <p className="text-lg text-gray-600 pt-2 text-right">
-          استفد من تقنية البحث التي توفرها منصة النصيري والملفات الشخصية
-          التفصيلية <br /> والتقييمات والمراجعات لتقييم المحامين والتواصل معهم
+        <h4 className="md:text-[30px] text-xl font-bold text-right">تبحث عن محامي؟</h4>
+        <p className="text-lg text-gray-600 pt-5 text-right">
+        استفيد من خدمة البحث في بشارة ، لأن البحث يعطي الأولوية دائما للمحاميين المتخصصين في قضيتك ، و مراجعاتنا حقيقية
         </p>
         <div className="pt-4 text-right">
-          <h4 className="text-lg font-semibold">١- ابحث عن محامين في منطقتك</h4>
+          <h4 className="text-lg font-semibold">١- ابحث عن محاميين في مدينتك</h4>
           <p className="text-gray-600 pb-4">
-            قم بتزويدنا بملفات تعريف مفصلة تحتوي على المعلومات التي تحتاجها
-            <br /> لاتخاذ قرار التوظيف، بما في ذلك مراجعات الأسعار والتقييم
+          اختار مدينتك و نوع قضيتك و ابحر في صفحات المحاميين المناسبين لك
           </p>
-          <h4 className="text-lg font-semibold">٢- ابحث عن محامين في منطقتك</h4>
+          <h4 className="text-lg font-semibold">٢- أقرا مراجعات العملاء السابقين </h4>
           <p className="text-gray-600 pb-4">
-            أدخل نوع المحامي الذي تحتاجه (مجال الممارسة) وموقعك لبدء تصفح
-            <br /> الملفات ا��شخصية
+          أقرا مراجعات العملاء السابقين
           </p>
           <h4 className="text-lg font-semibold">
-            ٣- احجز استشارة عبر الإنترنت
+            ٣- تواصل مع المحامي
           </h4>
           <p className="text-gray-600 pb-4">
-            اتصل بمحامٍ أو احجز استشارة بسهولة من خلال موقعنا حتى تتمكن من
-            <br /> الحصول على المساعدة التي تحتاجها دون ضغوط
+          اختار المحامي المناسب لك و تواصل معه عن طريق الواتس اب او الاتصال
           </p>
         </div>
 
-        <button className="bg-[#16498C] hover:bg-blue-800 text-white text-lg px-4 py-2 rounded-md mt-6 ml-auto">
+        <button className="bg-[#0077c8] hover:bg-[#0056a0] transition-all duration-300 text-white text-lg w-[187px] h-[50px] rounded-md mt-6 ml-auto">
           أبحث عن محام
         </button>
       </div>
