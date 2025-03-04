@@ -93,7 +93,7 @@ export default function ClientForm() {
       newErrors.specialty = "الرجاء اختيار تخصص القضية";
     }
     if (hireLawyer === null) {
-      newErrors.hireLawyer = "الرجاء اختيار ما إذا كنت تريد توظيف محامي";
+      newErrors.hireLawyer = "الرجاء الرجاء الاجابة علي السؤال";
     }
     if (hireLawyer === true) {
       if (!hireTime) {
@@ -256,7 +256,7 @@ export default function ClientForm() {
         <form onSubmit={handleSubmit} className="space-y-7">
           {/* Question */}
           <div>
-            <label className="block font-medium mb-1">
+            <label className="block font-bold mb-1">
               أسال سؤالك<span className="text-red-600">*</span>
             </label>
             <textarea
@@ -275,7 +275,7 @@ export default function ClientForm() {
 
           {/* Description */}
           <div>
-            <label className="block font-medium mb-1">
+            <label className="block font-bold mb-1">
               اشرح حالتك<span className="text-red-600">*</span>
             </label>
             <textarea
@@ -296,7 +296,7 @@ export default function ClientForm() {
 
           {/* City */}
           <div className="relative">
-            <label className="block font-medium mb-1">
+            <label className="block font-bold mb-1">
               المدينة<span className="text-red-600">*</span>
             </label>
             <div
@@ -354,7 +354,7 @@ export default function ClientForm() {
 
           {/* Specialty - New Addition */}
           <div>
-            <label className="block font-medium mb-1">
+            <label className="block font-bold mb-1">
               تخصص القضية<span className="text-red-600">*</span>
             </label>
             <select
@@ -384,7 +384,7 @@ export default function ClientForm() {
 
           {/* Hire Lawyer */}
           <div>
-            <label className="block font-medium mb-1">
+            <label className="block font-bold mb-1">
               هل تخطط لتوظيف محامٍ؟<span className="text-red-600">*</span>
             </label>
             <div className="space-x-4 flex flex-col gap-2">
@@ -421,7 +421,7 @@ export default function ClientForm() {
           {/* When to hire lawyer */}
           {hireLawyer === true && (
             <div>
-              <label className="block font-medium mb-1">
+              <label className="block font-bold mb-1">
                 متى تخطط للحصول على مساعدة قانونية؟
                 <span className="text-red-600">*</span>
               </label>
@@ -462,7 +462,7 @@ export default function ClientForm() {
               {hireTime && (
                 <div className="pt-5">
                     
-                  <label className="block font-medium mb-1">
+                  <label className="block font-bold mb-1">
                     طريقة التواصل
                   </label>
                   <div className="space-x-4 flex flex-col gap-2">

@@ -119,17 +119,17 @@ export default function QuestionSuccess() {
   }
 
   return (
-    <div className="pt-16 py-10 text-center" dir="rtl">
+    <div className="pt-16 py-10 text-center " dir="rtl">
 
-<div dir="rtl" className="bg-[#00447b] pt-7 pb-6">
-  <div className="md:flex   items-center lg:px-20  gap-2">
-    <h1 className="text-[#008cc9] text-lg break-words whitespace-pre-wrap">
+<div dir="rtl" className="bg-[#00447b]  pt-7 pb-6">
+  <div className="md:flex   items-center max-w-6xl mx-auto   gap-2">
+    <h1 className="text-[#008cc9] text-[14px] break-words whitespace-pre-wrap">
       <Link href="/legal-topics">
-نصائح قانونية</Link>
+      النصائح القانونية</Link>
 </h1>
 <MdArrowBackIos className="text-white text-lg lg:block hidden" />
 
-<h2 className="text-[#008cc9] px-1 lg:px-0 text-lg break-words whitespace-pre-wrap">
+<h2 className="text-[#008cc9] px-1 lg:px-0 text-[14px] break-words whitespace-pre-wrap">
 {questionDetails?.question_title}
 </h2>
 
@@ -137,10 +137,10 @@ export default function QuestionSuccess() {
 
   </div>
 
-  <h2 className="text-white text-2xl md:text-right text-center font-bold lg:px-20 pt-7">
+  <h2 className="text-white text-2xl max-w-6xl mx-auto md:text-right text-center font-bold  pt-7">
   بشاره الأسئلة و الاجوبة
 </h2>
-<p className="text-white text-sm lg:text-lg md:text-right text-center lg:px-20 pt-2">احصل على الإجابات القانونية التي تحتاجها من محامين معتمدين.
+<p className="text-white text-sm lg:text-lg max-w-6xl mx-auto md:text-right text-center  pt-2">احصل على الإجابات القانونية التي تحتاجها من محامين معتمدين.
 
 
 

@@ -295,7 +295,7 @@ export default function Header() {
                         if (button && !open) button.click();
                       }}
                     >
-                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                      <PopoverButton className="flex outline-none items-center text-[14px] gap-x-1 font-semibold text-gray-900 mt-2">
                         <ChevronDownIcon
                           aria-hidden="true"
                           className="size-5 flex-none text-gray-400"
@@ -343,12 +343,12 @@ export default function Header() {
                         if (button && !open) button.click();
                       }}
                     >
-                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                      <PopoverButton className="flex outline-none items-center gap-x-1 text-[14px] font-semibold text-gray-900 mt-2">
                         <ChevronDownIcon
                           aria-hidden="true"
                           className="size-5 flex-none text-gray-400"
                         />
-                        محامين حسب مجال الممارسة
+                      محاميين حسب التخصص
                       </PopoverButton>
                       
                     </div>
@@ -392,7 +392,7 @@ export default function Header() {
                         if (button && !open) button.click();
                       }}
                     >
-                      <PopoverButton className="flex outline-none items-center gap-x-1 font-semibold text-gray-900 mt-2">
+                      <PopoverButton className="flex outline-none items-center gap-x-1 text-[14px] font-semibold text-gray-900 mt-2">
                         <ChevronDownIcon
                           aria-hidden="true"
                           className="size-5 flex-none text-gray-400"
@@ -601,10 +601,10 @@ export default function Header() {
             </div>
             <div className="mt-6 flow-root">
               <div className="-my-6 divide-y divide-gray-500/10">
-                <div className="space-y-2 py-6">
+                <div className="space-y-2 lg:py-6">
                   {/* محامين حسب الموقع */}
                   <Disclosure as="div" className="flex flex-col py-2 pt-8">
-                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-lg font-semibold text-gray-900 text-right">
+                    <DisclosureButton className="flex items-center flex-row-reverse  justify-between w-full text-[14px] font-semibold text-gray-900 text-right">
                       محامين حسب الموقع
                       <ChevronDownIcon
                         aria-hidden="true"
@@ -633,8 +633,8 @@ export default function Header() {
 
                   {/* محامين حسب مجال الممارسة */}
                   <Disclosure as="div" className="flex flex-col py-2">
-                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-lg font-semibold text-gray-900 text-right">
-                      محامين حسب مجال الممارسة
+                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-[14px] font-semibold text-gray-900 text-right">
+                    محاميين حسب التخصص
                       <ChevronDownIcon
                         aria-hidden="true"
                         className="h-5 w-5 flex-shrink-0"
@@ -662,7 +662,7 @@ export default function Header() {
 
                   {/* المواضيع القانونية اسألة وجواب */}
                   <Disclosure as="div" className="flex flex-col py-2">
-                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-lg font-semibold text-gray-900 text-right">
+                    <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-[14px] font-semibold text-gray-900 text-right">
                       المواضيع القانونية اسألة وجواب
                       <ChevronDownIcon
                         aria-hidden="true"

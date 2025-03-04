@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 function ForthSection() {
   return (
-    <div className="md:flex md:justify-center  lg:mt-10 md:gap-10 lg:gap-0 2xl:gap-10 md:px-10 px-4  max-w-6xl mx-auto">
+    <div className="md:flex md:justify-center  lg:mt-10  md:gap-10 pb-24 lg:gap-0 2xl:gap-10 md:px-10 px-4  max-w-6xl mx-auto">
       <div className="basis-1/2 py-16 relative flex flex-col  gap-6 items-center justify-center">
         <div className="lg:absolute top-0 right-0 z-10 py-5 md:py-0">
           <Image

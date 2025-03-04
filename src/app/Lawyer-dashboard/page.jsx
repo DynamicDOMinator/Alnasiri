@@ -411,7 +411,7 @@ export default function Foras() {
                   className="flex flex-row-reverse items-center ml-auto lg:ml-0 gap-2 md:text-lg  text-gray-500"
                 >
                   {lead.sellNumber === 0
-                    ? "لم يتم التواصل مع العميل"
+                    ? "كن أول من يتواصل مع العميل"
                     : `${lead.sellNumber} تواصل مع العميل`}
                   <span>
                     <BsWallet2 />

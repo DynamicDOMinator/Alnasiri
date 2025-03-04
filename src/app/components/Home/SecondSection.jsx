@@ -47,9 +47,7 @@ function SecondSection() {
   <Link href="/Askquestion">
     <button className="mt-4 flex items-center justify-center gap-2 hover:bg-blue-50 text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
       استشارة مجانية
-      <span className="bg-gray-400 py-1 px-1 rounded-2xl border-black border-2">
-        <MdQuestionMark className="text-black" />
-      </span>
+      
     </button>
   </Link>
 </div>
@@ -83,20 +81,7 @@ function SecondSection() {
 
           <button className="mt-4  flex items-center justify-center gap-1 hover:bg-blue-50  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
           ابدأ في البحث
-            <span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-5 text-black "
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </span>
+           
           </button>
         </div>
       </div>

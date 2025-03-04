@@ -80,7 +80,7 @@ export default function ClientsReviews() {
                 </div>
 
                 <div className="flex items-center gap-2 justify-end pt-2">
-                  <p>{review.text}</p>
+                  <p className="whitespace-normal break-words  text-wrap w-full text-right">{review.text}</p>
                   <MdOutlineReviews />
                 </div>
               </div>

@@ -3,8 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 function ThiedSection() {
   return (
-    <div className="flex justify-center items-center">
-      <div className="flex md:flex-row flex-col gap-14 px-4 md:px-10 pt-28 md:py-16 items-center justify-center max-w-6xl w-full">
+    <div className="flex justify-center items-center ">
+      <div className="flex md:flex-row flex-col gap-14 px-4 md:px-10 pt-28 md:py-32 items-center justify-center max-w-6xl w-full">
         <div className=" w-fit mx-auto lg::ml-auto relative md:h-fit  bg-[#16498C38] rounded-lg">
           <div className="absolute md:top-[-30px] top-[-90px] left-[-10px]  bg-white p-4 rounded-lg shadow-lg">
             <p className="text-sm text-gray-700 text-right w-fit ml-auto bg-[#CCD7E6] px-2 py-2">

@@ -121,7 +121,7 @@ export default function HeroSection() {
         );
       case 2:
         return (
-          <div className="px-10 pt-6 pb-10 rounded-md min-h-[370px] bg-white ml-auto shadow-lg">
+          <div className="px-10 pt-6 pb-10 rounded-md min-h-[370px] bg-white  ml-auto shadow-lg">
             <p className="text-2xl font-semibold mb-6 text-black text-center">
             اريد ان
             </p>
@@ -136,21 +136,22 @@ export default function HeroSection() {
                   className="size-3 flex-none text-blue-500 rotate-90"
                 />
               </button>
-              <button
-                className="flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 font-semibold border-2 text-right border-blue-500 hover:underline px-6 py-3 rounded shadow"
-                onClick={() => setStep(6)}
-              >
-                أبحث بالاسم
-                <ChevronDownIcon
-                  aria-hidden="true"
-                  className="size-3 flex-none text-blue-500 rotate-90"
-                />
-              </button>
+             
               <button
                 className="flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 font-semibold border-2 text-right border-blue-500 hover:underline px-6 py-3 rounded shadow"
                 onClick={() => setStep(5)}
               >
                 ابحث بالقرب مني
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-3 flex-none text-blue-500 rotate-90"
+                />
+              </button>
+               <button
+                className="flex items-center flex-row-reverse gap-1 hover:bg-blue-50 text-blue-500 font-semibold border-2 text-right border-blue-500 hover:underline px-6 py-3 rounded shadow"
+                onClick={() => setStep(6)}
+              >
+                أبحث بالاسم
                 <ChevronDownIcon
                   aria-hidden="true"
                   className="size-3 flex-none text-blue-500 rotate-90"
@@ -250,7 +251,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={() => setStep(12)}
               >
                 التالي
@@ -329,7 +330,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={handleSearch}
               >
                 ابحث عن محامي
@@ -421,7 +422,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={() => setStep(11)}
               >
                 التالي
@@ -493,7 +494,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={handleSearch}
               >
                 ابحث عن محامي
@@ -544,7 +545,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={handleSearch}
               >
                 ابحث عن محامي
@@ -614,7 +615,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={handleSearch}
               >
                 ابحث عن محامي
@@ -702,7 +703,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={handleSearch}
               >
                 ابحث عن محامي
@@ -794,7 +795,7 @@ export default function HeroSection() {
                 />
               </button>
               <button
-                className="bg-[#FF6624] text-white px-3 py-3 rounded shadow hover:bg-orange-600"
+                className="bg-[#0077c8] text-white px-3 py-3 rounded shadow hover:bg-blue-600 transition-all duration-300"
                 onClick={handleSearch}
               >
                 ابحث عن محامي
@@ -810,8 +811,7 @@ export default function HeroSection() {
   return (
     <div className="flex flex-col-reverse md:flex-row-reverse bg-[#264360] mt-16 overflow-hidden h-fit w-full text-white">
       <div
-        className="md:basis-1/2 pt-10 w-full "
-        style={{ backgroundImage: `url("/images/bg-heroSection.png")` }}
+        className="md:basis-1/2 pt-10 w-full lg:bg-cover lg:bg-left lg:bg-[url('/images/bg-heroSection.png')]"
       >
         <Image
           className="mx-auto md:h-[600px] h-[350px] w-auto"

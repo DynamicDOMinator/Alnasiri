@@ -78,7 +78,7 @@ async function getQuestions(specialty = null, page = 1, searchQuery = null) {
   }
 }
 
-// QuestionCard Component
+
 function QuestionCard({ uuid, title, date, answersCount }) {
   const formatDate = (dateString) => {
     try {
@@ -134,15 +134,12 @@ export default async function LegalAdvicePage({ searchParams }) {
 
   return (
     <div className="mt-4 md:mt-8 py-4 md:py-8">
-      <div className="relative h-[400px] bg-[url('/images/law-bg.png')] bg-cover bg-center mb-4 md:mb-8">
-        <div className="absolute inset-0 flex flex-col items-center md:items-end px-4 md:pr-20 justify-center text-white bg-black/30 text-center">
-          <h1 className="text-2xl md:text-3xl mt-8 md:mt-0 font-bold mb-2 md:mb-4">
-            النصائح القانونية - {specialty || "جميع الاسئلة"}
+      <div className="relative h-[300px] bg-[url('/images/law-bg.png')] bg-cover bg-center mb-4 md:mb-8">
+        <div className="absolute max-w-7xl mx-auto inset-0 flex flex-col items-center md:items-end  justify-center text-white bg-black/30 text-center">
+          <h1 className="text-2xl md:text-3xl  mt-8 md:mt-0 font-bold pb-4 md:mb-4">
+          <Link href={"/legal-advice"}>  النصائح القانونية - {specialty || "جميع الاسئلة"} </Link>
           </h1>
-          <p className="text-base md:text-lg md:text-right text-center mb-4 md:mb-8 max-w-[90%] md:max-w-2xl">
-            النصائح هي وسيلة قانونية للمساعدة في الإجابات التي لم يتمكنوا قادرين
-            على العثور عليها مسبقاً
-          </p>
+         
           <div className="w-full max-w-[90%] md:max-w-2xl">
             <SearchBar placeholder="ابحث في الأسئلة" />
           </div>
