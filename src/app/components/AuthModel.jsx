@@ -30,6 +30,25 @@ export default function AuthModel({ isOpen, onClose }) {
   const [canResend, setCanResend] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
 
+  const startTimer = useCallback(() => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+    setTimer(120);
+    setCanResend(false);
+    const id = setInterval(() => {
+      setTimer((prevTimer) => {
+        if (prevTimer <= 1) {
+          clearInterval(id);
+          setCanResend(true);
+          return 0;
+        }
+        return prevTimer - 1;
+      });
+    }, 1000);
+    setIntervalId(id);
+  }, [intervalId]);
+
   useEffect(() => {
     if (isOpen && step === "otp") {
       startTimer();
@@ -356,64 +375,6 @@ export default function AuthModel({ isOpen, onClose }) {
     setVerifiedOtp("");
     setSuccessMessage("");
     onClose();
-  };
-
-  const startTimer = useCallback(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-    setTimer(120);
-    setCanResend(false);
-    const id = setInterval(() => {
-      setTimer((prevTimer) => {
-        if (prevTimer <= 1) {
-          clearInterval(id);
-          setCanResend(true);
-          return 0;
-        }
-        return prevTimer - 1;
-      });
-    }, 1000);
-    setIntervalId(id);
-  }, [intervalId]);
-
-  const handleResendOTP = async () => {
-    try {
-      let response;
-
-      if (isForgotPassword) {
-        // For email OTP
-        response = await axios.post(
-          `${API_BASE_URL}/lawyer/resend-otp-by-email`,
-          { email },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          }
-        );
-      } else {
-        // For phone OTP (existing logic)
-        response = await axios.post(
-          `${API_BASE_URL}/lawyer/resend-otp`,
-          { phone: userData?.phone },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          }
-        );
-      }
-
-      if (response.data) {
-        startTimer();
-        setError("");
-      }
-    } catch (error) {
-      setError(error.response?.data?.message || "حدث خطأ في إعادة إرسال الرمز");
-    }
   };
 
   const formatTime = (seconds) => {
