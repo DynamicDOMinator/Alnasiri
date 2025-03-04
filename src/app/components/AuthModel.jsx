@@ -31,11 +31,18 @@ export default function AuthModel({ isOpen, onClose }) {
   const [intervalId, setIntervalId] = useState(null);
 
   const startTimer = useCallback(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
+    // Clear any existing interval
+    setIntervalId((currentIntervalId) => {
+      if (currentIntervalId) {
+        clearInterval(currentIntervalId);
+      }
+      return null;
+    });
+
     setTimer(120);
     setCanResend(false);
+    
+    // Create new interval
     const id = setInterval(() => {
       setTimer((prevTimer) => {
         if (prevTimer <= 1) {
@@ -46,20 +53,23 @@ export default function AuthModel({ isOpen, onClose }) {
         return prevTimer - 1;
       });
     }, 1000);
+    
     setIntervalId(id);
-  }, [intervalId]);
+  }, []); // Remove intervalId from dependencies
 
   useEffect(() => {
     if (isOpen && step === "otp") {
       startTimer();
     }
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-        setIntervalId(null);
-      }
+      setIntervalId((currentIntervalId) => {
+        if (currentIntervalId) {
+          clearInterval(currentIntervalId);
+        }
+        return null;
+      });
     };
-  }, [isOpen, step, intervalId, startTimer]);
+  }, [isOpen, step, startTimer]);
 
   const handleOtpChange = (index, value) => {
     if (!/\d/.test(value) && value !== "") return;
@@ -72,6 +82,45 @@ export default function AuthModel({ isOpen, onClose }) {
       document.getElementById(`otp-${index + 1}`).focus();
     } else if (!value && index > 0) {
       document.getElementById(`otp-${index - 1}`).focus();
+    }
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      let response;
+
+      if (isForgotPassword) {
+        // For email OTP
+        response = await axios.post(
+          `${API_BASE_URL}/lawyer/resend-otp-by-email`,
+          { email },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        );
+      } else {
+        // For phone OTP (existing logic)
+        response = await axios.post(
+          `${API_BASE_URL}/lawyer/resend-otp`,
+          { phone: userData?.phone },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        );
+      }
+
+      if (response.data) {
+        startTimer();
+        setError("");
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "حدث خطأ في إعادة إرسال الرمز");
     }
   };
 
