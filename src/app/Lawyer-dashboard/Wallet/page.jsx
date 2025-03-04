@@ -1,10 +1,15 @@
+"use client";
 import Link from "next/link";
 import { IoIosArrowBack } from "react-icons/io";
+import { FaArrowRight } from "react-icons/fa6";
 
 export default function Wallet() {
   return (
     <div  className="max-w-4xl mx-auto px-4">
-      <h1 className="text-3xl font-bold mt-16 text-right">محفظتي</h1>
+<FaArrowRight onClick={() => history.back()} className="text-xl mt-10 ml-auto cursor-pointer" />
+
+      <h1 className="lg:text-3xl text-xl font-bold mt-5 lg:text-right text-center">محفظتي</h1>
+
       <Link href="/Lawyer-dashboard/Wallet/Deposit">
         <div className="mt-10 border-b-2 pb-2 hover:cursor-pointer hover:bg-gray-100 p-2 flex items-center justify-between flex-row-reverse">
           <div>

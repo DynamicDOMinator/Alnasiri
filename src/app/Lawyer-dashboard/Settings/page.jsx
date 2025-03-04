@@ -14,6 +14,7 @@ import { ImProfile } from "react-icons/im";
 
 export default function Settings() {
   const [userName, setUserName] = useState("");
+  const [showContactPopup, setShowContactPopup] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -111,17 +112,39 @@ export default function Settings() {
         </div>
       </Link>
 
-      <Link href="/Lawyer-dashboard/Profile">
-        <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">
-          <div>
-            <div className="flex gap-1 items-center justify-end">
-              <h2 className="text-lg font-semibold"> تواصل معنا</h2>
-              <BiSolidPhoneCall />
-            </div>
+      <div 
+        onClick={() => setShowContactPopup(true)}
+        className="flex items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8 cursor-pointer"
+      >
+        <div>
+          <div className="flex gap-1 items-center justify-end">
+            <h2 className="text-lg font-semibold"> تواصل معنا</h2>
+            <BiSolidPhoneCall />
           </div>
-          <IoIosArrowBack />
         </div>
-      </Link>
+        <IoIosArrowBack />
+      </div>
+
+      {showContactPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-right mb-4">تواصل معنا</h3>
+            <p className="text-right mb-4">يمكنك التواصل معنا عبر البريد الإلكتروني</p>
+            <a 
+              href="mailto:support@bisharh.com" 
+              className="text-blue-600 text-center mb-6 select-all block hover:text-blue-800"
+            >
+              support@bisharh.com
+            </a>
+            <button 
+              onClick={() => setShowContactPopup(false)}
+              className="bg-green-700 text-white px-4 py-2 rounded w-full hover:bg-green-600"
+            >
+              إغلاق
+            </button>
+          </div>
+        </div>
+      )}
 
       <Link href="/Lawyer-dashboard/conditions">
         <div className="flex  items-center border-b lg:hover:bg-gray-100 lg:py-2 lg:px-2 pb-5 justify-between flex-row-reverse mt-8">

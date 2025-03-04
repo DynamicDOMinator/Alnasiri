@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import * as Dialog from "@radix-ui/react-dialog";
 import { motion } from "framer-motion";
@@ -31,12 +31,16 @@ export default function AuthModel({ isOpen, onClose }) {
   const [intervalId, setIntervalId] = useState(null);
 
   useEffect(() => {
+    if (isOpen && step === "otp") {
+      startTimer();
+    }
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
+        setIntervalId(null);
       }
     };
-  }, [intervalId]);
+  }, [isOpen, step, intervalId, startTimer]);
 
   const handleOtpChange = (index, value) => {
     if (!/\d/.test(value) && value !== "") return;
@@ -354,28 +358,24 @@ export default function AuthModel({ isOpen, onClose }) {
     onClose();
   };
 
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     if (intervalId) {
       clearInterval(intervalId);
-      setIntervalId(null);
     }
-
     setTimer(120);
     setCanResend(false);
-
-    const newIntervalId = window.setInterval(() => {
+    const id = setInterval(() => {
       setTimer((prevTimer) => {
         if (prevTimer <= 1) {
-          clearInterval(newIntervalId);
+          clearInterval(id);
           setCanResend(true);
           return 0;
         }
         return prevTimer - 1;
       });
     }, 1000);
-
-    setIntervalId(newIntervalId);
-  };
+    setIntervalId(id);
+  }, [intervalId]);
 
   const handleResendOTP = async () => {
     try {
@@ -419,7 +419,7 @@ export default function AuthModel({ isOpen, onClose }) {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -534,7 +534,7 @@ export default function AuthModel({ isOpen, onClose }) {
                 <input
                   type="email"
                   placeholder="البريد الإلكتروني (example@domain.com)"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-800 focus:ring-offset-0 focus:border-blue-800 bg-white transition-all text-right [&::placeholder]:text-right"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   dir="rtl"

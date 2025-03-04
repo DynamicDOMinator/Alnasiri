@@ -1,9 +1,20 @@
+"use client";
 import React from "react";
 import { MdQuestionMark } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
 
 function SecondSection() {
+
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+
+
+
+
   return (
     <div className="bg-blue-50  ">
       <div className="text-center pt-10 max-w-6xl mx-auto  ">
@@ -79,7 +90,7 @@ function SecondSection() {
             <li>جميع المحامين مرخصين من وزارة العدل</li>
           </ul>
 
-          <button className="mt-4  flex items-center justify-center gap-1 hover:bg-blue-50  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
+          <button onClick={scrollToTop} className="mt-4  flex items-center justify-center gap-1 hover:bg-blue-50  text-lg border-2 w-full py-3 rounded-md border-gray-400 hover:border-gray-600">
           ابدأ في البحث
            
           </button>
