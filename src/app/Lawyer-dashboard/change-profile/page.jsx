@@ -237,7 +237,7 @@ export default function ChangeProfile() {
                 <input
                   type="text"
                   value={currentName.firstName}
-                  className="border text-gray-500 rounded-md p-2 w-full text-right"
+                  className="text-gray-500 p-2 w-full text-right outline-none focus:outline-none"
                   readOnly
                 />
                 <span className="absolute  -top-3 right-5 bg-white px-1 text-sm">
@@ -250,7 +250,7 @@ export default function ChangeProfile() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="border rounded-md p-2 w-full text-right"
+                  className="border rounded-md p-2 w-full text-right focus:outline-none focus:border-[3px] focus:border-green-600 transition-colors duration-200"
                   onInput={handleArabicInput}
                   placeholder="ادخل الاسم الأول الجديد"
                 />
@@ -266,7 +266,7 @@ export default function ChangeProfile() {
                 <input
                   type="text"
                   value={currentName.middleName}
-                  className="border text-gray-500 rounded-md p-2 w-full text-right"
+                  className="text-gray-500 p-2 w-full text-right outline-none focus:outline-none"
                   readOnly
                 />
                 <span className="absolute -top-3 right-5 bg-white px-1 text-sm">
@@ -279,7 +279,7 @@ export default function ChangeProfile() {
                   name="middleName"
                   value={formData.middleName}
                   onChange={handleChange}
-                  className="border rounded-md p-2 w-full text-right"
+                  className="border rounded-md p-2 w-full text-right focus:outline-none focus:border-[3px] focus:focus:border-green-600  transition-colors duration-200"
                   onInput={handleArabicInput}
                   placeholder="ادخل اسم الوسط الجديد"
                 />
@@ -295,7 +295,7 @@ export default function ChangeProfile() {
                 <input
                   type="text"
                   value={currentName.lastName}
-                  className="border text-gray-500 rounded-md p-2 w-full text-right"
+                  className="text-gray-500 p-2 w-full text-right outline-none focus:outline-none"
                   readOnly
                 />
                 <span className="absolute -top-3 right-5 bg-white px-1 text-sm">
@@ -308,7 +308,7 @@ export default function ChangeProfile() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="border rounded-md p-2 w-full text-right"
+                  className="border rounded-md p-2 w-full text-right focus:outline-none focus:border-[3px] focus:border-green-600  transition-colors duration-200"
                   onInput={handleArabicInput}
                   placeholder="ادخل الاسم الأخير الجديد"
                 />
@@ -324,7 +324,7 @@ export default function ChangeProfile() {
                 <input
                   type="text"
                   value={userData.license_number || ""}
-                  className="border text-gray-500 rounded-md p-2 w-full text-right"
+                  className="text-gray-500 p-2 w-full text-right outline-none focus:outline-none"
                   readOnly
                 />
                 <span className="absolute -top-3 right-5 bg-white px-1 text-sm">
@@ -337,7 +337,7 @@ export default function ChangeProfile() {
                   name="license_number"
                   value={formData.license_number}
                   onChange={handleChange}
-                  className="border rounded-md p-2 w-full text-right"
+                  className="border rounded-md p-2 w-full text-right focus:outline-none focus:border-[3px] focus:border-green-600  transition-colors duration-200"
                   maxLength="6"
                   pattern="[0-9]*"
                   placeholder="ادخل رقم الترخيص الجديد"
@@ -354,7 +354,7 @@ export default function ChangeProfile() {
                 <input
                   type="text"
                   value={userData.city || ""}
-                  className="border text-gray-500 rounded-md p-2 w-full text-right"
+                  className="text-gray-500 p-2 w-full text-right outline-none focus:outline-none"
                   readOnly
                 />
                 <span className="absolute -top-3 right-5 bg-white px-1 text-sm">
@@ -366,7 +366,7 @@ export default function ChangeProfile() {
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="border rounded-md p-2 w-full text-right"
+                  className="border rounded-md p-2 w-full text-right focus:outline-none focus:border-[3px] focus:border-green-600  transition-colors duration-200"
                 >
                   <option value="">اختر المدينة الجديدة</option>
                   {cities.map((city) => (
