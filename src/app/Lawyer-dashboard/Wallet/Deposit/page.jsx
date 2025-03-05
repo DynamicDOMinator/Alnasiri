@@ -366,7 +366,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
       <div className="pt-5 flex flex-col gap-4">
         <div 
-          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer hover:bg-gray-50 ${
             selectedAmount === 30 ? 'border-green-600' : ''
           }`}
           onClick={() => handleAmountChange(30)}
@@ -377,13 +377,13 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
             value="30"
             checked={selectedAmount === 30}
             onChange={() => {}}
-            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none hover:bg-gray-50"
           />
           <p>30 ر.س</p>
         </div>
 
         <div 
-          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer hover:bg-gray-50 ${
             selectedAmount === 40 ? 'border-green-600' : ''
           }`}
           onClick={() => handleAmountChange(40)}
@@ -394,13 +394,13 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
             value="40"
             checked={selectedAmount === 40}
             onChange={() => {}}
-            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none hover:bg-gray-50"
           />
           <p>40 ر.س</p>
         </div>
 
         <div 
-          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer hover:bg-gray-50 ${
             selectedAmount === 50 ? 'border-green-600' : ''
           }`}
           onClick={() => handleAmountChange(50)}
@@ -411,13 +411,13 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
             value="50"
             checked={selectedAmount === 50}
             onChange={() => {}}
-            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none hover:bg-gray-50"
           />
           <p>50 ر.س</p>
         </div>
 
         <div 
-          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer ${
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer hover:bg-gray-50 ${
             selectedAmount === 60 ? 'border-green-600' : ''
           }`}
           onClick={() => handleAmountChange(60)}
@@ -428,38 +428,35 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
             value="60"
             checked={selectedAmount === 60}
             onChange={() => {}}
-            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none hover:bg-gray-50"
           />
           <p>60 ر.س</p>
         </div>
 
         {/* Custom Amount Input */}
         <div 
-          className={`flex items-center gap-2 border-2 p-3 rounded-md ${
+          className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer hover:bg-gray-50 ${
             selectedAmount !== null && ![30, 40, 50, 60].includes(selectedAmount) ? 'border-green-600' : ''
           }`}
+          onClick={() => {
+            if (!customAmount) {
+              const defaultAmount = "100";
+              setCustomAmount(defaultAmount);
+              handleAmountChange(parseInt(defaultAmount));
+            }
+          }}
         >
           <input
             type="radio"
             name="amount"
             checked={selectedAmount !== null && ![30, 40, 50, 60].includes(selectedAmount)}
             onChange={() => {}}
-            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none"
+            className="appearance-none w-4 h-4 border-2 border-black/50 rounded-full checked:border-4 checked:border-green-600 accent-green-400 focus:outline-none hover:bg-gray-50"
           />
           <div className="flex flex-col w-full">
             <div className="flex justify-between items-center gap-2">
               <p>كمية محددة</p>
-              <div 
-                className="w-[80%] relative cursor-pointer"
-                onClick={() => {
-                  if (!customAmount) {
-                    // Changed default amount from 1 to 100
-                    const defaultAmount = "100";
-                    setCustomAmount(defaultAmount);
-                    handleAmountChange(parseInt(defaultAmount));
-                  }
-                }}
-              >
+              <div className="w-[80%] relative">
                 <input
                   type="number"
                   min="1"
@@ -475,21 +472,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                       }
                     }
                   }}
-                  className="w-full border rounded-md p-2 text-right focus:outline-none"
+                  className="w-full border rounded-md p-2 text-right focus:outline-none bg-transparent"
                   dir="ltr"
                 />
                 {!customAmount && (
-                  <div 
-                    className="absolute inset-0 flex items-center cursor-pointer"
-                    onClick={() => {
-                      // Changed default amount from 1 to 100
-                      const defaultAmount = "100";
-                      setCustomAmount(defaultAmount);
-                      handleAmountChange(parseInt(defaultAmount));
-                    }}
-                  >
-                    
-                  </div>
+                  <div className="absolute inset-0"></div>
                 )}
               </div>
             </div>
@@ -543,7 +530,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   onChange={handleCardDetailsChange}
                   maxLength="19"
                   placeholder="1234 5678 9012 3456"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-transparent"
                   required
                 />
               </div>
@@ -557,7 +544,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                   value={cardDetails.cardHolder}
                   onChange={handleCardDetailsChange}
                   placeholder="John Doe"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-transparent"
                   required
                 />
               </div>
@@ -574,7 +561,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                       onChange={handleCardDetailsChange}
                       placeholder="MM"
                       maxLength="2"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-transparent"
                       required
                     />
                     <input
@@ -584,7 +571,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                       onChange={handleCardDetailsChange}
                       placeholder="YY"
                       maxLength="2"
-                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-transparent"
                       required
                     />
                   </div>
@@ -600,7 +587,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
                     onChange={handleCardDetailsChange}
                     placeholder="123"
                     maxLength="3"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-transparent"
                     required
                   />
                 </div>
