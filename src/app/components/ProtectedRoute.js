@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }) {
   }, [isAuthenticated, loading, router]);
 
   if (loading) {
-    return <div>Loading...</div>; // Replace with your loading component
+    return <div>Loading...</div>; 
   }
 
   return isAuthenticated ? children : null;

@@ -85,9 +85,9 @@ export default function Sidebar() {
     <div>
       {/* desktop screen */}
       <div className="lg:fixed hidden lg:border-l-2 border-gray-300 lg:block gap-4 right-0 z-50 w-1/6 ml-auto h-screen">
-        <h2 className="mt-20 justify-center text-3xl font-bold flex items-center gap-2 pb-10">
-          نصيري{" "}
-          <span>
+        <h2 onClick={() => window.location.href = "/"} className="mt-20 cursor-pointer justify-center text-[#00447b] text-4xl font-extrabold flex items-center gap-2 pb-10">
+          بشارة
+          {/* <span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width={35}
@@ -99,7 +99,7 @@ export default function Sidebar() {
                 d="M14.63 7L13 3h1V2H9V1H8v1H3v1h1L2.38 7H2v1h.15c.156.498.473.93.9 1.23a2.47 2.47 0 0 0 2.9 0A2.44 2.44 0 0 0 6.86 8H7V7h-.45L4.88 3H8v8H6l-.39.18l-2 2.51l.39.81h9l.39-.81l-2-2.51L11 11H9V3h3.13l-1.67 4H10v1h.15a2.48 2.48 0 0 0 4.71 0H15V7zM5.22 8.51a1.5 1.5 0 0 1-.72.19a1.45 1.45 0 0 1-.71-.19A1.5 1.5 0 0 1 3.25 8h2.5a1.5 1.5 0 0 1-.53.51M5.47 7h-2l1-2.4zm5.29 5L12 13.5H5L6.24 12zm1.78-7.38l1 2.4h-2zm.68 3.91a1.4 1.4 0 0 1-.72.19a1.35 1.35 0 0 1-.71-.19a1.55 1.55 0 0 1-.54-.53h2.5a1.37 1.37 0 0 1-.53.53"
               ></path>
             </svg>
-          </span>
+          </span> */}
         </h2>
         <div className="flex flex-col items-end gap-1 border-b-2 px-2 pb-10">
           <Link

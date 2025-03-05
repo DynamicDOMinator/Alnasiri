@@ -445,15 +445,9 @@ export default function Header() {
                 )}
               </Popover>
             </PopoverGroup>
-            {/* <div className="bg-red-500">
-  <Image
-    src={"/images/logo2.png"}
-    alt="logo"
-    width={100}
-    height={100}
-    className="size-28"
-  />
-</div> */}
+            <div onClick={() => router.push("/") } className="cursor-pointer  ">
+<p className="text-3xl font-extrabold text-[#00447b]">بشارة</p>
+</div>
           </div>
           
         </nav>
