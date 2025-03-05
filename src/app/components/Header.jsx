@@ -118,9 +118,9 @@ export default function Header() {
       <header className="bg-white shadow fixed top-0 w-full z-50">
         <nav
           aria-label="Global"
-          className="flex items-center justify-between px-3  py-3 lg:px-16"
+          className="flex items-center justify-between px-3 py-3 lg:px-16"
         >
-          <div className="flex  flex-1">
+          <div className="flex ">
             <div>
               {isAuthenticated ? (
                 <Popover className="relative">
@@ -282,6 +282,12 @@ export default function Header() {
             </button>
           </div>
 
+          <div className="flex-1 lg:hidden  flex justify-center items-center lg:flex-none">
+            <div onClick={() => router.push("/") } className="cursor-pointer">
+              <p className="text-3xl font-extrabold text-[#00447b]">بشارة</p>
+            </div>
+          </div>
+
           <div className="flex items-center gap-10">
             
             <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse ">
@@ -291,7 +297,8 @@ export default function Header() {
                   <>
                     <div
                       onMouseEnter={(e) => {
-                        const button = e.currentTarget.querySelector("button");
+                        const button =
+                          e.currentTarget.querySelector("button");
                         if (button && !open) button.click();
                       }}
                     >
@@ -339,7 +346,8 @@ export default function Header() {
                   <>
                     <div
                       onMouseEnter={(e) => {
-                        const button = e.currentTarget.querySelector("button");
+                        const button =
+                          e.currentTarget.querySelector("button");
                         if (button && !open) button.click();
                       }}
                     >
@@ -388,7 +396,8 @@ export default function Header() {
                   <>
                     <div
                       onMouseEnter={(e) => {
-                        const button = e.currentTarget.querySelector("button");
+                        const button =
+                          e.currentTarget.querySelector("button");
                         if (button && !open) button.click();
                       }}
                     >
@@ -411,7 +420,7 @@ export default function Header() {
                             {specialities.map((spec, index) => (
                               <div
                                 key={index}
-                                className="group relative rounded-lg p-3 text-sm text-right cursor-pointer hover:bg-gray-50"
+                                className="group relative rounded-lg p-3 text-sm hover:bg-gray-50 text-right cursor-pointer"
                                 onClick={() => {
                                   close();
                                   router.push(
@@ -445,9 +454,9 @@ export default function Header() {
                 )}
               </Popover>
             </PopoverGroup>
-            <div onClick={() => router.push("/") } className="cursor-pointer  ">
-<p className="text-3xl font-extrabold text-[#00447b]">بشارة</p>
-</div>
+            <div onClick={() => router.push("/") } className="cursor-pointer hidden lg:block">
+              <p className="text-3xl font-extrabold text-[#00447b]">بشارة</p>
+            </div>
           </div>
           
         </nav>
