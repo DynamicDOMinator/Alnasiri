@@ -61,7 +61,7 @@ export default function ClientsReviews() {
                 <FaArrowRight />
               </p>
             </Link>
-            <h1 className="lg:text-3xl font-bold mt-5">اراء العملاء</h1>
+            <h1 className="lg:text-3xl text-center text-xl lg:text-right font-bold mt-5">اراء العملاء</h1>
           </div>
 
           {reviews.length === 0 ? (
