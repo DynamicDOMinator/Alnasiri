@@ -108,7 +108,7 @@ function QuestionCard({ uuid, title, date, answersCount }) {
               <p className="mt-1">{formatDate(date)}</p>
              
             </div>
-            <h3 className="text-base md:text-lg font-medium text-right flex-1 md:mr-4 order-1 md:order-2">
+            <h3 className="text-base md:text-lg whitespace-pre-wrap w-full break-words font-medium text-right flex-1 md:mr-4 order-1 md:order-2">
               {title}
             </h3>
           </div>

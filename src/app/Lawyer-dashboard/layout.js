@@ -41,16 +41,15 @@ function AuthContent({ children }) {
   const { userType, isLoading } = useUserType();
   const router = useRouter();
 
-  // Handle authentication and user type checks
+  
   useEffect(() => {
     console.log("Auth state:", { isAuthenticated, userType, isLoading });
 
-    // Wait for loading to complete
+   
     if (isLoading) {
       return;
     }
 
-    // Only redirect if we're not authenticated or not a lawyer
     if (!isAuthenticated || userType !== "lawyer") {
       console.log(
         "Redirecting:",
@@ -60,7 +59,6 @@ function AuthContent({ children }) {
     }
   }, [isAuthenticated, userType, isLoading, router]);
 
-  // Show loading spinner
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex justify-center items-center bg-white">
@@ -69,7 +67,6 @@ function AuthContent({ children }) {
     );
   }
 
-  // Only render content if authenticated and a lawyer
   if (!isAuthenticated || userType !== "lawyer") {
     return null;
   }

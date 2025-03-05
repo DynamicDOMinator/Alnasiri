@@ -4,7 +4,7 @@ export const metadata = {
   title: "بشارة",
   description: "هي عبارة عن منصة تساعد المحامين في التواصل مع المواطنين",
   icons: {
-    icon: "/images/afav.png", // Path relative to the public directory
+    icon: "/images/afav.png", 
   },
 };
 export default function WithHeaderLayout({ children }) {
