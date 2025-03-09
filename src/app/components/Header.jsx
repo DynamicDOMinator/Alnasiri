@@ -115,10 +115,10 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white shadow fixed top-0 w-full z-50">
+      <header className="bg-white shadow fixed top-0 w-full z-50  ">
         <nav
           aria-label="Global"
-          className="flex items-center justify-between px-3 py-3 lg:px-16"
+          className="flex items-center justify-between px-3 py-3 lg:px-10 max-w-6xl mx-auto"
         >
           <div className="flex ">
             <div>

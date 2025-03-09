@@ -101,10 +101,12 @@ export default function LawyerProfile() {
   const [lawyer, setLawyer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [visibleQAs, setVisibleQAs] = useState(3);
+  const [visibleReviews, setVisibleReviews] = useState(3);
+
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const params = useParams();
   const router = useRouter();
-  const {  isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { userType } = useUserType();
 
   const handleAction = (action) => {
@@ -181,12 +183,12 @@ export default function LawyerProfile() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb Navigation */}
-      <div className="h-[160px] w-full  pt-20 px-4 sm:px-6 lg:px-8">
+      <div className="h-[160px] max-w-7xl mx-auto pt-20 px-4 lg:px-10  ">
         <div className="flex  flex-wrap-reverse items-center md:gap-2 justify-end max-w-7xl mx-auto">
           {lawyer.city && (
             <>
               <p
-                className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                className="text-blue-500  font-bold text-right mt-3 cursor-pointer hover:text-blue-600 transition-colors"
                 onClick={() => router.push(`/Find-Lawyer?city=${lawyer.city}`)}
               >
                 {lawyer.city}
@@ -199,20 +201,20 @@ export default function LawyerProfile() {
           {firstSpecialty && (
             <>
               <p
-                className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+                className="text-blue-500  font-bold text-right mt-3 cursor-pointer hover:text-blue-600 transition-colors"
                 onClick={() =>
                   router.push(`/Find-Lawyer?specialties=${firstSpecialty}`)
                 }
               >
                 {firstSpecialty}
               </p>
-              <p className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3">
+              <p className="text-blue-500  font-bold text-right mt-3">
                 <IoIosArrowBack />
               </p>
             </>
           )}
           <h1
-            className="text-blue-500 text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+            className="text-blue-500  font-bold text-right mt-3 cursor-pointer hover:text-blue-600 transition-colors"
             onClick={() => router.push("/Find-Lawyer")}
           >
             البحث عن محامي
@@ -262,7 +264,7 @@ export default function LawyerProfile() {
             {lawyer.phone && isAuthenticated ? (
               <button
                 onClick={() => handleAction("phone")}
-                className="bg-blue-900 text-white px-6 py-3 rounded flex items-center justify-center gap-2 hover:bg-blue-800 transition-colors"
+                className="bg-[#0077c8] hover:bg-blue-600 transition-all duration-500 text-white px-6 py-3 rounded flex items-center justify-center gap-2"
               >
                 <span>0{lawyer.phone}</span>
                 <FiPhone />
@@ -270,7 +272,7 @@ export default function LawyerProfile() {
             ) : (
               <button
                 onClick={() => handleAction("phone")}
-                className="bg-blue-900 text-white px-6 py-3 rounded flex items-center justify-center gap-2 hover:bg-blue-800 transition-colors"
+                className="bg-[#0077c8] hover:bg-blue-600 transition-all duration-500 text-white px-6 py-3 rounded flex items-center justify-center gap-2 "
               >
                 <span>اظهار رقم الهاتف</span>
                 <FiPhone />
@@ -282,8 +284,8 @@ export default function LawyerProfile() {
         {lawyer.office?.bio && (
           <div className="mt-6 ">
             <h3 className="text-xl border-r-4 border-blue-900 pr-2 font-semibold mb-7 text-right">
-              <span> {lawyer.name} </span>
               عن
+              <span> {lawyer.name} </span>
             </h3>
             <div className="bg-white p-6  rounded-lg shadow-lg">
               <div>
@@ -349,55 +351,71 @@ export default function LawyerProfile() {
         {/* Reviews Section */}
         <div className="mt-10">
           <h3 className="text-xl pb-2 border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right">
-            
             <span className="px-1">{lawyer.reviews_count}</span>
             {lawyer.reviews_count < 3 ? "تقييم" : "تقييمات"}
           </h3>
           <div className="bg-white p-6 rounded-lg shadow-lg">
             {lawyer.reviews_count > 0 ? (
               <div>
-                {lawyer.reviews_data.map((review, index) => (
-                  <div key={index} className="mb-6 p-4 border-2  rounded-lg">
-                    <div className="flex items-center  justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <BiLike
-                          className={`${
-                            review.lawyer_consult === 1
-                              ? "text-green-500 bg-green-100"
-                              : "text-red-500 bg-red-100 rotate-180"
-                          } w-16 px-4 py-2 h-10 rounded-lg`}
-                        />
+                {lawyer.reviews_data
+                  .slice(0, visibleReviews)
+                  .map((review, index) => (
+                    <div key={index} className="mb-6 p-4 border-2  rounded-lg">
+                      <div className="flex items-center  justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <BiLike
+                            className={`${
+                              review.lawyer_consult === 1
+                                ? "text-green-500 bg-green-100"
+                                : "text-red-500 bg-red-100 rotate-180"
+                            } w-16 px-4 py-2 h-10 rounded-lg`}
+                          />
+                        </div>
+                        <div className=" flex justify-between items-center gap-2 text-sm">
+                          <p className="text-gray-500 hidden lg:block ">
+                            {new Date(review.created_at).toLocaleDateString(
+                              "ar-eg"
+                            )}
+                          </p>
+                          <p className="text-lg text-right ">
+                            تم النشر بواسطة {review.user?.name}
+                          </p>
+                        </div>
                       </div>
-                      <div className=" flex justify-between items-center gap-2 text-sm">
-                        <p className="text-gray-500 hidden lg:block ">
-                          {new Date(review.created_at).toLocaleDateString(
-                            "ar-eg"
-                          )}
-                        </p>
-                        <p className="text-lg text-right ">
-                          تم النشر بواسطة {review.user?.name}
-                        </p>
-                      </div>
+                      <p className="text-gray-700 text-right whitespace-pre-wrap break-words w-full">
+                        {review.text}
+                      </p>
                     </div>
-                    <p className="text-gray-700 text-right whitespace-pre-wrap break-words w-full">{review.text}</p>
+                  ))}
+ {userType === "user" && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => handleAction("review")}
+                  className="bg-[#0077c8] hover:bg-blue-600 transition-all duration-500 w-full md:w-auto text-white px-6 py-2 rounded-lg "
+                >
+                  تسليم المراجعة
+                </button>
+              </div>
+            )}
+                {lawyer.reviews_data.length > visibleReviews && (
+                  <div className="flex justify-center mt-6">
+                    <button
+                      onClick={() =>
+                        setVisibleReviews(lawyer.reviews_data.length)
+                      }
+                      className="bg-white border-2 border-blue-900 text-blue-900 px-6 py-2 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                    >
+                      عرض المزيد
+                    </button>
                   </div>
-                ))}
+                )}
               </div>
             ) : (
               <p className="text-center text-gray-500">
                 لا توجد تقييمات حتى الآن
               </p>
             )}
-            {userType === "user" && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => handleAction("review")}
-                className="bg-blue-900 w-full md:w-auto text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200"
-              >
-                تسليم المراجعة
-                </button>
-              </div>
-            )}
+           
           </div>
         </div>
 
@@ -442,9 +460,7 @@ export default function LawyerProfile() {
                           <h4 className="text-xl font-semibold mb-2 text-right whitespace-pre-wrap break-words">
                             {qa.question.question_title}
                           </h4>
-                          <p className="text-gray-700 text-right whitespace-pre-wrap break-words">
-                            {qa.question.question_content}
-                          </p>
+                         
                         </div>
 
                         {/* Answer */}

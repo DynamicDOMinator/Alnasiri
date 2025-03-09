@@ -20,7 +20,6 @@ export default function SubmitReview() {
   const params = useParams();
   const router = useRouter();
 
-
   useEffect(() => {
     const fetchLawyerProfile = async () => {
       try {
@@ -40,8 +39,16 @@ export default function SubmitReview() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!reviewText.trim()) {
+      setError("الرجاء إدخال تقييمك");
+      return;
+    }
     if (recommend === null) {
       setError("الرجاء اختيار ما إذا كنت تنصح بالتعامل مع المحامي");
+      return;
+    }
+    if (reviewText.length < 75) {
+      setError("يجب أن يكون التقييم 75 حرفًا على الأقل");
       return;
     }
     setIsSubmitting(true);
@@ -130,11 +137,25 @@ export default function SubmitReview() {
                     setReviewText(e.target.value);
                   }
                 }}
-                required
-                placeholder="مطلوب"
+                placeholder="الرجاء كنابه تقيمك هنا"
               />
-              <div className="text-left text-xs sm:text-sm text-gray-500 mt-1">
-                {reviewText.length} / 200
+              <div className="flex justify-between items-center mt-1">
+                <div
+                  className="text-xs sm:text-sm"
+                  style={{
+                    color: reviewText.length < 75 ? "#EF4444" : "#6B7280",
+                  }}
+                >
+                  {reviewText.length}/200
+                </div>
+                <div
+                  className="text-right text-xs sm:text-sm"
+                  style={{
+                    color: reviewText.length < 75 ? "#EF4444" : "#6B7280",
+                  }}
+                >
+                  يجب أن يكون التقييم 75 حرفًا على الأقل
+                </div>
               </div>
             </div>
 
@@ -181,6 +202,11 @@ export default function SubmitReview() {
                   />
                 </button>
               </div>
+              {recommend === null && error && error.includes("تنصح") && (
+                <div className="text-red-500 text-sm mt-2 text-right">
+                  الرجاء اختيار ما إذا كنت تنصح بالتعامل مع المحامي
+                </div>
+              )}
             </div>
 
             <div>

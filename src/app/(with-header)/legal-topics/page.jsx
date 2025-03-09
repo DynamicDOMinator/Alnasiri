@@ -170,7 +170,7 @@ export default function LeadTopics() {
   return (
     <div className="pt-36 py-10 min-h-screen px-5 md:px-0">
       <div>
-        <h1 className="text-[48px] font-bold text-center mb-5">
+        <h1 className="lg:text-[48px] text-2xl font-bold text-center mb-5">
           ! ابحث عن استشارة قانونية
         </h1>
         <p className="text-center ">

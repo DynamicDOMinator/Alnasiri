@@ -411,12 +411,12 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
                 <div className="mt-4 md:mt-0">
                   <div className="flex flex-col gap-2">
                     {isAuthenticated ? (
-                      <div className="bg-blue-900 text-white px-4 py-3 rounded flex items-center justify-center gap-2 min-w-[160px]">
+                      <button className="bg-[#0077c8] hover:bg-blue-600 transition-all duration-500   text-white px-4 py-3 rounded flex items-center justify-center gap-2 min-w-[160px]">
                         <span dir="ltr">
                           0{lawyer.call_number || lawyer.lawyer?.phone}
                         </span>
                         <FiPhone />
-                      </div>
+                      </button>
                     ) : (
                       <button
                         onClick={() => handleShowPhone(lawyer.id)}

@@ -97,7 +97,7 @@ export default function ClientForm() {
     }
     if (hireLawyer === true) {
       if (!hireTime) {
-        newErrors.hireTime = "الرجاء تحديد الوقت المناسب";
+        newErrors.hireTime = "الرجاء الاجابة علي السؤال";
       }
       if (!contactMethod) {
         newErrors.contactMethod = "الرجاء اختيار طريقة التواصل";
@@ -239,7 +239,7 @@ export default function ClientForm() {
 
                 <li className="py-1">سيتم اشعارك فور رد المحاميين علي سؤالك</li>
               </ul>
-              <p className="font-semibold py-4 mr-4">نصائح طرح الاسئله</p>
+              <p className="font-bold py-4 mr-4">نصائح طرح الاسئله</p>
               <ul className="list-disc mr-4 [&>li]:relative [&>li]:right-4">
                 <li className="py-1">
                   ركز على التفاصيل المهمة بدون الحاجه إلى اطالة
@@ -457,14 +457,13 @@ export default function ClientForm() {
                   <span>لست متأكد</span>
                 </label>
               </div>
-
+              {errors.hireTime && (
+                <p className="text-red-500 text-sm mt-1">{errors.hireTime}</p>
+              )}
               {/* Communication Method - Now conditional on hireTime having a value */}
               {hireTime && (
                 <div className="pt-5">
-                    
-                  <label className="block font-bold mb-1">
-                    طريقة التواصل
-                  </label>
+                  <label className="block font-bold mb-1">طريقة التواصل</label>
                   <div className="space-x-4 flex flex-col gap-2">
                     <label className="inline-flex items-center">
                       <input

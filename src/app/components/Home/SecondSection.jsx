@@ -47,7 +47,7 @@ function SecondSection() {
           </div>
 
           <Link href="/Askquestion" className="mt-auto w-full">
-            <button className="w-full py-3 rounded-md border-2 border-gray-400 hover:border-gray-600 hover:bg-blue-50 text-lg">
+            <button className="w-full py-3 rounded-md border-2 border-gray-400 hover:border-gray-600 transition-all duration-300 hover:bg-blue-50 text-lg">
               استشارة مجانية
             </button>
           </Link>
@@ -81,7 +81,7 @@ function SecondSection() {
             </ul>
           </div>
 
-          <button onClick={scrollToTop} className="w-full py-3 rounded-md border-2 border-gray-400 hover:border-gray-600 hover:bg-blue-50 text-lg mt-auto">
+          <button onClick={scrollToTop} className="w-full py-3 rounded-md border-2 transition-all duration-300 border-gray-400 hover:border-gray-600 hover:bg-blue-50 text-lg mt-auto">
             ابدأ في البحث
           </button>
         </div>
