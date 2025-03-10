@@ -483,7 +483,7 @@ export default function ProfileSettings() {
                         })
                       }
                       className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-                      placeholder=" يجب ان لا تقل عن 9 خانات"
+                      placeholder="كلمة المرور يجب انت تكون علي الاقل 9 خانات"
                     />
                     <label className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600">
                       كلمة المرور الجديدة
@@ -504,7 +504,7 @@ export default function ProfileSettings() {
                         })
                       }
                       className="w-full px-4 py-2 text-right border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-                      placeholder=" يجب ان لا تقل عن 9 خانات"
+                      placeholder="كلمة المرور الجديدة"
                     />
                     <label className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600">
                       تأكيد كلمة المرور
@@ -546,7 +546,13 @@ export default function ProfileSettings() {
                     } border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10 ${
                       isPhone ? "pl-16" : ""
                     }`}
-                    placeholder={`ادخل ${label} الجديد`}
+                    placeholder={
+                      fieldName === "name"
+                        ? "الاسم كامل باللغة العربية"
+                        : fieldName === "password"
+                        ? "كلمة المرور يجب انت تكون علي الاقل 9 خانات"
+                        : `ادخل ${label} الجديد`
+                    }
                   />
                   <label
                     className="absolute -top-2 right-4 px-1 bg-white text-sm text-gray-600"

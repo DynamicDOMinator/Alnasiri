@@ -101,11 +101,21 @@ export default function Header() {
       <header className="bg-white shadow fixed top-0 w-full z-50">
         <nav
           aria-label="Global"
-          className="flex items-center justify-between px-3 py-3 lg:px-16"
+          className="flex items-center justify-between px-3 py-3 lg:px-10 max-w-6xl mx-auto"
         >
-          <div className="flex flex-1">
+          <div className="flex">
             <div>
               <div className="h-10 w-24 bg-gray-200 animate-pulse rounded-lg"></div>
+            </div>
+          </div>
+
+          <div className="flex-1 lg:hidden flex justify-center items-center lg:flex-none">
+            <div className="h-8 w-20 bg-gray-200 animate-pulse rounded-lg"></div>
+          </div>
+
+          <div className="flex items-center gap-10">
+            <div className="hidden lg:block">
+              <div className="h-8 w-20 bg-gray-200 animate-pulse rounded-lg"></div>
             </div>
           </div>
         </nav>
@@ -283,13 +293,12 @@ export default function Header() {
           </div>
 
           <div className="flex-1 lg:hidden  flex justify-center items-center lg:flex-none">
-            <div onClick={() => router.push("/") } className="cursor-pointer">
+            <div onClick={() => router.push("/")} className="cursor-pointer">
               <p className="text-3xl font-extrabold text-[#00447b]">بشارة</p>
             </div>
           </div>
 
           <div className="flex items-center gap-10">
-            
             <PopoverGroup className="hidden lg:flex lg:gap-5 lg:flex-row-reverse ">
               {/* Cities Menu */}
               <Popover className="relative">
@@ -297,8 +306,7 @@ export default function Header() {
                   <>
                     <div
                       onMouseEnter={(e) => {
-                        const button =
-                          e.currentTarget.querySelector("button");
+                        const button = e.currentTarget.querySelector("button");
                         if (button && !open) button.click();
                       }}
                     >
@@ -346,8 +354,7 @@ export default function Header() {
                   <>
                     <div
                       onMouseEnter={(e) => {
-                        const button =
-                          e.currentTarget.querySelector("button");
+                        const button = e.currentTarget.querySelector("button");
                         if (button && !open) button.click();
                       }}
                     >
@@ -356,9 +363,8 @@ export default function Header() {
                           aria-hidden="true"
                           className="size-5 flex-none text-gray-400"
                         />
-                      محاميين حسب التخصص
+                        محاميين حسب التخصص
                       </PopoverButton>
-                      
                     </div>
 
                     {open && (
@@ -396,8 +402,7 @@ export default function Header() {
                   <>
                     <div
                       onMouseEnter={(e) => {
-                        const button =
-                          e.currentTarget.querySelector("button");
+                        const button = e.currentTarget.querySelector("button");
                         if (button && !open) button.click();
                       }}
                     >
@@ -454,11 +459,13 @@ export default function Header() {
                 )}
               </Popover>
             </PopoverGroup>
-            <div onClick={() => router.push("/") } className="cursor-pointer hidden lg:block">
+            <div
+              onClick={() => router.push("/")}
+              className="cursor-pointer hidden lg:block"
+            >
               <p className="text-3xl font-extrabold text-[#00447b]">بشارة</p>
             </div>
           </div>
-          
         </nav>
 
         {/* Mobile menu */}
@@ -637,7 +644,7 @@ export default function Header() {
                   {/* محامين حسب مجال الممارسة */}
                   <Disclosure as="div" className="flex flex-col py-2">
                     <DisclosureButton className="flex items-center flex-row-reverse justify-between w-full text-[14px] font-semibold text-gray-900 text-right">
-                    محاميين حسب التخصص
+                      محاميين حسب التخصص
                       <ChevronDownIcon
                         aria-hidden="true"
                         className="h-5 w-5 flex-shrink-0"

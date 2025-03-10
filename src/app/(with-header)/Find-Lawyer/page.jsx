@@ -13,7 +13,7 @@ import Image from "next/image";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { IoMdClose } from "react-icons/io";
 import { FaLock } from "react-icons/fa";
-
+import Link from "next/link";
 // Auth Modal Component
 const AuthModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -54,39 +54,18 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const {  isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const [sortBy, setSortBy] = useState("default");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [closeTimeout, setCloseTimeout] = useState(null);
 
-  // Auto-show phone numbers for authenticated users
-  useEffect(() => {
-    // Clean up any old search results from localStorage
-    localStorage.removeItem("searchResults");
-
-    if (isAuthenticated && lawyers.length > 0) {
-      const allLawyerIds = lawyers.map((lawyer) => lawyer.id);
-      setVisiblePhones(new Set(allLawyerIds));
-    }
-  }, [lawyers, isAuthenticated]);
-
-  const handleShowPhone = (lawyerId) => {
-    if (!isAuthenticated) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-
-    setVisiblePhones((prev) => {
-      const newSet = new Set(prev);
-      newSet.add(lawyerId);
-      return newSet;
-    });
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-    // Update URL with new page number
-    const currentParams = new URLSearchParams(window.location.search);
-    currentParams.set("page", newPage);
-    router.push(`/Find-Lawyer?${currentParams.toString()}`);
-  };
+  const sortOptions = [
+    { value: "default", label: "ترتيب حسب", className: "text-gray-500" },
+    { value: "experience-desc", label: "الخبرة: من الأعلى إلى الأقل" },
+    { value: "experience-asc", label: "الخبرة: من الأقل إلى الأعلى" },
+    { value: "reviews-desc", label: "التقييمات: من الأعلى إلى الأقل" },
+    { value: "reviews-asc", label: "التقييمات: من الأقل إلى الأعلى" },
+  ];
 
   useEffect(() => {
     const fetchLawyers = async () => {
@@ -174,6 +153,27 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
     fetchCities();
   }, [BASE_URL]);
 
+  const handleShowPhone = (lawyerId) => {
+    if (!isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    setVisiblePhones((prev) => {
+      const newSet = new Set(prev);
+      newSet.add(lawyerId);
+      return newSet;
+    });
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    // Update URL with new page number
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.set("page", newPage);
+    router.push(`/Find-Lawyer?${currentParams.toString()}`);
+  };
+
   const handleViewProfile = (uuid) => {
     router.push(`/lawyer-profile/${uuid}`);
   };
@@ -215,6 +215,74 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
     }
   };
 
+  const sortLawyers = (lawyers, sortType) => {
+    const sortedLawyers = [...lawyers];
+    switch (sortType) {
+      case "experience-asc":
+        return sortedLawyers.sort(
+          (a, b) => (a.lawyer?.experience || 0) - (b.lawyer?.experience || 0)
+        );
+      case "experience-desc":
+        return sortedLawyers.sort(
+          (a, b) => (b.lawyer?.experience || 0) - (a.lawyer?.experience || 0)
+        );
+      case "reviews-asc":
+        return sortedLawyers.sort(
+          (a, b) => (a.reviews_count || 0) - (b.reviews_count || 0)
+        );
+      case "reviews-desc":
+        return sortedLawyers.sort(
+          (a, b) => (b.reviews_count || 0) - (a.reviews_count || 0)
+        );
+      default:
+        return sortedLawyers;
+    }
+  };
+
+  useEffect(() => {
+    if (lawyers.length > 0 && sortBy !== "default") {
+      const sortedLawyers = sortLawyers(lawyers, sortBy);
+      setLawyers(sortedLawyers);
+    }
+  }, [sortBy, lawyers]);
+
+  const handleMouseEnter = () => {
+    if (closeTimeout) {
+      clearTimeout(closeTimeout);
+      setCloseTimeout(null);
+    }
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 300);
+    setCloseTimeout(timeout);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+      }
+    };
+  }, [closeTimeout]);
+
+  // Add this click handler to close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest(".dropdown-container")) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -224,9 +292,9 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="w-full">
       <div className="h-[160px] w-full bg-blue-900 pt-20 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2 justify-end max-w-7xl mx-auto">
+        <div className="flex items-center gap-2  justify-end max-w-7xl mx-auto">
           {searchParams.get("city") && (
             <>
               <p
@@ -260,7 +328,7 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
             </>
           )}
           <h1
-            className="text-white text-lg sm:text-xl font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
+            className="text-white text-lg sm:text-xl lg:pr-10 font-bold text-right mt-3 cursor-pointer hover:text-blue-200 transition-colors"
             onClick={() => router.push("/")}
           >
             البحث عن محامي
@@ -268,57 +336,62 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
         </div>
       </div>
 
-      <div className="bg-white">
+      <div className="bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Always show specialties when there's a city parameter */}
-          {searchParams.get("city") && specialties.length > 0 && (
-            <>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-right">
-                التخصصات
-              </h3>
-              <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
-                {specialties.map((specialty) => (
-                  <p
-                    key={specialty.id}
-                    className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
-                    onClick={() => {
-                      const currentCity = searchParams.get("city");
-                      const url = `/Find-Lawyer?specialties=${encodeURIComponent(specialty.name)}${currentCity ? `&city=${currentCity}` : ""}`;
-                      router.push(url);
-                    }}
-                  >
-                    {specialty.name}
-                  </p>
-                ))}
-              </div>
-            </>
-          )}
+          {/* Only show if there's EITHER city OR specialty, but not both */}
+          {searchParams.get("city") &&
+            !searchParams.get("specialties") &&
+            specialties.length > 0 && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 text-right">
+                  التخصصات
+                </h3>
+                <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
+                  {specialties.map((specialty) => (
+                    <p
+                      key={specialty.id}
+                      className="px-4 py-2 bg-gray-100 rounded-full  cursor-pointer transition-colors duration-200 text-gray-700 hover:bg-gray-200"
+                      onClick={() => {
+                        const currentCity = searchParams.get("city");
+                        const url = `/Find-Lawyer?specialties=${encodeURIComponent(specialty.name)}${currentCity ? `&city=${currentCity}` : ""}`;
+                        router.push(url);
+                      }}
+                    >
+                      {specialty.name}
+                    </p>
+                  ))}
+                </div>
+              </>
+            )}
 
-          {/* Always show cities when there's a specialties parameter */}
-          {searchParams.get("specialties") && cities.length > 0 && (
-            <>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 mt-8 text-right">
-                المدن
-              </h3>
-              <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
-                {cities.map((city) => (
-                  <p
-                    key={city.id}
-                    className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
-                    onClick={() => {
-                      const currentSpecialty = searchParams.get("specialties");
-                      const url = `/Find-Lawyer?city=${city.name}${currentSpecialty ? `&specialties=${currentSpecialty}` : ""}`;
-                      router.push(url);
-                    }}
-                  >
-                    {city.name}
-                  </p>
-                ))}
-              </div>
-            </>
-          )}
+          {/* Only show if there's EITHER specialty OR city, but not both */}
+          {searchParams.get("specialties") &&
+            !searchParams.get("city") &&
+            cities.length > 0 && (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 mt-8 text-right">
+                  المدن
+                </h3>
+                <div dir="rtl" className="flex flex-wrap gap-4 justify-start">
+                  {cities.map((city) => (
+                    <p
+                      key={city.id}
+                      className="px-4 py-2 bg-gray-100 rounded-full  cursor-pointer transition-colors duration-200 text-gray-700 hover:bg-gray-200"
+                      onClick={() => {
+                        const currentSpecialty =
+                          searchParams.get("specialties");
+                        const url = `/Find-Lawyer?city=${city.name}${currentSpecialty ? `&specialties=${currentSpecialty}` : ""}`;
+                        router.push(url);
+                      }}
+                    >
+                      {city.name}
+                    </p>
+                  ))}
+                </div>
+              </>
+            )}
 
-          {/* Show both when no parameters are present */}
+          {/* Show both only when no parameters are present */}
           {!searchParams.get("city") && !searchParams.get("specialties") && (
             <>
               {specialties.length > 0 && (
@@ -330,7 +403,7 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
                     {specialties.map((specialty) => (
                       <p
                         key={specialty.id}
-                        className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
+                        className="px-4 py-2 bg-gray-100 rounded-full  cursor-pointer transition-colors duration-200 text-gray-700 hover:bg-gray-200"
                         onClick={() => {
                           const url = `/Find-Lawyer?specialties=${encodeURIComponent(specialty.name)}`;
                           router.push(url);
@@ -352,7 +425,7 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
                     {cities.map((city) => (
                       <p
                         key={city.id}
-                        className="px-4 py-2 bg-gray-100 rounded-full hover:bg-blue-50 cursor-pointer transition-colors duration-200 text-gray-700 hover:text-blue-900"
+                        className="px-4 py-2 bg-gray-100 rounded-full  cursor-pointer transition-colors duration-200 text-gray-700 hover:bg-gray-200"
                         onClick={() => {
                           const url = `/Find-Lawyer?city=${city.name}`;
                           router.push(url);
@@ -367,39 +440,117 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
             </>
           )}
         </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+          <div>
+            <Link href="legal-specializations">
+              <p className="text-[#0077c8] text-right">اطلع علي شرح التخصصات</p>
+            </Link>
+            {/* Custom Dropdown with Label */}
+            <div className="flex items-center justify-end gap-2 mt-4" dir="rtl">
+              <label
+                htmlFor="sort-dropdown"
+                className="text-gray-700 font-medium"
+              >
+                فرز حسب:
+              </label>
+              <div
+                className="relative w-full sm:w-64 dropdown-container"
+                dir="rtl"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <div
+                  id="sort-dropdown"
+                  className="w-full bg-white border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-lg shadow-sm cursor-pointer flex justify-between items-center"
+                >
+                  <span className={sortBy === "default" ? "text-gray-500" : ""}>
+                    {
+                      sortOptions.find((option) => option.value === sortBy)
+                        ?.label
+                    }
+                  </span>
+                  <svg
+                    className={`fill-current h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? "transform rotate-180" : ""}`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+
+                {/* Dropdown Options */}
+                {isDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
+                    {sortOptions.map((option) => (
+                      <div
+                        key={option.value}
+                        className={`px-4 py-2 cursor-pointer  ${
+                          option.value === "default"
+                            ? "text-gray-500 "
+                            : sortBy === option.value
+                              ? "text-blue-600"
+                              : "text-[#0077c8]"
+                        }`}
+                        onClick={() => {
+                          setSortBy(option.value);
+                          setIsDropdownOpen(false);
+                        }}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{option.label}</span>
+                          {sortBy === option.value && (
+                            <span className="text-blue-600">✓</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {lawyers && lawyers.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {lawyers.map((lawyer) => (
               <div
                 key={lawyer.id}
                 dir="rtl"
-                className="flex flex-col md:flex-row md:items-center md:justify-between bg-white p-4 sm:p-6 rounded-lg shadow-lg"
+                className="flex flex-col md:flex-row md:items-center   md:justify-between bg-white p-4 sm:p-6 rounded-lg border-2 hover:shadow-md transition-all duration-300"
               >
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-                  <div className="shadow-lg rounded-full">
+                  <a
+                    href={`/lawyer-profile/${lawyer.lawyer?.uuid}`}
+                    className="shadow-lg rounded-full cursor-pointer"
+                  >
                     <ProfileImage src={lawyer.profile_image_link} size={100} />
-                  </div>
+                  </a>
                   <div className="text-center sm:text-right">
-                    <h2 className="text-lg font-bold">{lawyer.lawyer?.name}</h2>
+                    <a
+                      href={`/lawyer-profile/${lawyer.lawyer?.uuid}`}
+                      className="text-lg font-bold hover:text-blue-900 transition-colors duration-200"
+                    >
+                      {lawyer.lawyer?.name}
+                    </a>
                     <div className="mt-2 space-y-2">
-                      <p className="flex items-center justify-center sm:justify-start gap-1">
+                      <p className="flex items-center text-sm justify-center sm:justify-start gap-1">
                         <span>
-                          <FaRegStar />
+                          <FaRegStar className="text-gray-500" />
                         </span>
                         {lawyer.reviews_count || 0} تقيما
                       </p>
-                      <p className="flex items-center justify-center sm:justify-start gap-1">
+                      <p className="flex items-center text-sm justify-center sm:justify-start gap-1">
                         <span>
-                          <IoLocationSharp />
+                          <IoLocationSharp className="text-gray-500" />
                         </span>
                         {lawyer.lawyer?.city}
                       </p>
-                      <p className="flex items-center justify-center sm:justify-start gap-1">
+                      <p className="flex items-center text-sm justify-center sm:justify-start gap-1">
                         <span>
-                          <AiOutlineFileDone />
+                          <AiOutlineFileDone className="text-gray-500" />
                         </span>
                         مصرح له منذ
                         <span>{lawyer.lawyer?.experience || 0}</span> سنة
@@ -410,34 +561,25 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
 
                 <div className="mt-4 md:mt-0">
                   <div className="flex flex-col gap-2">
-                    {isAuthenticated ? (
-                      <button className="bg-[#0077c8] hover:bg-blue-600 transition-all duration-500   text-white px-4 py-3 rounded flex items-center justify-center gap-2 min-w-[160px]">
+                    <button
+                      onClick={() => handleShowPhone(lawyer.id)}
+                      className="bg-[#0077c8] hover:bg-blue-800 transition-all duration-500 text-white px-4 py-3 rounded flex items-center justify-center gap-2 min-w-[160px]"
+                    >
+                      <FiPhone />
+                      {visiblePhones.has(lawyer.id) ? (
                         <span dir="ltr">
                           0{lawyer.call_number || lawyer.lawyer?.phone}
                         </span>
-                        <FiPhone />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleShowPhone(lawyer.id)}
-                        className="bg-blue-900 text-white px-4 py-3 rounded hover:bg-blue-800 transition-colors duration-200 flex items-center justify-center gap-2 min-w-[160px]"
-                      >
-                        <FiPhone />
-                        {visiblePhones.has(lawyer.id) ? (
-                          <span dir="ltr">
-                            0{lawyer.call_number || lawyer.lawyer?.phone}
-                          </span>
-                        ) : (
-                          "اظهار رقم الهاتف"
-                        )}
-                      </button>
-                    )}
-                    <button
-                      onClick={() => handleViewProfile(lawyer.lawyer?.uuid)}
-                      className="bg-gray-100 text-gray-800 px-4 py-2 rounded hover:bg-gray-200 transition-colors duration-200"
+                      ) : (
+                        "اظهار رقم الهاتف"
+                      )}
+                    </button>
+                    <a
+                      href={`/lawyer-profile/${lawyer.lawyer?.uuid}`}
+                      className="bg-gray-100 text-gray-800 px-4 py-2 rounded hover:bg-gray-200 transition-colors duration-200 text-center"
                     >
                       عرض الملف الشخصي
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -532,18 +674,20 @@ export default function FindLawyer() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   return (
-    <Suspense
-      fallback={
-        <div className="h-screen flex items-center justify-center">
-          <div className="text-2xl">جاري التحميل...</div>
-        </div>
-      }
-    >
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
-      <FindLawyerContent setIsAuthModalOpen={setIsAuthModalOpen} />
-    </Suspense>
+    <div className="bg-gray-50 min-h-screen w-full">
+      <Suspense
+        fallback={
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-2xl text-white">جاري التحميل...</div>
+          </div>
+        }
+      >
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
+        <FindLawyerContent setIsAuthModalOpen={setIsAuthModalOpen} />
+      </Suspense>
+    </div>
   );
 }
