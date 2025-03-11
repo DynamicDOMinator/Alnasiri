@@ -78,23 +78,17 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [cities, setCities] = useState([]);
   const [lawyerUuid, setLawyerUuid] = useState(null);
-  const [showCropModal, setShowCropModal] = useState(false);
-  const [cropConfig, setCropConfig] = useState({
-    unit: "px",
-    width: 112,
-    height: 150,
-    x: 0,
-    y: 0,
-  });
-  const [tempImage, setTempImage] = useState(null);
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [crop, setCrop] = useState({
     unit: "px",
-    x: 0,
-    y: 0,
-    width: 112,
-    height: 150,
+    width: 150,
+    height: 200,
+    aspect: 150 / 200,
   });
-  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const [completedCrop, setCompletedCrop] = useState();
+  const [imgRef, setImgRef] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [tempImageUrl, setTempImageUrl] = useState(null);
 
   const router = useRouter();
 
@@ -337,43 +331,52 @@ export default function Profile() {
     }
   };
 
-  const handleCropComplete = () => {
-    try {
-      if (!tempImage) {
-        throw new Error("No image to crop");
-      }
+  const onImageLoad = (e) => {
+    setImgRef(e.currentTarget);
+  };
 
-      // Get the file from the input
-      const fileInput = document.getElementById(`profile_img_${fileInputKey}`);
-      if (!fileInput || !fileInput.files || !fileInput.files[0]) {
-        throw new Error("No file selected");
-      }
+  const getCroppedImg = async (image, crop) => {
+    if (!image || !crop) return null;
 
-      // Store the original file in formData
-      const originalFile = fileInput.files[0];
-      setFormData((prev) => ({ ...prev, profile_img: originalFile }));
+    const canvas = document.createElement("canvas");
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    canvas.width = crop.width;
+    canvas.height = crop.height;
+    const ctx = canvas.getContext("2d");
 
-      // Just use the tempImage as preview
-      setImagePreview(tempImage);
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width,
+      crop.height
+    );
 
-      // Close the modal
-      setShowCropModal(false);
-      setTempImage(null);
-
-      // Generate a new key for the file input to ensure it's treated as a new element
-      setFileInputKey(Date.now());
-    } catch (error) {
-      console.error("Error in handleCropComplete:", error);
-      setNotificationMessage("حدث خطأ أثناء معالجة الصورة");
-      setNotificationType("error");
-      setShowNotification(true);
-    }
+    return new Promise((resolve) => {
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            console.error("Canvas is empty");
+            return;
+          }
+          blob.name = "cropped.jpeg";
+          const croppedImageUrl = URL.createObjectURL(blob);
+          resolve({ url: croppedImageUrl, blob });
+        },
+        "image/jpeg",
+        1
+      );
+    });
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size - 2MB limit (2 * 1024 * 1024 bytes)
       const maxSize = 2 * 1024 * 1024; // 2MB in bytes
 
       if (file.size > maxSize) {
@@ -383,28 +386,35 @@ export default function Profile() {
         setNotificationType("error");
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
-
-        // Reset the file input
         e.target.value = "";
         return;
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setTempImage(reader.result);
-        setShowCropModal(true);
-      };
-      reader.readAsDataURL(file);
+      const previewUrl = URL.createObjectURL(file);
+      setTempImageUrl(previewUrl);
+      setShowCropModal(true);
     }
   };
 
-  // Also add a handler to reset the file input when the crop modal is closed
-  const handleCloseCropModal = () => {
-    setShowCropModal(false);
-    setTempImage(null);
+  const handleCropComplete = async () => {
+    if (!imgRef || !completedCrop) return;
 
-    // Generate a new key for the file input
-    setFileInputKey(Date.now());
+    try {
+      const croppedImageResult = await getCroppedImg(imgRef, completedCrop);
+      if (croppedImageResult) {
+        setImagePreview(croppedImageResult.url);
+        setFormData((prev) => ({
+          ...prev,
+          profile_img: new File([croppedImageResult.blob], "cropped.jpeg", {
+            type: "image/jpeg",
+          }),
+        }));
+      }
+    } catch (e) {
+      console.error("Error cropping image:", e);
+    }
+    setShowCropModal(false);
+    setTempImageUrl(null);
   };
 
   const isValidGoogleMapsUrl = (url) => {
@@ -860,50 +870,29 @@ export default function Profile() {
   };
 
   const cropModal = showCropModal && (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-4 rounded-lg max-w-xl w-full">
-        <h3 className="text-lg font-medium mb-4 text-center">تعديل الصورة</h3>
-        <div className="max-h-[60vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 max-w-2xl w-full">
+        <h3 className="text-lg font-medium mb-4 text-right">تعديل الصورة</h3>
+        <div className="mb-4">
           <ReactCrop
             crop={crop}
-            onChange={(newCrop) => {
-              // Ensure crop maintains exact 112x150 dimensions
-              setCrop({
-                ...newCrop,
-                width: 112,
-                height: 150,
-              });
-            }}
-            locked={true}
-            minWidth={112}
-            minHeight={150}
-            className="max-w-full"
+            onChange={(c) => setCrop(c)}
+            onComplete={setCompletedCrop}
+            aspect={150 / 200}
+            circularCrop={false}
+            minWidth={150}
+            minHeight={200}
+            className="max-h-[60vh]"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={tempImage}
+              src={tempImageUrl}
+              onLoad={onImageLoad}
               alt="Crop preview"
-              style={{ maxWidth: "100%", maxHeight: "60vh" }}
-              onLoad={(e) => {
-                const { width, height } = e.currentTarget;
-
-                // Calculate center position for the crop
-                const x = Math.max(0, Math.floor((width - 112) / 2));
-                const y = Math.max(0, Math.floor((height - 150) / 2));
-
-                // Set fixed 112x150 crop dimensions
-                setCrop({
-                  unit: "px",
-                  x: x,
-                  y: y,
-                  width: 112,
-                  height: 150,
-                });
-              }}
+              className="max-w-full h-auto"
             />
           </ReactCrop>
         </div>
-        <div className="flex flex-row-reverse justify-center gap-4 mt-4">
+        <div className="flex justify-end gap-2">
           <button
             onClick={handleCropComplete}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -911,8 +900,11 @@ export default function Profile() {
             تأكيد
           </button>
           <button
-            onClick={handleCloseCropModal}
-            className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+            onClick={() => {
+              setShowCropModal(false);
+              setTempImageUrl(null);
+            }}
+            className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
           >
             إلغاء
           </button>
@@ -965,13 +957,12 @@ export default function Profile() {
           >
             {/* Profile Image Section */}
             <div className="relative">
-              <div className="w-[112px] h-[150px] outline outline-2 outline-gray-300 rounded-sm shadow-md bg-gray-100 flex items-center justify-center">
+              <div className="w-[150px] h-[200px] outline outline-2 outline-gray-300 rounded-sm shadow-md bg-gray-100 flex items-center justify-center overflow-hidden">
                 {imagePreview || currentImageUrl ? (
-                  <Image
+                  <img
                     src={imagePreview || currentImageUrl}
                     alt="Profile"
-                    layout="fill"
-                    objectFit="cover"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <FaUser className="w-16 h-16 text-gray-400" />
@@ -994,16 +985,6 @@ export default function Profile() {
                 </label>
               )}
             </div>
-
-            {/* Add floating button for mobile */}
-            {/* <div className="lg:hidden fixed bottom-6 right-6 z-50">
-              <button
-                onClick={handleViewProfile}
-                className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
-              >
-                <FaUser size={20} />
-              </button>
-            </div> */}
 
             {/* Bio Section */}
             <div className="text-center space-y-2 text-gray-700 max-w-2xl"></div>

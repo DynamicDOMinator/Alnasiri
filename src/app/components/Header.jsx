@@ -113,11 +113,7 @@ export default function Header() {
             <div className="h-8 w-20 bg-gray-200 animate-pulse rounded-lg"></div>
           </div>
 
-          <div className="flex items-center gap-10">
-            <div className="hidden lg:block">
-              <div className="h-8 w-20 bg-gray-200 animate-pulse rounded-lg"></div>
-            </div>
-          </div>
+        
         </nav>
       </header>
     );
