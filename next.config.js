@@ -6,7 +6,7 @@ const nextConfig = {
       "localhost",
       "api.example.com",
       "via.placeholder.com",
-      "www.apis.bisharh.com"
+      "www.apis.bisharh.com",
     ],
   },
 };

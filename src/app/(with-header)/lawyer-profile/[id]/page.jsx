@@ -70,27 +70,27 @@ const getMapEmbedUrl = (mapUrl) => {
   }
 };
 
-const ProfileImage = ({ src, size = 100 }) => {
+const ProfileImage = ({ src, size = 112 }) => {
   const [hasError, setHasError] = useState(false);
 
   if (!src || !isValidUrl(src) || hasError) {
     return (
       <div
-        className={`bg-gray-100 rounded-full flex items-center justify-center`}
-        style={{ width: size, height: size }}
+        className={`bg-gray-100 flex items-center justify-center`}
+        style={{ width: 112, height: 150 }}
       >
-        <FaUser className="text-gray-400" style={{ fontSize: size * 0.5 }} />
+        <FaUser className="text-gray-400" style={{ fontSize: 112 * 0.5 }} />
       </div>
     );
   }
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div className="relative" style={{ width: 112, height: 150 }}>
       <Image
         src={src}
         alt="lawyer profile"
         fill
-        className="rounded-full object-cover"
+        className=" object-cover outline outline-2 outline-gray-300"
         onError={() => setHasError(true)}
       />
     </div>
@@ -228,8 +228,8 @@ export default function LawyerProfile() {
           className="flex flex-col md:flex-row md:items-center md:justify-between bg-white border-2 p-4 sm:p-6 rounded-lg shadow-md"
         >
           <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className=" border-2 px-4 py-10">
-              <ProfileImage src={lawyer.profile_image_link} size={120} />
+            <div>
+              <ProfileImage src={lawyer.profile_image_link} />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-center md:text-right">
@@ -387,16 +387,7 @@ export default function LawyerProfile() {
                       </p>
                     </div>
                   ))}
- {userType === "user" && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={() => handleAction("review")}
-                  className="bg-[#0077c8] hover:bg-blue-600 transition-all duration-500 w-full md:w-auto text-white px-6 py-2 rounded-lg "
-                >
-                  تسليم المراجعة
-                </button>
-              </div>
-            )}
+
                 {lawyer.reviews_data.length > visibleReviews && (
                   <div className="flex justify-center mt-6">
                     <button
@@ -411,11 +402,22 @@ export default function LawyerProfile() {
                 )}
               </div>
             ) : (
-              <p className="text-center text-gray-500">
+              <p className="text-center text-gray-500 mb-6">
                 لا توجد تقييمات حتى الآن
               </p>
             )}
-           
+
+            {/* Move the submit review button outside the conditional check */}
+            {userType === "user" && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => handleAction("review")}
+                  className="bg-[#0077c8] hover:bg-blue-600 transition-all duration-500 w-full md:w-auto text-white px-6 py-2 rounded-lg "
+                >
+                  تسليم المراجعة
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -460,7 +462,6 @@ export default function LawyerProfile() {
                           <h4 className="text-xl font-semibold mb-2 text-right whitespace-pre-wrap break-words">
                             {qa.question.question_title}
                           </h4>
-                         
                         </div>
 
                         {/* Answer */}

@@ -91,7 +91,7 @@ export default function SubmitReview() {
         <div className="bg-white rounded-lg shadow p-4 sm:p-6">
           {/* Lawyer Profile Header */}
           <div className="flex flex-col items-center justify-center mb-6">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden relative mb-2">
+            <div className="w-[112px] h-[150px] outline outline-2 outline-gray-300 relative mb-2">
               {lawyer?.profile_image_link ? (
                 <Image
                   src={lawyer.profile_image_link}

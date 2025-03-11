@@ -51,28 +51,28 @@ export default function Notifications() {
     router.push(`/question/${questionUuid}`);
   };
 
-  const ProfileImage = ({ src, size = 100 }) => {
+  const ProfileImage = ({ src, size = 112 }) => {
     const hasError = imageErrors.has(src);
 
     if (!src || hasError) {
       return (
         <div
-          className="bg-gray-100 rounded-full flex items-center justify-center"
-          style={{ width: size, height: size }}
+          className="bg-gray-100  outline outline-2 outline-gray-300 flex items-center justify-center"
+          style={{ width: 112, height: 150 }}
         >
-          <FaUser className="text-gray-400" style={{ fontSize: size * 0.5 }} />
+          <FaUser className="text-gray-400" style={{ fontSize: 112 * 0.5 }} />
         </div>
       );
     }
 
     return (
-      <div className="relative" style={{ width: size, height: size }}>
+        <div className="relative" style={{ width: 112, height: 150 }}>
         <Image
           src={src}
           alt="lawyer profile"
-          width={size}
-          height={size}
-          className="rounded-full object-cover"
+          width={112}
+          height={150}
+          className="object-cover"
           onError={() => {
             setImageErrors((prev) => new Set([...prev, src]));
           }}

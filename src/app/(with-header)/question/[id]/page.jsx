@@ -375,22 +375,32 @@ export default function QuestionDetails() {
                         </p>
                         <div className="flex flex-col pt-2 sm:flex-row justify-between items-start gap-4 mb-4">
                           <div className="flex items-center gap-4">
-                            {answer.lawyer_profile_image ? (
+                            {answer.lawyer_profile_image &&
+                            !imageErrors.has(answer.lawyer_profile_image) ? (
                               <Image
                                 src={answer.lawyer_profile_image}
-                                alt={answer.lawyer.name}
-                                width={80}
-                                height={80}
-                                className="rounded-full object-cover"
+                                alt={answer.lawyer?.name || "Lawyer"}
+                                width={112}
+                                height={150}
+                                className="w-[112px] h-[150px] outline outline-2 outline-gray-300 object-cover"
+                                onError={() => {
+                                  setImageErrors(
+                                    (prev) =>
+                                      new Set([
+                                        ...prev,
+                                        answer.lawyer_profile_image,
+                                      ])
+                                  );
+                                }}
                               />
                             ) : (
-                              <div className="w-[80px] h-[80px] bg-gray-100 rounded-full flex items-center justify-center">
-                                <FaUser className="text-gray-400 text-3xl" />
+                              <div className="w-[112px] h-[150px] bg-gray-100 flex items-center justify-center outline outline-2 outline-gray-300">
+                                <FaUser className="text-gray-400 text-4xl" />
                               </div>
                             )}
                             <div>
                               <h3 className="font-semibold text-sm sm:text-base">
-                                {answer.lawyer.name}
+                                {answer.lawyer?.name || "محامي"}
                               </h3>
                               <div className="flex items-center text-gray-500 text-xs sm:text-sm">
                                 <FaLocationDot className="ml-1" />

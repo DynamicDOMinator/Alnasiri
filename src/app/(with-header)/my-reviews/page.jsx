@@ -118,9 +118,9 @@ export default function MyReviews() {
                                         <Image
                                             src={review.lawyer.office[0].full_profile_image_url}
                                             alt={review.lawyer.name}
-                                            width={64}
-                                            height={64}
-                                            className="rounded-full"
+                                            width={112}
+                                            height={150}
+                                            className="w-[112px] h-[150px] outline outline-2 outline-gray-300"
                                         />
                                     ) : (
                                         <FaUserCircle className="w-16 h-16 text-gray-400" />

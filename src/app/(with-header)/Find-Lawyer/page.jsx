@@ -178,12 +178,12 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
     router.push(`/lawyer-profile/${uuid}`);
   };
 
-  const ProfileImage = ({ src, size = 100 }) => {
+  const ProfileImage = ({ src, size = 112 }) => {
     if (!src || !isValidUrl(src)) {
       return (
         <div
-          className={`bg-gray-100 rounded-full flex items-center justify-center`}
-          style={{ width: size, height: size }}
+          className={`bg-gray-100 flex items-center justify-center rounded-lg`}
+          style={{ width: 112, height: 150 }}
         >
           <FaUser className="text-gray-400" style={{ fontSize: size * 0.5 }} />
         </div>
@@ -191,15 +191,15 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
     }
 
     return (
-      <div className="relative" style={{ width: size, height: size }}>
+      <div className="relative" style={{ width: 112, height: 150 }}>
         <Image
           src={src}
           alt="lawyer profile"
           fill
-          className="rounded-full object-cover"
+          className=" object-cover outline outline-2 outline-gray-300"
           onError={(e) => {
             e.target.style.display = "none";
-            e.target.parentElement.innerHTML = `<div class="bg-gray-100 rounded-full flex items-center justify-center w-full h-full"><svg class="text-gray-400" style="font-size: ${size * 0.5}px" viewBox="0 0 448 512"><path fill="currentColor" d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg></div>`;
+            e.target.parentElement.innerHTML = `<div class="bg-gray-100  flex items-center justify-center w-full h-full"><svg class="text-gray-400" style="font-size: ${size * 0.5}px" viewBox="0 0 448 512"><path fill="currentColor" d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z"></path></svg></div>`;
           }}
         />
       </div>
@@ -524,9 +524,9 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
                   <a
                     href={`/lawyer-profile/${lawyer.lawyer?.uuid}`}
-                    className="shadow-lg rounded-full cursor-pointer"
+                    className=" cursor-pointer"
                   >
-                    <ProfileImage src={lawyer.profile_image_link} size={100} />
+                    <ProfileImage src={lawyer.profile_image_link} />
                   </a>
                   <div className="text-center sm:text-right">
                     <a
