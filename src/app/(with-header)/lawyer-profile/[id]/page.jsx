@@ -126,11 +126,11 @@ export default function LawyerProfile() {
     const fetchLawyerProfile = async () => {
       try {
         const uuid = params.id;
-        console.log("Fetching lawyer profile with UUID:", uuid);
+     
         const response = await axios.get(
           `${BASE_URL}/lawyer/getLawyerProfileByUUID/${uuid}`
         );
-        console.log("API Response:", response.data);
+       
         setLawyer(response.data);
       } catch (error) {
         console.error("Error fetching lawyer profile:", error);
@@ -225,7 +225,7 @@ export default function LawyerProfile() {
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div
           dir="rtl"
-          className="flex flex-col md:flex-row md:items-center md:justify-between bg-white border-2 p-4 sm:p-6 rounded-lg shadow-md"
+          className="flex flex-col md:flex-row md:items-center md:justify-between bg-white border-2 p-4 sm:p-6 "
         >
           <div className="flex flex-col md:flex-row items-center gap-4">
             <div>
@@ -287,7 +287,7 @@ export default function LawyerProfile() {
               عن
               <span> {lawyer.name} </span>
             </h3>
-            <div className="bg-white p-6  rounded-lg shadow-lg">
+            <div className="bg-white p-6  rounded-lg border-2">
               <div>
                 <p className="text-lg flex items-center justify-end gap-2 font-semibold mb-4 text-right">
                   السيره الذاتية
@@ -308,7 +308,7 @@ export default function LawyerProfile() {
             <h3 className="text-xl border-r-4 border-blue-900 pr-2 font-semibold mb-7 text-right">
               رخصة المحاماه
             </h3>
-            <div className="bg-white p-6  rounded-lg shadow-lg">
+            <div className="bg-white p-6  rounded-lg border-2">
               <div>
                 <p className="text-lg flex border-b-2 pb-4 items-center justify-end gap-2 font-semibold mb-4 text-right">
                   سنة <span>{lawyer.experience}</span> محامي صرح له منذ{" "}
@@ -350,11 +350,14 @@ export default function LawyerProfile() {
 
         {/* Reviews Section */}
         <div className="mt-10">
-          <h3 className="text-xl pb-2 border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right">
+          <h3
+            dir="rtl"
+            className="text-xl pb-2  border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right"
+          >
             <span className="px-1">{lawyer.reviews_count}</span>
             {lawyer.reviews_count < 3 ? "تقييم" : "تقييمات"}
           </h3>
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="bg-white p-6 rounded-lg border-2">
             {lawyer.reviews_count > 0 ? (
               <div>
                 {lawyer.reviews_data
@@ -426,7 +429,7 @@ export default function LawyerProfile() {
           <h3 className="text-xl pb-2 border-r-4 border-blue-900 pr-2 font-semibold mb-4 text-right">
             التفاعل
           </h3>
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="bg-white p-6 rounded-lg border-2">
             <p className="text-center flex flex-col text-lg font-semibold">
               <span className="px-1">{lawyer.answers_count}</span>
               {lawyer.answers_count < 3 ? "إجابة" : "إجابات"}
@@ -437,7 +440,7 @@ export default function LawyerProfile() {
           {lawyer.questions_and_answers &&
             lawyer.questions_and_answers.length > 0 && (
               <div className="mt-6">
-                <div className="bg-white p-6 rounded-lg shadow-lg space-y-6">
+                <div className="bg-white p-6 rounded-lg border-2 space-y-6">
                   {lawyer.questions_and_answers
                     .slice(0, visibleQAs)
                     .map((qa, index) => (
@@ -454,9 +457,9 @@ export default function LawyerProfile() {
                               <span className="text-gray-500 text-sm">
                                 {new Date(
                                   qa.question.created_at
-                                ).toLocaleDateString("ar-eg")}
+                                ).toLocaleDateString("eng")}
                               </span>
-                              <BsQuestionCircle className="text-blue-900 text-xl" />
+                            
                             </div>
                           </div>
                           <h4 className="text-xl font-semibold mb-2 text-right whitespace-pre-wrap break-words">

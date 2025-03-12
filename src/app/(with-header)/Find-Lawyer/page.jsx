@@ -41,6 +41,31 @@ const AuthModal = ({ isOpen, onClose }) => {
   );
 };
 
+// Modify the sortLawyers function to be outside the component
+const sortLawyers = (lawyers, sortType) => {
+  const sortedLawyers = [...lawyers];
+  switch (sortType) {
+    case "experience-asc":
+      return sortedLawyers.sort(
+        (a, b) => (a.lawyer?.experience || 0) - (b.lawyer?.experience || 0)
+      );
+    case "experience-desc":
+      return sortedLawyers.sort(
+        (a, b) => (b.lawyer?.experience || 0) - (a.lawyer?.experience || 0)
+      );
+    case "reviews-asc":
+      return sortedLawyers.sort(
+        (a, b) => (a.reviews_count || 0) - (b.reviews_count || 0)
+      );
+    case "reviews-desc":
+      return sortedLawyers.sort(
+        (a, b) => (b.reviews_count || 0) - (a.reviews_count || 0)
+      );
+    default:
+      return sortedLawyers;
+  }
+};
+
 // Separate component for the main content
 function FindLawyerContent({ setIsAuthModalOpen }) {
   const [lawyers, setLawyers] = useState([]);
@@ -215,36 +240,14 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
     }
   };
 
-  const sortLawyers = (lawyers, sortType) => {
-    const sortedLawyers = [...lawyers];
-    switch (sortType) {
-      case "experience-asc":
-        return sortedLawyers.sort(
-          (a, b) => (a.lawyer?.experience || 0) - (b.lawyer?.experience || 0)
-        );
-      case "experience-desc":
-        return sortedLawyers.sort(
-          (a, b) => (b.lawyer?.experience || 0) - (a.lawyer?.experience || 0)
-        );
-      case "reviews-asc":
-        return sortedLawyers.sort(
-          (a, b) => (a.reviews_count || 0) - (b.reviews_count || 0)
-        );
-      case "reviews-desc":
-        return sortedLawyers.sort(
-          (a, b) => (b.reviews_count || 0) - (a.reviews_count || 0)
-        );
-      default:
-        return sortedLawyers;
-    }
-  };
-
-  useEffect(() => {
-    if (lawyers.length > 0 && sortBy !== "default") {
-      const sortedLawyers = sortLawyers(lawyers, sortBy);
+  // Remove the useEffect for sorting and modify the sort handling
+  const handleSort = (newSortBy) => {
+    setSortBy(newSortBy);
+    if (newSortBy !== "default" && lawyers.length > 0) {
+      const sortedLawyers = sortLawyers([...lawyers], newSortBy);
       setLawyers(sortedLawyers);
     }
-  }, [sortBy, lawyers]);
+  };
 
   const handleMouseEnter = () => {
     if (closeTimeout) {
@@ -442,9 +445,15 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
           <div>
-            <Link href="legal-specializations">
-              <p className="text-[#0077c8] text-right">اطلع علي شرح التخصصات</p>
-            </Link>
+            <p className="text-right">
+              <Link
+                dir="lrt"
+                href="legal-specializations"
+                className="text-[#0077c8] text-right w-fit ml-auto"
+              >
+                اطلع علي شرح التخصصات
+              </Link>{" "}
+            </p>
             {/* Custom Dropdown with Label */}
             <div className="flex items-center justify-end gap-2 mt-4" dir="rtl">
               <label
@@ -492,7 +501,7 @@ function FindLawyerContent({ setIsAuthModalOpen }) {
                               : "text-[#0077c8]"
                         }`}
                         onClick={() => {
-                          setSortBy(option.value);
+                          handleSort(option.value);
                           setIsDropdownOpen(false);
                         }}
                       >

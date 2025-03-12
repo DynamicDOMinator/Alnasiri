@@ -41,7 +41,7 @@ export default function AuthModel({ isOpen, onClose }) {
 
     setTimer(120);
     setCanResend(false);
-    
+
     // Create new interval
     const id = setInterval(() => {
       setTimer((prevTimer) => {
@@ -53,7 +53,7 @@ export default function AuthModel({ isOpen, onClose }) {
         return prevTimer - 1;
       });
     }, 1000);
-    
+
     setIntervalId(id);
   }, []); // Remove intervalId from dependencies
 
@@ -308,7 +308,32 @@ export default function AuthModel({ isOpen, onClose }) {
         startTimer();
       }
     } catch (error) {
-      setError(error.response?.data?.message || "حدث خطأ أثناء التسجيل");
+      let errorMessage =
+        error.response?.data?.message || "حدث خطأ أثناء التسجيل";
+
+      // If phone number already exists error
+      if (error.response?.data?.message === "رقم الهاتف مستخدم بالفعل") {
+        try {
+          // Fixed: Send phone as query parameter
+          const hintResponse = await axios.get(
+            `${API_BASE_URL}/user/hint-email?phone=${phone}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
+
+          if (hintResponse.data?.email) {
+            errorMessage = `${hintResponse.data.email}رقم الهاتف مستخدم بالفعل مع البريد الإلكتروني `;
+          }
+        } catch (hintError) {
+          console.error("Error fetching email hint:", hintError);
+        }
+      }
+
+      setError(errorMessage);
     }
   };
 
@@ -429,7 +454,7 @@ export default function AuthModel({ isOpen, onClose }) {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return (
