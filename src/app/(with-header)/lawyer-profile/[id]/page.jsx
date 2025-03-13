@@ -126,11 +126,11 @@ export default function LawyerProfile() {
     const fetchLawyerProfile = async () => {
       try {
         const uuid = params.id;
-     
+
         const response = await axios.get(
           `${BASE_URL}/lawyer/getLawyerProfileByUUID/${uuid}`
         );
-       
+
         setLawyer(response.data);
       } catch (error) {
         console.error("Error fetching lawyer profile:", error);
@@ -444,7 +444,13 @@ export default function LawyerProfile() {
                   {lawyer.questions_and_answers
                     .slice(0, visibleQAs)
                     .map((qa, index) => (
-                      <div key={index} className="border-2 rounded-lg p-4">
+                      <div
+                        onClick={() =>
+                          router.push(`/question/${qa.question.uuid}`)
+                        }
+                        key={index}
+                        className="border-2 cursor-pointer rounded-lg p-4"
+                      >
                         {/* Question */}
                         <div className="mb-4">
                           <div className="flex items-center flex-row-reverse justify-between mb-2">
@@ -459,7 +465,6 @@ export default function LawyerProfile() {
                                   qa.question.created_at
                                 ).toLocaleDateString("eng")}
                               </span>
-                            
                             </div>
                           </div>
                           <h4 className="text-xl font-semibold mb-2 text-right whitespace-pre-wrap break-words">
