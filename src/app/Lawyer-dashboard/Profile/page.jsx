@@ -374,25 +374,29 @@ export default function Profile() {
     });
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const maxSize = 2 * 1024 * 1024; // 2MB in bytes
-
-      if (file.size > maxSize) {
-        setNotificationMessage(
-          "حجم الصورة كبير جداً. يجب أن لا يتجاوز حجم الملف 2 ميجابايت"
-        );
-        setNotificationType("error");
+      
+      try {
+        // Import the compression utility
+        const { compressImage } = await import('@/app/lib/imageCompression');
+        
+        // Compress the image before processing
+        const compressedFile = await compressImage(file);
+        
+        // Create preview URL from the compressed file
+        const previewUrl = URL.createObjectURL(compressedFile);
+        setTempImageUrl(previewUrl);
+        setShowCropModal(true);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        setNotificationMessage('حدث خطأ أثناء معالجة الصورة');
+        setNotificationType('error');
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
-        e.target.value = "";
-        return;
       }
-
-      const previewUrl = URL.createObjectURL(file);
-      setTempImageUrl(previewUrl);
-      setShowCropModal(true);
     }
   };
 
