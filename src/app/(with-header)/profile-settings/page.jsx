@@ -6,6 +6,8 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import ForgotPasswordModal from "@/app/components/ForgotPasswordModal";
 import { useUserType } from "@/app/contexts/UserTypeContext";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FaCheckCircle } from "react-icons/fa";
+import { BiErrorCircle } from "react-icons/bi";
 
 export default function ProfileSettings() {
   const { logout, isAuthenticated } = useAuth();
@@ -147,9 +149,10 @@ export default function ProfileSettings() {
       if (fieldName === "name") {
         const nameValidation = validateName(editedValues[fieldName]);
         if (!nameValidation.isValid) {
-          setMessage({
+          setNotification({
+            show: true,
+            message: nameValidation.message,
             type: "error",
-            text: nameValidation.message,
           });
           return;
         }
@@ -174,9 +177,10 @@ export default function ProfileSettings() {
             name: editedValues[fieldName],
           }));
 
-          setMessage({
+          setNotification({
+            show: true,
+            message: response.data.message,
             type: "success",
-            text: response.data.message,
           });
 
           // Clear editing state
@@ -193,9 +197,10 @@ export default function ProfileSettings() {
       if (fieldName === "phone") {
         const phoneValidation = validatePhone(editedValues[fieldName]);
         if (!phoneValidation.isValid) {
-          setMessage({
+          setNotification({
+            show: true,
+            message: phoneValidation.message,
             type: "error",
-            text: phoneValidation.message,
           });
           return;
         }
@@ -204,9 +209,10 @@ export default function ProfileSettings() {
       if (fieldName === "email") {
         const emailValidation = validateEmail(editedValues[fieldName]);
         if (!emailValidation.isValid) {
-          setMessage({
+          setNotification({
+            show: true,
+            message: emailValidation.message,
             type: "error",
-            text: emailValidation.message,
           });
           return;
         }
@@ -222,13 +228,14 @@ export default function ProfileSettings() {
         );
 
         if (response.status === 200 || response.data.success) {
-          setMessage({
+          setNotification({
+            show: true,
+            message: "تم تحديث البريد الإلكتروني بنجاح",
             type: "success",
-            text: "تم تحديث البريد الإلكتروني بنجاح",
           });
 
           setTimeout(() => {
-            setMessage({ type: "", text: "" });
+            setNotification({ show: false, message: "", type: "" });
             logout();
           }, 2000);
         }
@@ -238,9 +245,10 @@ export default function ProfileSettings() {
         // Validate passwords match first
         if (editedValues.new_password !== editedValues.confirm_password) {
           setValidationError("كلمات المرور غير متطابقة");
-          setMessage({
+          setNotification({
+            show: true,
+            message: "كلمات المرور غير متطابقة",
             type: "error",
-            text: "كلمات المرور غير متطابقة",
           });
           return;
         }
@@ -249,9 +257,10 @@ export default function ProfileSettings() {
         const passwordValidation = validatePassword(editedValues.new_password);
         if (!passwordValidation.isValid) {
           setValidationError(passwordValidation.message);
-          setMessage({
+          setNotification({
+            show: true,
+            message: passwordValidation.message,
             type: "error",
-            text: passwordValidation.message,
           });
           return;
         }
@@ -270,13 +279,14 @@ export default function ProfileSettings() {
         );
 
         if (response.status === 200 || response.data.success) {
-          setMessage({
+          setNotification({
+            show: true,
+            message: "تم تحديث كلمة المرور بنجاح",
             type: "success",
-            text: "تم تحديث كلمة المرور بنجاح",
           });
 
           setTimeout(() => {
-            setMessage({ type: "", text: "" });
+            setNotification({ show: false, message: "", type: "" });
             logout();
           }, 2000);
         }
@@ -287,9 +297,10 @@ export default function ProfileSettings() {
       setValidationError("");
     } catch (error) {
       console.error("Error details:", error.response || error);
-      setMessage({
+      setNotification({
+        show: true,
+        message: error.response?.data?.message || "حدث خطأ أثناء التحديث",
         type: "error",
-        text: error.response?.data?.message || "حدث خطأ أثناء التحديث",
       });
     }
   };
@@ -355,21 +366,23 @@ export default function ProfileSettings() {
 
       if (response.data.message) {
         setNotificationStatus(tempNotificationStatus);
-        setMessage({
+        setNotification({
+          show: true,
+          message: "تم تحديث حالة الإشعارات بنجاح",
           type: "success",
-          text: "تم تحديث حالة الإشعارات بنجاح",
         });
 
         setTimeout(() => {
-          setMessage({ type: "", text: "" });
+          setNotification({ show: false, message: "", type: "" });
         }, 2000);
       }
       setEditingField(null);
     } catch (error) {
       console.error("Error updating notification status:", error);
-      setMessage({
+      setNotification({
+        show: true,
+        message: "حدث خطأ أثناء تحديث حالة الإشعارات",
         type: "error",
-        text: "حدث خطأ أثناء تحديث حالة الإشعارات",
       });
     }
   };
@@ -550,8 +563,8 @@ export default function ProfileSettings() {
                       fieldName === "name"
                         ? "الاسم كامل باللغة العربية"
                         : fieldName === "password"
-                        ? "كلمة المرور يجب انت تكون علي الاقل 9 خانات"
-                        : `ادخل ${label} الجديد`
+                          ? "كلمة المرور يجب انت تكون علي الاقل 9 خانات"
+                          : `ادخل ${label} الجديد`
                     }
                   />
                   <label
@@ -592,7 +605,11 @@ export default function ProfileSettings() {
     );
   };
 
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+    type: "",
+  });
 
   return (
     <div className="container mx-auto p-6 max-w-2xl my-14 min-h-screen">
@@ -602,15 +619,20 @@ export default function ProfileSettings() {
         </div>
       ) : (
         <div>
-          {message.text && (
+          {notification.show && (
             <div
-              className={`mb-4 p-4 rounded-md text-center ${
-                message.type === "success"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+              className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg flex flex-row-reverse items-center gap-2 ${
+                notification.type === "success"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
               }`}
             >
-              {message.text}
+              {notification.type === "success" ? (
+                <FaCheckCircle className="text-green-500 text-xl" />
+              ) : (
+                <BiErrorCircle className="text-red-500 text-xl" />
+              )}
+              <span className="font-medium">{notification.message}</span>
             </div>
           )}
 

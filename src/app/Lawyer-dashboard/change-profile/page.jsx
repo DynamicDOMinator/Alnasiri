@@ -232,7 +232,7 @@ export default function ChangeProfile() {
       >
         <form className="space-y-4 w-full " onSubmit={handleSubmit}>
           {/* Current Data Section */}
-          <div className="bg-gray-50 mt-20 p-4 rounded-lg mb-6">
+          <div className=" mt-20 p-4 rounded-lg mb-6">
             <div className="space-y-6">
               {/* First Name Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

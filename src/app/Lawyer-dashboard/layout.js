@@ -43,7 +43,7 @@ function AuthContent({ children }) {
 
   
   useEffect(() => {
-    console.log("Auth state:", { isAuthenticated, userType, isLoading });
+   
 
    
     if (isLoading) {
@@ -51,10 +51,7 @@ function AuthContent({ children }) {
     }
 
     if (!isAuthenticated || userType !== "lawyer") {
-      console.log(
-        "Redirecting:",
-        !isAuthenticated ? "Not authenticated" : "Not a lawyer"
-      );
+    
       router.push("/");
     }
   }, [isAuthenticated, userType, isLoading, router]);

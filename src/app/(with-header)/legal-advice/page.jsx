@@ -78,7 +78,6 @@ async function getQuestions(specialty = null, page = 1, searchQuery = null) {
   }
 }
 
-
 function QuestionCard({ uuid, title, date, answersCount }) {
   const formatDate = (dateString) => {
     try {
@@ -106,7 +105,6 @@ function QuestionCard({ uuid, title, date, answersCount }) {
             <div className="text-sm text-gray-500 order-2 md:order-1">
               <p className="font-medium">Q&A</p>
               <p className="mt-1">{formatDate(date)}</p>
-             
             </div>
             <h3 className="text-base md:text-lg whitespace-pre-wrap w-full break-words font-medium text-right flex-1 md:mr-4 order-1 md:order-2">
               {title}
@@ -134,14 +132,28 @@ export default async function LegalAdvicePage({ searchParams }) {
 
   return (
     <div className="mt-4 md:mt-8 py-4 md:py-8">
-      <div className="relative h-[300px] bg-[url('/images/law-bg.png')] bg-cover bg-center mb-4 md:mb-8">
-        <div className="absolute max-w-7xl mx-auto inset-0 flex flex-col items-center md:items-end  justify-center text-white bg-black/30 text-center">
-          <h1 className="text-2xl md:text-3xl  mt-8 md:mt-0 font-bold pb-4 md:mb-4">
-          <Link href={"/legal-advice"}>  النصائح القانونية - {specialty || "جميع الاسئلة"} </Link>
-          </h1>
-         
-          <div className="w-full max-w-[90%] md:max-w-2xl">
-            <SearchBar placeholder="ابحث في الأسئلة" />
+      {/* Full width background section */}
+      <div className="w-full relative h-[300px]">
+        {/* Background image with overlay */}
+        <div
+          className="absolute inset-0 w-full bg-[url('/images/law-bg.png')] bg-cover bg-center"
+          style={{ height: "300px" }}
+        >
+          <div className="absolute inset-0 w-full h-full bg-black/30">
+            {/* Centered content with max width */}
+            <div className="max-w-7xl mx-auto h-full px-4">
+              <div className="h-full flex flex-col items-center md:items-end justify-center text-white">
+                <h1 className="text-2xl md:text-3xl mt-8 md:mt-0 font-bold pb-4 md:mb-4">
+                  <Link href={"/legal-advice"}>
+                    النصائح القانونية - {specialty || "جميع الاسئلة"}
+                  </Link>
+                </h1>
+
+                <div className="w-full max-w-[90%] md:max-w-2xl">
+                  <SearchBar placeholder="ابحث في الأسئلة" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -52,7 +52,7 @@ function LawyersRegister() {
   const [state, setState] = useState({
     formData: initialFormData,
     errors: {},
-    activeStep: isAuthenticated ? 1 : 0, 
+    activeStep: isAuthenticated ? 1 : 0,
     isLoading: false,
     submitError: "",
     specialtySelections: [
@@ -203,7 +203,8 @@ function LawyersRegister() {
     // Phone number validation function
     const validatePhoneNumber = (phone, fieldName) => {
       if (!phone) {
-        newErrors[fieldName] = `${fieldName === 'personalId' ? 'رقم الجوال' : 'الرقم'} مطلوب`;
+        newErrors[fieldName] =
+          `${fieldName === "personalId" ? "رقم الجوال" : "الرقم"} مطلوب`;
         return false;
       }
       if (!/^5\d{8}$/.test(phone)) {
@@ -260,7 +261,7 @@ function LawyersRegister() {
       }
 
       // Add phone validation for personalId
-      if (!validatePhoneNumber(state.formData.personalId, 'personalId')) {
+      if (!validatePhoneNumber(state.formData.personalId, "personalId")) {
         isValid = false;
       }
     } else if (step === 1) {
@@ -268,7 +269,6 @@ function LawyersRegister() {
       if (!state.specialtySelections[0]?.value) {
         newErrors.specializations = "يجب اختيار التخصص الرئيسي";
         isValid = false;
-      
       }
 
       // Optional validation for phone and whatsapp if provided
@@ -277,7 +277,10 @@ function LawyersRegister() {
         isValid = false;
       }
 
-      if (state.formData.whatsapp && !/^5\d{8}$/.test(state.formData.whatsapp)) {
+      if (
+        state.formData.whatsapp &&
+        !/^5\d{8}$/.test(state.formData.whatsapp)
+      ) {
         newErrors.whatsapp = "يجب أن يبدأ الرقم بـ 5 ويتكون من 9 أرقام";
         isValid = false;
       }
@@ -296,18 +299,17 @@ function LawyersRegister() {
 
           const fullName =
             `${state.formData.firstName} ${state.formData.middleName} ${state.formData.lastName}`.trim();
-          
+
           // Remove the "+" formatting for phone number
           let formattedPhone = state.formData.personalId;
-          // Remove any "+" if it exists in the phone number
-          formattedPhone = formattedPhone.replace('+', '');
+          formattedPhone = formattedPhone.replace("+", "");
 
           const registerData = {
             name: fullName,
             email: state.formData.email,
             city: state.formData.city,
             password: state.formData.password,
-            phone: formattedPhone, // Use the cleaned phone number
+            phone: formattedPhone,
             experience: calculateExperienceYears(state.formData.licenseNumber),
             license_number: state.formData.licenseNumber,
           };
@@ -349,14 +351,39 @@ function LawyersRegister() {
           console.error("Registration error:", error);
           let errorMessage = "حدث خطأ أثناء التسجيل";
 
-          if (error.response?.data?.message) {
-            // Translate common error messages to Arabic
+          // Handle phone number already exists error
+          if (error.response?.data?.message === "رقم الهاتف مستخدم بالفعل") {
+            try {
+              const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+              // Send request to get email hint
+              const hintResponse = await axios.get(
+                `${API_BASE_URL}/user/hint-email?phone=${state.formData.personalId}`,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                }
+              );
+
+              if (hintResponse.data?.email) {
+                errorMessage = `${hintResponse.data.email }رقم الهاتف مستخدم بالفعل مع البريد الإلكتروني `;
+              } else {
+                errorMessage = "رقم الهاتف مستخدم بالفعل";
+              }
+            } catch (hintError) {
+              console.error("Error fetching email hint:", hintError);
+              errorMessage = "رقم الهاتف مستخدم بالفعل";
+            }
+          } else if (error.response?.data?.message) {
+            // Translate other common error messages to Arabic
             const errorTranslations = {
-              "Phone number already exists": "رقم الهاتف مسجل مسبقاً",
               "Email already exists": "البريد الإلكتروني مسجل مسبقاً",
-              "License number already exists": "رقم الترخيص مسجل مسبقاً"
+              "License number already exists": "رقم الترخيص مسجل مسبقاً",
             };
-            errorMessage = errorTranslations[error.response.data.message] || error.response.data.message;
+            errorMessage =
+              errorTranslations[error.response.data.message] ||
+              error.response.data.message;
           }
 
           setState((prev) => ({
@@ -397,8 +424,8 @@ function LawyersRegister() {
           profile_image: "",
           google_map: "",
           law_office: state.formData.officeName,
-          call_number: state.formData.phone?.replace('+', ''),
-          whatsapp_number: state.formData.whatsapp?.replace('+', ''),
+          call_number: state.formData.phone?.replace("+", ""),
+          whatsapp_number: state.formData.whatsapp?.replace("+", ""),
           specialties: specialtiesArray,
           speaking_english: state.formData.speaksEnglish,
         };
@@ -418,10 +445,9 @@ function LawyersRegister() {
         );
 
         setState((prev) => ({ ...prev, isLoading: false }));
-        
+
         if (response.data) {
           router.push("/Lawyer-dashboard");
-      
         }
       } catch (error) {
         toast.error(
@@ -468,7 +494,7 @@ function LawyersRegister() {
     const [timer, setTimer] = useState(120);
     const [canResend, setCanResend] = useState(false);
     const [otp, setOtp] = useState(["", "", "", ""]);
-    
+
     // Remove intervalId from state and useCallback dependencies
     useEffect(() => {
       const intervalId = setInterval(() => {
@@ -489,7 +515,7 @@ function LawyersRegister() {
     const handleOtpChange = (index, value) => {
       // Handle pasting multiple numbers
       if (value.length > 1) {
-        const numbers = value.replace(/\D/g, '').split('').slice(0, 4);
+        const numbers = value.replace(/\D/g, "").split("").slice(0, 4);
         const newOtp = [...otp];
         numbers.forEach((num, idx) => {
           if (idx < 4) {
@@ -498,11 +524,11 @@ function LawyersRegister() {
         });
         setOtp(newOtp);
         // Focus the next empty input or the last input
-        const nextEmptyIndex = newOtp.findIndex(val => !val);
+        const nextEmptyIndex = newOtp.findIndex((val) => !val);
         if (nextEmptyIndex !== -1 && nextEmptyIndex < 4) {
           document.getElementById(`otp-${nextEmptyIndex}`)?.focus();
         } else {
-          document.getElementById('otp-3')?.focus();
+          document.getElementById("otp-3")?.focus();
         }
         return;
       }
@@ -522,8 +548,8 @@ function LawyersRegister() {
 
     const handlePaste = (e) => {
       e.preventDefault();
-      const pastedData = e.clipboardData.getData('text');
-      const numbers = pastedData.replace(/\D/g, '').slice(0, 4);
+      const pastedData = e.clipboardData.getData("text");
+      const numbers = pastedData.replace(/\D/g, "").slice(0, 4);
       if (numbers) {
         handleOtpChange(0, numbers);
       }
@@ -558,15 +584,19 @@ function LawyersRegister() {
           toast.success("تم إعادة إرسال رمز التحقق بنجاح");
         }
       } catch (error) {
-        setLocalError(error.response?.data?.message || "حدث خطأ في إعادة إرسال الرمز");
-        toast.error(error.response?.data?.message || "حدث خطأ في إعادة إرسال الرمز");
+        setLocalError(
+          error.response?.data?.message || "حدث خطأ في إعادة إرسال الرمز"
+        );
+        toast.error(
+          error.response?.data?.message || "حدث خطأ في إعادة إرسال الرمز"
+        );
       }
     };
 
     const formatTime = (seconds) => {
       const minutes = Math.floor(seconds / 60);
       const remainingSeconds = seconds % 60;
-      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+      return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     };
 
     return (
@@ -633,8 +663,6 @@ function LawyersRegister() {
       </div>
     );
   };
-
- 
 
   // Update calculateExperienceYears to return a number
   const calculateExperienceYears = (license) => {
@@ -757,16 +785,6 @@ function LawyersRegister() {
               {/* First Row */}
               {/* First Name - Right */}
 
-
-
-
-
-
-
-
-
-
-              
               <div className="order-1 relative ">
                 <label className="absolute right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
                   الاسم الأول <span className="text-red-500">*مطلوب</span>
@@ -831,16 +849,6 @@ function LawyersRegister() {
                   </p>
                 )}
               </div>
-
-
-
-
-
-
-
-
-
-              
 
               {/* Email - Moved to be after First, Middle, and Last Name */}
               <div className="relative">
@@ -908,15 +916,13 @@ function LawyersRegister() {
                   pattern="[0-9]*"
                   className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4
                     ${state.errors.licenseNumber ? "border-red-500" : "border-gray-300"}`}
-                  />
+                />
                 {state.errors.licenseNumber && (
                   <p className="text-red-500 text-sm mt-1 text-right">
                     {state.errors.licenseNumber}
                   </p>
                 )}
               </div>
-
-           
 
               {/* Password */}
               <div className="relative">
@@ -962,47 +968,48 @@ function LawyersRegister() {
                 )}
               </div>
             </div>
-               {/* Personal ID/Phone Number */}
-               <div className="order-6 relative">
-                <label className="absolute z-10 right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
-                  رقم شخصي <span className="text-red-500">*مطلوب</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none">
-                    +966
-                  </span>
-                  <input
-                    type="text"
-                    name="personalId"
-                    value={state.formData.personalId}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value === '' || (
-                        /^\d{0,9}$/.test(value) && 
-                        (value === '' || value.startsWith('5'))
-                      )) {
-                        handleInputChange({
-                          target: {
-                            name: 'personalId',
-                            value: value
-                          }
-                        });
-                      }
-                    }}
-                    required
-                    dir="rtl"
-                    className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4 pl-16
+            {/* Personal ID/Phone Number */}
+            <div className="order-6 relative">
+              <label className="absolute z-10 right-3 -top-2.5 bg-white px-1 text-sm text-gray-600">
+                رقم شخصي <span className="text-red-500">*مطلوب</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none">
+                  +966
+                </span>
+                <input
+                  type="text"
+                  name="personalId"
+                  value={state.formData.personalId}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (
+                      value === "" ||
+                      (/^\d{0,9}$/.test(value) &&
+                        (value === "" || value.startsWith("5")))
+                    ) {
+                      handleInputChange({
+                        target: {
+                          name: "personalId",
+                          value: value,
+                        },
+                      });
+                    }
+                  }}
+                  required
+                  dir="rtl"
+                  className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 pt-4 pl-16
                       ${state.errors.personalId ? "border-red-500" : "border-gray-300"}`}
-                    placeholder="5XXXXXXXX"
-                    maxLength={9}
-                  />
-                </div>
-                {state.errors.personalId && (
-                  <p className="text-red-500 text-sm mt-1 text-right">
-                    {state.errors.personalId}
-                  </p>
-                )}
+                  placeholder="5XXXXXXXX"
+                  maxLength={9}
+                />
               </div>
+              {state.errors.personalId && (
+                <p className="text-red-500 text-sm mt-1 text-right">
+                  {state.errors.personalId}
+                </p>
+              )}
+            </div>
 
             <div className="flex items-center justify-end gap-2 mt-6">
               <label className="text-right">
@@ -1060,15 +1067,16 @@ function LawyersRegister() {
                     value={state.formData.phone}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '' || (
-                        /^\d{0,9}$/.test(value) && 
-                        (value === '' || value.startsWith('5'))
-                      )) {
+                      if (
+                        value === "" ||
+                        (/^\d{0,9}$/.test(value) &&
+                          (value === "" || value.startsWith("5")))
+                      ) {
                         handleInputChange({
                           target: {
-                            name: 'phone',
-                            value: value
-                          }
+                            name: "phone",
+                            value: value,
+                          },
                         });
                       }
                     }}
@@ -1101,15 +1109,16 @@ function LawyersRegister() {
                     value={state.formData.whatsapp}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '' || (
-                        /^\d{0,9}$/.test(value) && 
-                        (value === '' || value.startsWith('5'))
-                      )) {
+                      if (
+                        value === "" ||
+                        (/^\d{0,9}$/.test(value) &&
+                          (value === "" || value.startsWith("5")))
+                      ) {
                         handleInputChange({
                           target: {
-                            name: 'whatsapp',
-                            value: value
-                          }
+                            name: "whatsapp",
+                            value: value,
+                          },
                         });
                       }
                     }}
@@ -1127,8 +1136,6 @@ function LawyersRegister() {
                 )}
               </div>
             </div>
-
-            
 
             {/* Specializations Section */}
             <div dir="rtl" className="space-y-4">
@@ -1161,7 +1168,7 @@ function LawyersRegister() {
                       .map((digit) => arabicNumerals[digit])
                       .join("");
                   };
-             return (
+                  return (
                     <div
                       key={`specialty-${selection.id}`}
                       className="flex flex-col gap-2"
@@ -1169,9 +1176,11 @@ function LawyersRegister() {
                     >
                       <p className="text-gray-600 text-right">
                         أولوية {toArabicNumerals(index)}
-                        {index === 0 && <span className="text-red-500 mr-1">*مطلوب</span>}
+                        {index === 0 && (
+                          <span className="text-red-500 mr-1">*مطلوب</span>
+                        )}
                       </p>
-                      
+
                       <select
                         key={`select-${selection.id}`}
                         value={selection.value}
@@ -1200,19 +1209,17 @@ function LawyersRegister() {
                           </option>
                         ))}
                       </select>
-                      
                     </div>
                   );
                 })}
-                
               </div>
-{/* Specializations error message */}
-{state.errors.specializations && (
-  <p className="text-red-500 text-sm mt-1 text-right">
-    {state.errors.specializations}
-  </p>
-)}
-     
+              {/* Specializations error message */}
+              {state.errors.specializations && (
+                <p className="text-red-500 text-sm mt-1 text-right">
+                  {state.errors.specializations}
+                </p>
+              )}
+
               <button
                 type="button"
                 onClick={addSpecialtySelection}
@@ -1324,8 +1331,6 @@ function LawyersRegister() {
 
       {/* Navigation buttons */}
       <div className="mt-8 flex justify-between">
-       
-       
         <button
           onClick={handleNext}
           disabled={state.isLoading}

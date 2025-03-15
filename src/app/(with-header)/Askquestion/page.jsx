@@ -27,6 +27,7 @@ export default function ClientForm() {
   const [citySearch, setCitySearch] = useState("");
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [specialties, setSpecialties] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -119,6 +120,7 @@ export default function ClientForm() {
       return;
     }
 
+    setIsLoading(true);
     try {
       let token = null;
 
@@ -182,6 +184,8 @@ export default function ClientForm() {
           error.response.data.error ||
           "حدث خطأ أثناء إرسال البيانات. الرجاء المحاولة مرة أخرى.",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -463,7 +467,9 @@ export default function ClientForm() {
               {/* Communication Method - Now conditional on hireTime having a value */}
               {hireTime && (
                 <div className="pt-5">
-                  <label className="block font-bold mb-1">طريقة التواصل</label>
+                  <label className="block font-bold mb-1">
+                    طريقة التواصل<span className="text-red-600">*</span>
+                  </label>
                   <div className="space-x-4 flex flex-col gap-2">
                     <label className="inline-flex items-center">
                       <input
@@ -496,6 +502,11 @@ export default function ClientForm() {
                       <span>لا افضل التواصل</span>
                     </label>
                   </div>
+                  {errors.contactMethod && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.contactMethod}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -510,9 +521,36 @@ export default function ClientForm() {
           {/* Submit */}
           <button
             type="submit"
-            className="bg-blue-500  hover:bg-blue-600 w-full md:w-auto text-white py-2 px-16 rounded"
+            disabled={isLoading}
+            className="bg-blue-500 hover:bg-blue-600 w-full md:w-auto text-white py-2 px-16 rounded flex items-center justify-center gap-2"
           >
-            إرسال
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <span dir="rtl">جاري الإرسال...</span>
+              </>
+            ) : (
+              "إرسال"
+            )}
           </button>
         </form>
         {errors.submit && (

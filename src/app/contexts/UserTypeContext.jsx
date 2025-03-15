@@ -30,7 +30,7 @@ export function UserTypeProvider({ children }) {
         },
       });
 
-      console.log('User type response:', response.data);
+      
 
       if (response.data && response.data.user_type) {
         setUserType(response.data.user_type);
