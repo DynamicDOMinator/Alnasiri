@@ -196,7 +196,7 @@ export default function QuestionSuccess() {
             </p>
             <p className="text-gray-500 text-sm">|</p>
             <p className="text-sm">
-              {questionDetails?.case_specialization || "No Specialization"}
+            {questionDetails?.case_specialization === "false" ? "لا أعلم" : questionDetails?.case_specialization}
             </p>
             {questionDetails?.created_at && (
               <>

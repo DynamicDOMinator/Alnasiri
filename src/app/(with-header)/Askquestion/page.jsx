@@ -375,6 +375,7 @@ export default function ClientForm() {
                   {speciality}
                 </option>
               ))}
+              <option value={false}>لا أعلم</option>
             </select>
             <Link href="/legal-specializations">
               <p className="text-blue-500 hover:underline pt-5 text-right">
