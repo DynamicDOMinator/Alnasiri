@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { FaUserCircle } from "react-icons/fa";
 import parse from "html-react-parser";
-
+import Link from "next/link";
 // Helper function to ensure proper image URL formatting
 function getImageUrl(url) {
   if (!url) return "/images/default-avatar.png";
@@ -12,8 +12,8 @@ function getImageUrl(url) {
 
 // Helper function to strip HTML tags
 function stripHtml(html) {
-  if (!html) return '';
-  return html.replace(/<[^>]*>/g, '');
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, "");
 }
 
 async function getBlogData(url) {
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }) {
       authors: [blog.author_name],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: cleanTitle,
       description: cleanDescription,
     },
@@ -83,10 +83,20 @@ export default async function BlogPost({ params }) {
 
   if (!blog || blog.status === "0") {
     return (
-      <div className="pt-24 pb-16 max-w-4xl mx-auto px-4" dir="rtl">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <p className="text-2xl font-bold mb-4">عذراً</p>
-          <p>لم يتم العثور على المقال المطلوب</p>
+      <div
+        className="flex items-center justify-center min-h-screen bg-gray-50 px-4"
+        dir="rtl"
+      >
+        <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full text-center border-t-4 border-blue-600">
+          <h1 className="text-6xl font-bold text-blue-600 mb-2">404</h1>
+          <p className="text-2xl font-bold mb-3">عذراً</p>
+          <p className="text-gray-600 mb-6">لم يتم العثور على  المطلوب</p>
+          <Link
+            href="/"
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+          >
+            العودة للصفحة الرئيسية
+          </Link>
         </div>
       </div>
     );

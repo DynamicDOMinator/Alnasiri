@@ -9,6 +9,7 @@ import { FaUser, FaPhone, FaSearch } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import Search from "@/app/components/Search component/Search";
 import { SiAnswer } from "react-icons/si";
+import { GoBookmark } from "react-icons/go";
 
 export default function QuestionDetails() {
   const params = useParams();
@@ -253,9 +254,9 @@ export default function QuestionDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen ">
       {/* Header */}
-      <div className="bg-blue-900 text-white py-4 mt-16">
+      <div className="bg-[#00447B] text-white py-4 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
           <div className="flex flex-col">
             <div className="flex flex-wrap items-center gap-2 mb-2 text-sm sm:text-base">
@@ -265,8 +266,10 @@ export default function QuestionDetails() {
                 {questions[0].question_title}
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold">أسئلة وأجوبة</h1>
-            <p className="text-xs sm:text-sm mt-1">
+            <h1 className="text-xl sm:text-[32px] font-bold lg:pt-8">
+              أسئلة وأجوبة
+            </h1>
+            <p className="text-xs sm:text-[18px] pt-4 pb-5">
               احصل على إجابة مجانية من خلال المحامين
             </p>
           </div>
@@ -303,34 +306,20 @@ export default function QuestionDetails() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div dir="rtl">
           {/* Questions Section */}
-          <div className="w-full">
-            <div className="bg-white rounded-lg shadow-md mb-4 sm:mb-6">
-              <div className="p-4 sm:p-6">
-                <div className="mb-4 relative border-2 rounded-lg">
-                  <p className="text-xs sm:text-sm mb-1 absolute -top-4 right-3 bg-green-100 p-1 rounded-lg text-green-700">
+          <div className="w-full mt-10 lg:mt-5">
+            <div className=" mb-4 sm:mb-6">
+              <div>
+                <div className="mb-4 pb-5 px-2 relative border-2 rounded-lg">
+                  <p className=" mb-1 absolute -top-4 right-3 bg-green-100 py-2 px-4 font-semibold rounded-lg text-[#00B7AF] flex items-center gap-2">
+                    <GoBookmark />
                     السؤال
                   </p>
-                  <div className="flex items-start gap-4 pt-4 p-2">
-                    <div className="flex-shrink-0">
-                      {questions[0]?.user?.profile_image ? (
-                        <Image
-                          src={questions[0].user.profile_image}
-                          alt="User"
-                          width={50}
-                          height={50}
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <div className="w-[50px] h-[50px] bg-gray-100 rounded-full flex items-center justify-center">
-                          <FaUser className="text-gray-400 text-xl" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-grow">
-                      <h2 className="text-lg sm:text-xl font-bold text-gray-700">
+                  <div className="flex items-start gap-4 pt-10 p-2 max-w-full">
+                    <div className="relative w-full max-w-full overflow-hidden">
+                      <h2 className="text-lg sm:text-[24px] font-bold text-gray-700 break-words hyphens-auto overflow-wrap-anywhere w-full max-w-full">
                         {questions[0].question_title}
                       </h2>
-                      <p className="text-sm sm:text-base whitespace-pre-wrap text-gray-700 mt-2">
+                      <p className="text-sm sm:text-[18px] whitespace-normal break-words hyphens-auto overflow-wrap-anywhere text-gray-700 mt-2 w-full max-w-full">
                         {questions[0].question_content}
                       </p>
                     </div>
@@ -356,6 +345,23 @@ export default function QuestionDetails() {
               </div>
             </div>
 
+            <div className="flex lg:flex-row flex-col items-center justify-between py-5 my-14 bg-[#f9f9f9] rounded-lg px-10">
+              <div>
+                <h3 className="text-lg lg:text-[24px] font-bold  mb-4 text-[#00447B]">
+                  اسأل محامي مجانا
+                </h3>
+                <p className="text-[#4D4D4D] text-sm mb-4 text-right">
+                  المحامون المرخصون متاحون وجاهزون لتقديم المشورة بشأن مجموعة
+                  واسعه من المسائل القانونية
+                </p>
+              </div>
+              <div>
+                <button className="bg-[#0077c8] text-white px-4 sm:px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-500 text-sm sm:text-[18px]">
+                  اسأل محامي مجانا !
+                </button>
+              </div>
+            </div>
+
             {/* Answers Section */}
             <div className="mt-6">
               <h3 className="text-lg font-semibold mb-4 text-gray-800">
@@ -363,48 +369,61 @@ export default function QuestionDetails() {
               </h3>
 
               {questions[0]?.answers?.length > 0 ? (
-                <div className="bg-white rounded-lg shadow-md">
-                  <div className="p-4 sm:p-6">
+                <div className=" my-10">
+                  <div className="">
                     {questions[0].answers.map((answer) => (
                       <div
                         key={answer.uuid}
-                        className="border-2 relative rounded-lg p-4 mb-4"
+                        className=" relative border-[1px] border-[#03afda] rounded-lg mt-10 p-4 mb-4 bg-[rgba(234,248,252,.2)]"
                       >
-                        <p className="text-xs sm:text-sm mb-1 absolute -top-4 right-3 bg-gray-200 py-1 px-3 rounded-lg text-blue-700">
+                        <p className=" font-semibold mb-1 absolute -top-4 right-3 bg-[#e6f7fb] py-2 px-3 rounded-lg text-[#03afda]">
                           إجابة
                         </p>
-                        <div className="flex flex-col pt-2 sm:flex-row justify-between items-start gap-4 mb-4">
-                          <div className="flex items-center gap-4">
+                        <div className="flex flex-col pt-8 sm:flex-row justify-between items-start gap-4 mb-4">
+                          <div className="flex items-start gap-4">
                             {answer.lawyer_profile_image &&
                             !imageErrors.has(answer.lawyer_profile_image) ? (
-                              <Image
-                                src={answer.lawyer_profile_image}
-                                alt={answer.lawyer?.name || "Lawyer"}
-                                width={112}
-                                height={150}
-                                className="w-[112px] h-[150px] outline outline-2 outline-gray-300 object-cover"
-                                onError={() => {
-                                  setImageErrors(
-                                    (prev) =>
-                                      new Set([
-                                        ...prev,
-                                        answer.lawyer_profile_image,
-                                      ])
-                                  );
-                                }}
-                              />
+                              <Link
+                                href={`/lawyer-profile/${answer.lawyer?.uuid}`}
+                              >
+                                <Image
+                                  src={answer.lawyer_profile_image}
+                                  alt={answer.lawyer?.name || "Lawyer"}
+                                  width={70}
+                                  height={80}
+                                  className="w-[70px] h-[80px] outline outline-2 outline-gray-300 object-cover"
+                                  onError={() => {
+                                    setImageErrors(
+                                      (prev) =>
+                                        new Set([
+                                          ...prev,
+                                          answer.lawyer_profile_image,
+                                        ])
+                                    );
+                                  }}
+                                />
+                              </Link>
                             ) : (
-                              <div className="w-[112px] h-[150px] bg-gray-100 flex items-center justify-center outline outline-2 outline-gray-300">
-                                <FaUser className="text-gray-400 text-4xl" />
-                              </div>
+                              <Link
+                                href={`/lawyer-profile/${answer.lawyer?.uuid}`}
+                              >
+                                <div className="w-[70px] h-[80px] bg-gray-100 flex items-center justify-center outline outline-2 outline-gray-300">
+                                  <FaUser className="text-gray-400 text-4xl" />
+                                </div>
+                              </Link>
                             )}
                             <div>
-                              <h3 className="font-semibold text-sm sm:text-base">
-                                {answer.lawyer?.name || "محامي"}
+                              <h3 className="font-bold text-sm sm:text-base">
+                                <Link
+                                  href={`/lawyer-profile/${answer.lawyer?.uuid}`}
+                                >
+                                  {" "}
+                                  {answer.lawyer?.name || "محامي"}
+                                </Link>
                               </h3>
                               <div className="flex items-center text-gray-500 text-xs sm:text-sm">
                                 <FaLocationDot className="ml-1" />
-                                <span>{answer.lawyer.city}</span>
+                                <span>{answer.lawyer.city} </span>
                               </div>
                               <div className="text-xs sm:text-sm text-gray-500">
                                 مصرح له {answer.lawyer.experience} منذ سنوات
@@ -439,7 +458,7 @@ export default function QuestionDetails() {
                             </button>
                           </div>
                         </div>
-                        <p className="text-gray-700 whitespace-pre-wrap mb-4 text-sm sm:text-base">
+                        <p className="text-[#333333] whitespace-pre-wrap mb-4 text-sm sm:text-[18px]">
                           {answer.answer}
                         </p>
                       </div>
@@ -534,7 +553,7 @@ export default function QuestionDetails() {
               </div>
             )}
           </div>
-          <div className="relative bg-white p-4 sm:p-6 mt-6 rounded-lg shadow-lg">
+          <div className="relative bg-white p-4 sm:p-6 mt-6 rounded-lg shadow-lg mb-10">
             <div className="w-[90%] mx-auto my-6 sm:my-10 h-2 sm:h-3 rounded-lg bg-blue-900"></div>
 
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-4">
