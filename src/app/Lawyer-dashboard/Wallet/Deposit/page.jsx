@@ -319,7 +319,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   return (
     <div
       dir="rtl"
-      className=" lg:max-w-3xl mx-auto bg-white py-8 px-4 sm:px-6 lg:px-8"
+      className=" lg:max-w-3xl mx-auto bg-white lg:py-8 px-4 sm:px-6 lg:px-8"
     >
       {error && (
         <div
