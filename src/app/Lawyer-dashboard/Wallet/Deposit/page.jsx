@@ -364,7 +364,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
         <p>كمية</p>
       </div>
 
-      <div className="pt-5 flex flex-col gap-4">
+      <div className="pt-5 flex mb-20 lg:mb-0 flex-col gap-4">
         <div 
           className={`flex items-center gap-2 border-2 p-3 rounded-md cursor-pointer hover:bg-gray-50 ${
             selectedAmount === 30 ? 'border-green-600' : ''

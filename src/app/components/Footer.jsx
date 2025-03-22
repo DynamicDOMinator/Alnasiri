@@ -12,80 +12,87 @@ import {
 
 function Footer() {
   return (
-    <footer className="bg-[#16498C] md:py-12 lg:py-16 py-10 lg:mt-0">
-      <div dir="rtl" className="container mx-auto px-4 flex flex-col">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-8 lg:w-10/12 w-full mx-auto justify-between">
+    <footer className="bg-[#16498C] lg:mt-0 lg:py-16 md:py-12 py-10">
+      <div dir="rtl" className="container flex flex-col mx-auto px-4">
+        <div className="grid grid-cols-2 justify-between w-full gap-6 lg:gap-8 lg:grid-cols-4 lg:w-10/12 md:gap-8 md:grid-cols-2 mx-auto">
           {/* About Section */}
           <div className="col-span-1 mb-8 md:mb-8">
-            <h5 className="font-semibold text-base md:text-lg lg:text-xl text-white border-b-2 w-fit border-white pb-2">
+            <h5 className="border-b-2 border-white text-base text-white w-fit font-semibold lg:text-xl md:text-lg pb-2">
               عن النصيري
             </h5>
-            <ul className="pt-4 text-white space-y-2 text-sm md:text-base lg:text-base">
-              <li className="hover:text-gray-300 cursor-pointer">فريقنا</li>
-              <li className="hover:text-gray-300 cursor-pointer">
+            <ul className="text-sm text-white lg:text-base md:text-base pt-4 space-y-2">
+              <li className="cursor-pointer hover:text-gray-300">فريقنا</li>
+              <li className="cursor-pointer hover:text-gray-300">
                 إمكانية الوصول{" "}
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">اتصل بنا</li>
+              <li className="cursor-pointer hover:text-gray-300">
+                <a
+                  href="mailto:support@bisharh.com"
+                  className="hover:text-gray-300"
+                >
+                  اتصل بنا
+                </a>
+              </li>
             </ul>
           </div>
 
           {/* Find Lawyer Section */}
           <div className="col-span-1 mb-8 md:mb-8">
-            <h5 className="font-semibold text-base md:text-lg lg:text-xl text-white border-b-2 w-fit border-white pb-2 flex items-center gap-1">
+            <h5 className="flex border-b-2 border-white text-base text-white w-fit font-semibold gap-1 items-center lg:text-xl md:text-lg pb-2">
               ابحث عن محامي
-              <ChevronDownIcon className="size-3 text-white rotate-90" />
+              <ChevronDownIcon className="text-white rotate-90 size-3" />
             </h5>
-            <ul className="pt-4 text-white space-y-2 text-sm md:text-base lg:text-base">
-              <li className="hover:text-gray-300 cursor-pointer">حسب الموقع</li>
-              <li className="hover:text-gray-300 cursor-pointer">
+            <ul className="text-sm text-white lg:text-base md:text-base pt-4 space-y-2">
+              <li className="cursor-pointer hover:text-gray-300">حسب الموقع</li>
+              <li className="cursor-pointer hover:text-gray-300">
                 حسب القضية القانونية{" "}
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">
+              <li className="cursor-pointer hover:text-gray-300">
                 حسب ملفات المحامين{" "}
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">حسب الاسم</li>
+              <li className="cursor-pointer hover:text-gray-300">حسب الاسم</li>
             </ul>
           </div>
 
           {/* Popular Locations Section */}
           <div className="col-span-1 mb-8 md:mb-8">
-            <h5 className="font-semibold text-base md:text-lg lg:text-xl text-white border-b-2 w-fit border-white pb-2 flex items-center gap-1">
+            <h5 className="flex border-b-2 border-white text-base text-white w-fit font-semibold gap-1 items-center lg:text-xl md:text-lg pb-2">
               اشهر المواقع
-              <ChevronDownIcon className="size-3 text-white rotate-90" />
+              <ChevronDownIcon className="text-white rotate-90 size-3" />
             </h5>
-            <ul className="pt-4 text-white space-y-2 text-sm lg:text-base">
-              <li className="hover:text-gray-300 cursor-pointer">الرياض</li>
-              <li className="hover:text-gray-300 cursor-pointer">جدة</li>
-              <li className="hover:text-gray-300 cursor-pointer">
+            <ul className="text-sm text-white lg:text-base pt-4 space-y-2">
+              <li className="cursor-pointer hover:text-gray-300">الرياض</li>
+              <li className="cursor-pointer hover:text-gray-300">جدة</li>
+              <li className="cursor-pointer hover:text-gray-300">
                 مكة المكرمة
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">
+              <li className="cursor-pointer hover:text-gray-300">
                 المدينة المنورة
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">الدمام</li>
-              <li className="hover:text-gray-300 cursor-pointer">الخبر</li>
+              <li className="cursor-pointer hover:text-gray-300">الدمام</li>
+              <li className="cursor-pointer hover:text-gray-300">الخبر</li>
             </ul>
           </div>
 
           {/* Browse Site Section */}
           <div className="col-span-1">
-            <h5 className="font-semibold text-base md:text-lg lg:text-xl text-white border-b-2 w-fit border-white pb-2 flex items-center gap-1">
+            <h5 className="flex border-b-2 border-white text-base text-white w-fit font-semibold gap-1 items-center lg:text-xl md:text-lg pb-2">
               تصفح موقعنا
-              <ChevronDownIcon className="size-3 text-white rotate-90" />
+              <ChevronDownIcon className="text-white rotate-90 size-3" />
             </h5>
-            <ul className="pt-4 text-white space-y-2 text-sm lg:text-base">
-              <li className="hover:text-gray-300 cursor-pointer">
+            <ul className="text-sm text-white lg:text-base pt-4 space-y-2">
+              <li className="cursor-pointer hover:text-gray-300">
                 ابحث عن محام
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">
+              <li className="cursor-pointer hover:text-gray-300">
                 قم بمراجعة محاميك
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">
+              <li className="cursor-pointer hover:text-gray-300">
                 المشورة القانونية
               </li>
-              <li className="hover:text-gray-300 cursor-pointer">للمحامين</li>
+              <li className="cursor-pointer hover:text-gray-300">للمحامين</li>
 
-              <li className="hover:text-gray-300 cursor-pointer">
+              <li className="cursor-pointer hover:text-gray-300">
                 <Link href="/Blog">المدونة</Link>
               </li>
             </ul>
@@ -94,28 +101,27 @@ function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/20 mt-8 pt-6 lg:w-10/12 mx-auto w-full">
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-white text-sm">تابعنا علي</span>
+        <div className="border-t border-white/20 w-full lg:w-10/12 mt-8 mx-auto pt-6">
+          <div className="flex flex-col justify-center gap-4 items-center md:flex-row">
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-white">تابعنا علي</span>
               <div className="flex gap-3">
                 <a href="#" className="text-white hover:text-gray-300">
-                  <FaFacebookF className="w-5 h-5" />
+                  <FaFacebookF className="h-5 w-5" />
                 </a>
                 <a href="#" className="text-white hover:text-gray-300">
-                  <FaTwitter className="w-5 h-5" />
+                  <FaTwitter className="h-5 w-5" />
                 </a>
                 <a href="#" className="text-white hover:text-gray-300">
-                  <FaInstagram className="w-5 h-5" />
+                  <FaInstagram className="h-5 w-5" />
                 </a>
                 <a href="#" className="text-white hover:text-gray-300">
-                  <FaLinkedinIn className="w-5 h-5" />
+                  <FaLinkedinIn className="h-5 w-5" />
                 </a>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-white text-sm">
-             
+            <div className="flex text-sm text-white gap-4 items-center">
               <span className="text-white/40">|</span>
               <Link href="/privacy" className="hover:text-gray-300">
                 سياسة الخصوصية
@@ -125,21 +131,40 @@ function Footer() {
                 الشروط والاحكام
               </Link>
             </div>
-
-            
           </div>
-          <div className="flex items-center gap-4 mt-10 justify-center text-white text-sm">
-             
-              
-             <Image className="rounded-lg" src="/images/visa.png" alt="logo" width={50} height={50} />
-              <span className="text-white/40">|</span>
-              <Image className="rounded-lg" src="/images/mastercard.png" alt="logo" width={50} height={50} />
-              <span className="text-white/40">|</span>
-              <Image className="rounded-lg" src="/images/applepay.png" alt="logo" width={50} height={50} />
-              <span className="text-white/40">|</span>
-              <Image className="rounded-lg" src="/images/mada.png" alt="logo" width={50} height={50} />
-            </div>
-            
+          <div className="flex justify-center text-sm text-white gap-4 items-center mt-10">
+            <Image
+              className="rounded-lg"
+              src="/images/visa.png"
+              alt="logo"
+              width={50}
+              height={50}
+            />
+            <span className="text-white/40">|</span>
+            <Image
+              className="rounded-lg"
+              src="/images/mastercard.png"
+              alt="logo"
+              width={50}
+              height={50}
+            />
+            <span className="text-white/40">|</span>
+            <Image
+              className="rounded-lg"
+              src="/images/applepay.png"
+              alt="logo"
+              width={50}
+              height={50}
+            />
+            <span className="text-white/40">|</span>
+            <Image
+              className="rounded-lg"
+              src="/images/mada.png"
+              alt="logo"
+              width={50}
+              height={50}
+            />
+          </div>
         </div>
       </div>
     </footer>
